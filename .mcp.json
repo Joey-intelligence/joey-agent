@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "joey": {
+      "type": "http",
+      "url": "https://pouch.getjoey.io/api/customer/mcp"
+    }
+  }
+}

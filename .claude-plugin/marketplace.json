@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "joey-agent",
+  "owner": {
+    "name": "Joey"
+  },
+  "plugins": [
+    {
+      "name": "joey-agent",
+      "source": "./",
+      "description": "Use Joey warm introduction paths from your own AI agent: read path reports, make introductions, follow up, and keep the introduction tracker true.",
+      "version": "1.0.0",
+      "category": "productivity"
+    }
+  ]
+}
