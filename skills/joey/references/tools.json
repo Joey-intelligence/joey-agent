@@ -1,0 +1,119 @@
+{
+  "server": "joey",
+  "source": "Written by hand from the approved Pouch plan on 2026-10-16. Replace this file with the snapshot that the Pouch customer MCP test writes.",
+  "tools": [
+    {
+      "name": "joey_whoami",
+      "scope": "workspace:read",
+      "access": "read",
+      "purpose": "Show the signed-in member, the workspace, the member role and the granted scopes."
+    },
+    {
+      "name": "joey_list_paths",
+      "scope": "workspace:read",
+      "access": "read",
+      "purpose": "List the workspace path requests that have delivered paths, with filters and a cursor."
+    },
+    {
+      "name": "joey_get_path_report",
+      "scope": "workspace:read",
+      "access": "read",
+      "purpose": "Read the full report of one path request: paths, hops, strength words, evidence and intro stage."
+    },
+    {
+      "name": "joey_get_intro_draft",
+      "scope": "workspace:read",
+      "access": "read",
+      "purpose": "Get the AI-written intro email draft for one path: to, subject, body and introducer."
+    },
+    {
+      "name": "joey_get_intro_tracker",
+      "scope": "workspace:read",
+      "access": "read",
+      "purpose": "Read the introduction tracker: the stage of each intro, its dates and the counters."
+    },
+    {
+      "name": "joey_list_path_preferences",
+      "scope": "workspace:read",
+      "access": "read",
+      "purpose": "List the saved path preferences of the member."
+    },
+    {
+      "name": "joey_get_icp",
+      "scope": "workspace:read",
+      "access": "read",
+      "purpose": "Read the ideal customer profile (ICP) of the workspace and its version."
+    },
+    {
+      "name": "joey_list_prospects",
+      "scope": "workspace:read",
+      "access": "read",
+      "purpose": "List the prospects of the workspace, saved targets included."
+    },
+    {
+      "name": "joey_request_path",
+      "scope": "intros:write",
+      "access": "write",
+      "purpose": "Ask Joey to find a path to a new target person."
+    },
+    {
+      "name": "joey_save_target",
+      "scope": "intros:write",
+      "access": "write",
+      "purpose": "Save the target of a path request as a high-priority prospect."
+    },
+    {
+      "name": "joey_find_better_path",
+      "scope": "intros:write",
+      "access": "write",
+      "purpose": "Ask Joey for a better path to the same target, with a preference."
+    },
+    {
+      "name": "joey_set_intro_stage",
+      "scope": "intros:write",
+      "access": "write",
+      "purpose": "Set the intro stage of a path request, with a short note."
+    },
+    {
+      "name": "joey_stop_intro",
+      "scope": "intros:write",
+      "access": "write",
+      "purpose": "Stop an intro that will not go on, with an optional reason."
+    },
+    {
+      "name": "joey_rate_familiarity",
+      "scope": "intros:write",
+      "access": "write",
+      "purpose": "Record how well the member knows a person on a path."
+    },
+    {
+      "name": "joey_delete_path_preference",
+      "scope": "intros:write",
+      "access": "write",
+      "purpose": "Delete one saved path preference of the member."
+    },
+    {
+      "name": "joey_update_icp",
+      "scope": "icp:write",
+      "access": "write",
+      "purpose": "Change the workspace ICP. Only for workspace admins."
+    }
+  ],
+  "prompts": [
+    {
+      "name": "joey_make_intro",
+      "arguments": ["requestId"],
+      "purpose": "Make the intro for one path request, for clients without skills."
+    },
+    {
+      "name": "joey_follow_up",
+      "arguments": [],
+      "purpose": "Find the intros that need a follow-up, for clients without skills."
+    },
+    {
+      "name": "joey_weekly_review",
+      "arguments": [],
+      "purpose": "Review the paths and intros of the week, for clients without skills."
+    }
+  ]
+}
