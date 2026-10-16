@@ -1,6 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "joey-agent",
+  "description": "Joey skills and the Joey customer MCP for the AI agent of a Joey customer.",
   "owner": {
     "name": "Joey"
   },
