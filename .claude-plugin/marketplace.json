@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "joey-agent",
+  "description": "Joey skills and the Joey customer MCP for the AI agent of a Joey customer.",
+  "owner": {
+    "name": "Joey"
+  },
+  "plugins": [
+    {
+      "name": "joey-agent",
+      "source": "./",
+      "description": "Use Joey warm introduction paths from your own AI agent: read path reports, make introductions, follow up, and keep the introduction tracker true.",
+      "version": "1.0.1",
+      "category": "productivity"
+    }
+  ]
+}

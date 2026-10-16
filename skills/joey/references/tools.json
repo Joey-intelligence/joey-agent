@@ -1,0 +1,247 @@
+{
+  "tools": [
+    {
+      "name": "joey_whoami",
+      "scope": "workspace:read",
+      "arguments": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_list_paths",
+      "scope": "workspace:read",
+      "arguments": [
+        "introStage",
+        "savedOnly",
+        "query",
+        "company",
+        "hops",
+        "limit",
+        "cursor"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_get_path_report",
+      "scope": "workspace:read",
+      "arguments": [
+        "requestId"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_request_path",
+      "scope": "intros:write",
+      "arguments": [
+        "linkedinUrl",
+        "idempotencyKey"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_find_better_path",
+      "scope": "intros:write",
+      "arguments": [
+        "requestId",
+        "preference",
+        "savePreference",
+        "idempotencyKey"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_rate_familiarity",
+      "scope": "intros:write",
+      "arguments": [
+        "requestId",
+        "pathKey",
+        "rating"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_get_intro_draft",
+      "scope": "workspace:read",
+      "arguments": [
+        "requestId",
+        "pathKey",
+        "regenerate"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_get_intro_tracker",
+      "scope": "workspace:read",
+      "arguments": [
+        "stage",
+        "staleDays"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_set_intro_stage",
+      "scope": "intros:write",
+      "arguments": [
+        "requestId",
+        "stage",
+        "pathKey"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_stop_intro",
+      "scope": "intros:write",
+      "arguments": [
+        "requestId"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_save_target",
+      "scope": "intros:write",
+      "arguments": [
+        "requestId",
+        "saved"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_list_path_preferences",
+      "scope": "workspace:read",
+      "arguments": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_delete_path_preference",
+      "scope": "intros:write",
+      "arguments": [
+        "preferenceId"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_list_prospects",
+      "scope": "workspace:read",
+      "arguments": [
+        "query",
+        "limit",
+        "cursor"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_get_icp",
+      "scope": "workspace:read",
+      "arguments": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_update_icp",
+      "scope": "icp:write",
+      "arguments": [
+        "expectedVersion",
+        "description",
+        "roles",
+        "industries",
+        "countries",
+        "employeeRanges"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    }
+  ],
+  "prompts": [
+    {
+      "name": "joey_make_intro",
+      "arguments": [
+        "requestId"
+      ]
+    },
+    {
+      "name": "joey_follow_up",
+      "arguments": []
+    },
+    {
+      "name": "joey_weekly_review",
+      "arguments": []
+    }
+  ]
+}
