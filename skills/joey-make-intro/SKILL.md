@@ -70,8 +70,9 @@ It uses the Joey MCP tools. For the tool details, use the `joey` skill.
      introduction request?"
 8. **Set the stage.** Do this after the send succeeds, or after the member says
    that they sent it. Call `joey_set_intro_stage` with
-   `stage: "INTRO_REQUESTED"` and a short note. Example note: "Email to David Cohen sent from Gmail on
-   2026-10-16." If the member did not send it yet, do not change the stage.
+   `stage: "INTRO_REQUESTED"` and a short note. Example note: "Email to David
+   Cohen sent from Gmail on 2026-10-16." If the member did not send it yet, do
+   not change the stage.
 9. **Offer a reminder.** Ask if the member wants a reminder in 3 days. For the
    reminder, use the `joey-intro-follow-up` skill.
 
