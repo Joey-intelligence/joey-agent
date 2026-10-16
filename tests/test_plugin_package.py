@@ -30,6 +30,8 @@ PLUGIN_NAME = "joey-agent"
 MCP_URL = "https://pouch.getjoey.io/api/customer/mcp"
 MCP_HOST_PATH = MCP_URL.split("://", 1)[1]
 EXPECTED_SKILLS = {"joey", "joey-make-intro", "joey-intro-follow-up", "joey-tracker-sync"}
+# The server prompts and their arguments.
+EXPECTED_PROMPTS = {"joey_make_intro": {"requestId"}, "joey_follow_up": set(), "joey_weekly_review": set()}
 SEMVER = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
     r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
@@ -117,12 +119,34 @@ def repository_text_files() -> list[Path]:
     return files
 
 
-def tool_catalog() -> tuple[set[str], set[str]]:
-    """Give the tool names and the prompt names in tools.json."""
+def tool_catalog() -> tuple[dict[str, set[str]], dict[str, set[str]]]:
+    """Give the tools and the prompts in tools.json, each with its argument names.
+
+    tools.json is the snapshot of the Pouch customer MCP: each tool has `name`,
+    `scope`, `arguments` and `annotations`, and each prompt has `name` and
+    `arguments`.
+    """
     catalog = json.loads(TOOLS_JSON.read_text(encoding="utf-8"))
-    tools = {entry["name"] for entry in catalog["tools"]}
-    prompts = {entry["name"] for entry in catalog.get("prompts", [])}
+    tools = {entry["name"]: set(entry["arguments"]) for entry in catalog["tools"]}
+    prompts = {entry["name"]: set(entry["arguments"]) for entry in catalog["prompts"]}
     return tools, prompts
+
+
+def tools_md_inputs() -> dict[str, set[str]]:
+    """Give the arguments that tools.md lists under "- Input:" for each tool.
+
+    Each argument is a bullet with two spaces of indent that starts with the
+    argument name in backticks. A deeper bullet (a field of an argument) does
+    not count. "- Input: none." gives no argument.
+    """
+    text = without_fences(TOOLS_MD.read_text(encoding="utf-8"))
+    inputs: dict[str, set[str]] = {}
+    for name, body in re.findall(r"(?ms)^### (joey_[a-z0-9_]+)\s*\n(.*?)(?=^#{1,3} |\Z)", text):
+        block = re.search(r"(?ms)^- Input:(.*?)(?=^- )", body)
+        if not block:
+            raise AssertionError(f"{name} has no '- Input:' line in tools.md")
+        inputs[name] = set(re.findall(r"(?m)^  - `([A-Za-z]+)`", block.group(1)))
+    return inputs
 
 
 class ManifestTests(unittest.TestCase):
@@ -296,15 +320,23 @@ class ToolCatalogTests(unittest.TestCase):
     def test_tools_json_lists_unique_joey_tools(self):
         catalog = json.loads(TOOLS_JSON.read_text(encoding="utf-8"))
         names = [entry["name"] for entry in catalog["tools"]]
-        names += [entry["name"] for entry in catalog.get("prompts", [])]
+        names += [entry["name"] for entry in catalog["prompts"]]
         self.assertTrue(catalog["tools"])
         self.assertEqual(len(names), len(set(names)), "A name is in tools.json twice")
         for name in names:
             self.assertRegex(name, r"^joey_[a-z0-9_]+$")
+        for entry in catalog["tools"]:
+            with self.subTest(tool=entry["name"]):
+                self.assertIn(entry["scope"], {"workspace:read", "intros:write", "icp:write"})
+                self.assertIsInstance(entry["annotations"]["readOnlyHint"], bool)
+
+    def test_the_server_prompts(self):
+        _, prompts = tool_catalog()
+        self.assertEqual(prompts, EXPECTED_PROMPTS)
 
     def test_every_named_joey_tool_is_in_tools_json(self):
         tools, prompts = tool_catalog()
-        known = tools | prompts
+        known = set(tools) | set(prompts)
         sources = skill_markdown_files() + [REPO_ROOT / "README.md"]
         for source in sources:
             for name in sorted(set(JOEY_NAME.findall(source.read_text(encoding="utf-8")))):
@@ -314,7 +346,15 @@ class ToolCatalogTests(unittest.TestCase):
     def test_every_tool_has_a_section_in_tools_md(self):
         tools, _ = tool_catalog()
         sections = set(re.findall(r"(?m)^### (joey_[a-z0-9_]+)\s*$", TOOLS_MD.read_text(encoding="utf-8")))
-        self.assertEqual(sections, tools)
+        self.assertEqual(sections, set(tools))
+
+    def test_tools_md_lists_the_real_arguments_of_each_tool(self):
+        tools, _ = tool_catalog()
+        inputs = tools_md_inputs()
+        self.assertEqual(set(inputs), set(tools))
+        for name, arguments in sorted(inputs.items()):
+            with self.subTest(tool=name):
+                self.assertEqual(arguments, tools[name])
 
 
 class SkillZipTests(unittest.TestCase):

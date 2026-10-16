@@ -6,9 +6,9 @@ the member approved the agent.
 
 The input schema that the server sends is the authority. If this page and the
 schema do not agree, follow the schema. [tools.json](tools.json) lists the
-tool names, scopes and prompts.
+tool names, scopes, arguments and prompts.
 
-Each result has the form `{data}`. An error has a stable code. See
+Each result has the form `{data}`. An error has a stable `code`. See
 [Errors](#errors).
 
 ## Scopes
@@ -26,117 +26,176 @@ A member who is not an admin does not see `joey_update_icp`.
 ### joey_whoami
 
 - Input: none.
-- Result: the member (name, email), the workspace (id, name), the member role
-  (admin or member), and the granted scopes.
+- Result: `user` (`id`, `name`, `email`), `workspace` (`id`, `name`), `role`
+  (`ADMIN` or `MEMBER`), `scopes`, and `client` (the name of this agent).
 - Call it first in each session.
 
 ### joey_list_paths
 
 - Input:
-  - `status` (optional): filter by request status.
-  - `introStage` (optional): one of the [intro stages](#intro-stages).
+  - `introStage` (optional): one of the [intro stages](#intro-stages), or
+    `STOPPED` for stopped intros.
   - `savedOnly` (optional): `true` gives only saved targets.
-  - `query` (optional): a part of a target name or a company name.
-  - `limit`: the number of rows on one page.
-  - `cursor` (optional): the cursor from the last page.
-- Result: one row for each path request, and the cursor of the next page. Each
-  row has the `requestId`, the target, the target company, the hops, the
-  strength, the intro stage and a saved flag.
+  - `query` (optional): a part of a name: the target, the target company, or a
+    person on a path.
+  - `company` (optional): the exact company name of the target.
+  - `hops` (optional): 1 to 4. Only the targets whose best path has this number
+    of hops.
+  - `limit` (optional): 1 to 50 rows on one page. The default is 20.
+  - `cursor` (optional): the `nextCursor` of the last page.
+- Result: `{paths, total, nextCursor}`. One row for each target with a
+  delivered path. Open intros come first, then the newest paths. Each row has:
+  - `requestId` and `target` (`name`, `role`, `organization`).
+  - `hops`, `strength` (a [strength word](#strength-words)) and `people` of the
+    best path. `people` gives the names in order, with "(you)" after the member.
+  - `pathCount`, `lastDeliveredAt`, `intro` (see [Intro state](#intro-state)),
+    `savedTarget` and `betterPathOpen`.
 
 ### joey_get_path_report
 
-- Input: `requestId`.
-- Result: the report. It has one or more paths. Each path has a `pathKey`,
-  people, hops and a summary. Each hop has:
-  - the two people,
-  - a strength word,
-  - a basis: Public source, Inferred or User-confirmed,
-  - an explanation,
-  - the evidence: the source kind, the date and what the source records.
-
-  The result also gives the intro stage and the person to ask.
+- Input:
+  - `requestId`: from `joey_list_paths`.
+- Result: the report of one target:
+  - `target` (`name`, `role`, `organization`).
+  - `paths`: each delivered path, path 1 (the best path) first. Each path has
+    `pathKey`, `number`, `name`, `summary`, `hopCount`, `strength`,
+    `deliveredAt` and `verifiedAt`, and:
+    - `people`: the people in order, each with `name`, `role`, `organization`
+      and `you`.
+    - `hops`: each hop with `from`, `to`, `title` (for example "You and David
+      Cohen"), `explanation`, `strength`, `basis` ("Public source", "Inferred"
+      or "User-confirmed"), `suspected`, `check` and `sources` (`label`, `url`).
+      `check` is set for a suspected hop: it says what to ask to find out if the
+      two people know each other.
+    - `askTo`: the person to write to: `name`, `mode` (`ASK_INTRO` or
+      `REACH_OUT`), `viaTeammate` and `email` (it can be `null`).
+    - `rate`: the person that `joey_rate_familiarity` rates on this path
+      (`name`, `rating`), or `null`.
+  - `intro` (with the `pathKey` of the path that the intro uses),
+    `savedTarget` and `betterPath` (`open`, `lastPreference`).
 
 ### joey_get_intro_draft
 
-- Input: `requestId`, `pathKey` (optional; path 1 if you do not give it).
-- Result: `{to, subject, body, introducer}`.
-  - `to` is the email address of the person to write to. It can be empty.
-  - `introducer` is the person who makes the introduction. For a REACH_OUT,
-    the next person on the path is the target. Then the email goes to the
-    target and no introducer makes an introduction.
+- Input:
+  - `requestId`: from `joey_list_paths`.
+  - `pathKey` (optional): the path. Path 1 if you do not give it.
+  - `regenerate` (optional): `true` makes a new draft in place of the saved
+    one.
+- Result: `{pathKey, to, mode, viaTeammate, subject, body, contextChips,
+  gmailUrl, cached}`.
+  - `to` is the person to write to: `name` and `email`. The `email` can be
+    `null`.
+  - `mode` is `ASK_INTRO` (the person introduces the member to the target) or
+    `REACH_OUT` (the person is the target).
+  - `viaTeammate` is `true` when the member is not on the path. Then the email
+    goes to the first person on the path, a teammate of the member.
+  - `gmailUrl` opens a Gmail compose window in the member's account with this
+    recipient, subject and body.
 - Joey writes the draft with AI from the hop evidence. The server limits the
-  number of new drafts for each member in one hour.
+  number of new drafts for each member in one hour. A saved draft
+  (`cached: true`) does not count.
 
 ### joey_get_intro_tracker
 
 - Input:
-  - `stage` (optional): one of the [intro stages](#intro-stages).
-  - `staleDays` (optional): give only intros with no change for this number of
-    days.
-- Result: one row for each intro, and the counters. Each row has the
-  `requestId`, the target, the introducer, the stage, the date of each stage,
-  the last note, and the stop state. The counters are paths discovered, intros
-  requested, intros made and meetings.
+  - `stage` (optional): one of the [intro stages](#intro-stages), or `STOPPED`.
+  - `staleDays` (optional): only the open intros (not `MET`, not stopped) with
+    no change for at least this number of days.
+- Result: `{counters, openCount, rows}`.
+  - `counters`: `pathsDiscovered`, `introsRequested`, `introsMade` and
+    `meetings`.
+  - Each row has `requestId`, `target` (`name`, `organization`), `connector`,
+    `intro`, `daysSinceChange`, `requestedAt` and `stageTimes` (the date of each
+    stage). `connector` gives the names of the people between the member and the
+    target. The first name is the person that the member asks.
 
 ### joey_list_path_preferences
 
 - Input: none.
-- Result: the saved preferences of the member (`preferenceId`, chip, text,
-  date). A member can save at most 10.
+- Result: `{preferences, limit}`. Each preference has `preferenceId`, `chip`,
+  `text` and `createdAt`. A member can save at most 10.
+
+### joey_list_prospects
+
+- Input:
+  - `query` (optional): a part of a company name, a person name or a role.
+  - `limit` (optional): 1 to 50 prospects on one page. The default is 20.
+  - `cursor` (optional): the `nextCursor` of the last page.
+- Result: `{prospects, nextCursor}`. Each prospect has `prospectId`,
+  `company`, `person`, `role`, `priority`, `status` and `updatedAt`. Saved
+  targets have the priority `HIGH`.
 
 ### joey_get_icp
 
 - Input: none.
 - Result: the ICP of the workspace: `description` (free text), `roles`,
-  `industries`, `countries`, `employeeRanges`, and its `version`.
-
-### joey_list_prospects
-
-- Input: none or filters from the schema.
-- Result: the prospects of the workspace. Saved targets show here with high
-  priority.
+  `industries`, `countries`, `employeeRanges`, `usable` and `version`.
 
 ## Write tools
 
 ### joey_request_path
 
-- Input: `targetName`, `targetCompany` (optional), `linkedinUrl` (optional),
-  `note` (optional), `idempotencyKey`.
-- Result: the new path request. Joey researches the path. The path shows in
-  `joey_list_paths` when Joey delivers it.
-- The workspace has a weekly limit of new paths.
+- Input:
+  - `linkedinUrl`: the LinkedIn URL of a person
+    (`https://www.linkedin.com/in/...`) or of a company
+    (`https://www.linkedin.com/company/...`).
+  - `idempotencyKey`: see [Idempotency keys](#idempotency-keys).
+- Result: `{requestId, status, targetUrl, targetKind, deliveredPaths,
+  capacity}`. Joey researches the path. The path shows in `joey_list_paths`
+  when Joey delivers it. `capacity` gives the open requests and the paths of
+  this week, with their limits.
+- If the workspace asked for this target before, the member joins that request.
 
 ### joey_save_target
 
-- Input: `requestId`.
-- Result: the prospect. The target becomes a prospect with high priority.
+- Input:
+  - `requestId`: from `joey_list_paths`.
+  - `saved` (optional): `true` (the default) saves the target. `false` removes
+    the save.
+- Result: `{savedTarget, prospectId}`. A saved target is a prospect with high
+  priority.
 
 ### joey_find_better_path
 
-- Input: `requestId`, `preference`, `savePreference`, `idempotencyKey`.
-  - `preference` has a `chip`, a `text`, or both.
-  - `chip` is one of the [preference chips](#preference-chips), or `null`.
-  - `text` is the member's own words, at most 280 characters.
+- Input:
+  - `requestId`: from `joey_list_paths`.
+  - `preference`: a `chip`, a `text`, or both.
+    - `chip` is one of the [preference chips](#preference-chips).
+    - `text` is the member's own words, at most 280 characters.
   - `savePreference`: `true` saves the preference for future searches.
     `false` uses it only for this search.
-- Result: the new better-path round. A request has at most one open round.
+  - `idempotencyKey`: see [Idempotency keys](#idempotency-keys).
+- Result: `{open, preference, saved}`. A target has at most one open search.
 
 ### joey_set_intro_stage
 
-- Input: `requestId`, `stage`, `note` (optional).
-- Result: the intro after the change.
-- A stopped intro takes no change.
+- Input:
+  - `requestId`: from `joey_list_paths`.
+  - `stage`: one of the [intro stages](#intro-stages).
+  - `pathKey` (optional): the path that the intro uses. If you do not give it,
+    the intro keeps its path (path 1 for a new intro). Do not give it with
+    `PATH_FOUND`.
+- Result: `{requestId, intro}`.
+- The tracker shows that this agent made the change. A stopped intro takes no
+  change (`INTRO_STOPPED`).
+- Joey keeps no note with a stage. Tell the member the reason in your answer.
 
 ### joey_stop_intro
 
-- Input: `requestId`, `reason` (optional).
-- Result: the stopped intro. A stop is final.
+- Input:
+  - `requestId`: from `joey_list_paths`.
+- Result: `{requestId, intro}`.
+- A stop is final. Only a requested intro can stop (`INTRO_NOT_STARTED`).
 
 ### joey_rate_familiarity
 
-- Input: `requestId`, `personKey`, `level`.
-  - `level` is one of `VERY_WELL`, `SOMEWHAT`, `NOT_WELL`.
-- Result: the rating.
+- Input:
+  - `requestId`: from `joey_list_paths`.
+  - `pathKey` (optional): the path. Path 1 if you do not give it.
+  - `rating`: `VERY_WELL`, `SOMEWHAT` or `NOT_WELL`, or `null` to remove the
+    answer.
+- Result: `{pathKey, person, rating}`. The tool rates the next person after the
+  member on the path: the `rate` person of `joey_get_path_report`.
 - The answer is not private to the member. Joey uses it to rank paths. The member
   controls this with the switch "Share my ratings with the Joey graph" in Joey
   Settings. With OPEN (the default), other Joey users can see the member as a
@@ -145,17 +204,24 @@ A member who is not an admin does not see `joey_update_icp`.
 
 ### joey_delete_path_preference
 
-- Input: `preferenceId`.
-- Result: no data.
+- Input:
+  - `preferenceId`: from `joey_list_path_preferences`.
+- Result: `{deleted, preferenceId}`.
 
 ### joey_update_icp
 
-- Input: `expectedVersion`, `description`, `roles`, `industries`, `countries`,
-  `employeeRanges`.
+- Input:
+  - `expectedVersion`: the `version` from `joey_get_icp`.
+  - `description` (optional): free text, at most 2000 characters.
+  - `roles` (optional): job titles, at most 20.
+  - `industries` (optional): at most 20.
+  - `countries` (optional): two-letter country codes, at most 50.
+  - `employeeRanges` (optional): for example `51-200` or `5001+`.
 - Result: the new ICP and its new version.
+- A field that you do not give keeps its value.
 - Only an admin with the `icp:write` scope can call it. Read the ICP first and
   send its version as `expectedVersion`. If another person changed the ICP
-  after your read, the call fails with a version conflict.
+  after your read, the call fails with `ICP_CHANGED`.
 
 ## Values
 
@@ -169,11 +235,21 @@ A member who is not an admin does not see `joey_update_icp`.
 | `MEETING_SET` | The member and the target set a meeting. |
 | `MET` | The member and the target met. |
 
-A stop (`joey_stop_intro`) ends the intro at any stage.
+A stop (`joey_stop_intro`) ends the intro at any stage after `PATH_FOUND`.
+
+### Intro state
+
+Each `intro` has `stage`, `stopped`, `stoppedAt`, `updatedAt`, `source`,
+`agentClient` and `actorName`.
+
+- `source` is `AGENT` when an agent made the last change. Then `agentClient`
+  gives the name of the agent.
+- `actorName` is the member who made the last change.
 
 ### Strength words
 
-Each hop has one strength word. The word comes from the Joey graph.
+Each hop has one strength word. The word comes from the Joey graph. The strength
+of a path is the word of its weakest hop.
 
 | Word | What to tell the member |
 | --- | --- |
@@ -193,9 +269,9 @@ Each hop has one strength word. The word comes from the Joey graph.
 | `FRIENDS` | Friends |
 | `SAME_COMPANY` | Same company (people at the target company) |
 
-### Familiarity levels
+### Familiarity ratings
 
-| Level | Words in the Joey app |
+| Rating | Words in the Joey app |
 | --- | --- |
 | `VERY_WELL` | Very well |
 | `SOMEWHAT` | Somewhat |
@@ -215,11 +291,18 @@ Each hop has one strength word. The word comes from the Joey graph.
 | Error | What to do |
 | --- | --- |
 | HTTP 401 or an auth error | Tell the member to connect Joey again in the agent (for example `/mcp` in Claude Code). |
-| Not found or forbidden | The path is not in this workspace, or the member has no access. Do not retry. |
-| Rate limit | Stop. Tell the member to try again later. Do not loop. |
-| Version conflict (ICP) | Read the ICP again. Show the new version to the member before a new change. |
+| `FORBIDDEN` or `NOT_FOUND` | The path is not in this workspace, or the member has no access. Do not retry. |
+| `RATE_LIMITED` or `DRAFT_LIMIT` | Stop. Tell the member to try again later. Do not loop. |
+| `DRAFT_UNAVAILABLE` or `DRAFT_FAILED` | Joey cannot write the draft now. Write the email with the member from the report. |
+| `ICP_CHANGED` | Read the ICP again. Show the new version to the member before a new change. |
 | `INTRO_STOPPED` | The intro is stopped. Tell the member. Do not change it. |
-| Weekly limit | Tell the member that the workspace reached its weekly limit of new paths. |
+| `INTRO_NOT_STARTED` | The intro is not requested yet, so it cannot stop. |
+| `BETTER_PATH_OPEN` | Joey already looks for a better path to this target. Tell the member to wait for it. |
+| `OPEN_CAPACITY_REACHED` or `QUOTA_OPEN_REACHED` | The workspace has the most open searches that it can have. Tell the member. |
+| `RATING_NOT_ALLOWED` | This path has no person that the member can rate. Do not retry. |
+| `TARGET_COMPANY_REQUIRED` | Joey does not know the company of the target, so it cannot save the target. |
+| `INVALID_TARGET_URL` | Ask the member for a LinkedIn person or company URL. Do not guess one. |
+| `IDEMPOTENCY_CONFLICT` | The key was used for another request. Make a new key. |
 | Other code | Tell the member the code in plain words. Do not guess a cause. |
 
 ## Server prompts
