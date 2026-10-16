@@ -9,6 +9,7 @@
 - The plugin connects one remote MCP server, the Joey customer MCP, and adds four
   skills. It has no hooks, no commands, no CLI, no server code and no network
   client of its own.
+- `AGENTS.md` is canonical. Keep the root `CLAUDE.md` as a relative symlink to it.
 - Preserve unrelated worktree changes.
 
 ## What lives here
