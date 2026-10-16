@@ -32,16 +32,19 @@ It uses the Joey MCP tools. For the tool details, use the `joey` skill.
 2. **Read the report.** Call `joey_get_path_report`. Find the person to ask and
    the evidence for the first hop.
 3. **Get the draft.** Call `joey_get_intro_draft` with the `requestId`. Add
-   `pathKey` for a path other than path 1. The result is
-   `{to, subject, body, introducer}`.
+   `pathKey` for a path other than path 1. The result has `to` (`name` and
+   `email`), `mode`, `viaTeammate`, `subject`, `body`, `contextChips` and
+   `gmailUrl`. Keep its `pathKey` for step 8.
 4. **Check the recipient.**
-   - Usual case: the email goes to the introducer, the next person after the
-     member on the path. The introducer then introduces the member to the target.
-   - REACH_OUT: the next person after the member is the target. The email goes to
-     the target. Nobody else makes an introduction.
-   - If the member is not on the path, the email goes to the first person on the
-     path, a teammate of the member.
-   - If `to` is empty, ask the member for the address. Do not guess an address.
+   - `mode: "ASK_INTRO"`: the email goes to the introducer, the next person
+     after the member on the path. The introducer then introduces the member to
+     the target.
+   - `mode: "REACH_OUT"`: the next person after the member is the target. The
+     email goes to the target. Nobody else makes an introduction.
+   - `viaTeammate: true`: the member is not on the path. The email goes to the
+     first person on the path, a teammate of the member.
+   - If `to.email` is `null`, ask the member for the address. Do not guess an
+     address.
 5. **Adapt the draft with the member.** Ask only what you need:
    - The tone: short, warm or formal.
    - The ask: an email introduction, a short call, or advice.
@@ -69,25 +72,26 @@ It uses the Joey MCP tools. For the tool details, use the `joey` skill.
      link (see [Gmail link](#gmail-link)). Then ask: "Did you send the
      introduction request?"
 8. **Set the stage.** Do this after the send succeeds, or after the member says
-   that they sent it. Call `joey_set_intro_stage` with
-   `stage: "INTRO_REQUESTED"` and a short note. Example note: "Email to David
-   Cohen sent from Gmail on 2026-10-16." If the member did not send it yet, do
-   not change the stage.
+   that they sent it. Call `joey_set_intro_stage` with the `requestId`,
+   `stage: "INTRO_REQUESTED"` and the `pathKey` of the draft. Joey keeps no
+   note. If the member did not send it yet, do not change the stage.
 9. **Offer a reminder.** Ask if the member wants a reminder in 3 days. For the
    reminder, use the `joey-intro-follow-up` skill.
 
 ## Gmail link
 
-Make the link only from the final text that the member saw:
+The draft gives `gmailUrl`, a link for the Joey text as it is. If the member
+changed the text, make a new link from the final text that the member saw:
 
 ```
-https://mail.google.com/mail/?view=cm&fs=1&authuser=<member email>&to=<to>&su=<subject>&body=<body>
+https://mail.google.com/mail/?authuser=<member email>&view=cm&fs=1&to=<to>&su=<subject>&body=<body>
 ```
 
-- URL-encode each value.
-- Keep the encoded body at 1,800 characters or less. If the body is longer, give
-  the link without the body and tell the member to paste the body.
-- Leave out `authuser` if you do not know the member email.
+- URL-encode each value. Leave `to` empty if you have no address.
+- Keep the body at 1,800 characters or less. If the body is longer, give the
+  link without the body and tell the member to paste the body.
+- Use the member email from `joey_whoami` for `authuser`. Leave out `authuser`
+  if you do not know the member email.
 
 ## Example
 
@@ -105,7 +109,6 @@ Agent:  To: David Cohen <david@example.com>
         Send this email from your Gmail now? Reply yes to send.
 Member: Yes.
 Agent:  (sends with the Gmail tool, then calls joey_set_intro_stage
-        with INTRO_REQUESTED and the note "Email to David Cohen sent
-        from Gmail on 2026-10-16.")
+        with INTRO_REQUESTED and the pathKey of the draft)
         Sent. Do you want a reminder in 3 days if David does not answer?
 ```

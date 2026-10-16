@@ -36,12 +36,15 @@ in one workspace. The full tool list is in [references/tools.md](references/tool
 ## Find paths
 
 1. Call `joey_list_paths`. Use the filters that fit the question:
-   - `query` for a target name or a company name.
+   - `query` for a part of a target name, a company name or a person on a path.
+   - `company` for the exact company of the target.
    - `introStage` for the intro stage, for example `INTRO_REQUESTED`.
    - `savedOnly: true` for saved targets.
-2. If the result has a cursor and the member wants more, call again with that
-   `cursor`.
+   - `hops` for the number of hops of the best path.
+2. If the result has a `nextCursor` and the member wants more, call again with
+   `cursor` set to that value.
 3. Show a short list: target, company, number of hops, strength, intro stage.
+   `people` gives the best path in order, with "(you)" after the member.
 
 Example:
 
@@ -56,14 +59,17 @@ Your Joey paths at Acme (3):
 
 1. Call `joey_get_path_report` with the `requestId`.
 2. Read the report before you say anything about the path.
-3. For each hop, say who knows whom and how. Quote the evidence: the kind of
-   source, the date, and what the source records.
-4. Give the basis of each hop with the report word: "Public source",
+3. For each hop, say who knows whom and how. Quote the hop `explanation` and
+   name its `sources` (the label, and the link if the member wants it).
+4. Give the `basis` of each hop with the report word: "Public source",
    "Inferred" or "User-confirmed".
-5. If the report marks a hop as suspected or not confirmed, say so. Ask the
-   member if they know more. Do not state it as a fact.
+5. If a hop has `suspected: true`, say that Joey suspects the link but has no
+   proof. Ask the member the question in `check`. Do not state it as a fact.
 6. A report can have more than one path. Path 1 is the best path. Use the
    `pathKey` of a path when a tool needs a path other than path 1.
+7. `askTo` names the person to write to for the intro. `rate` names the person
+   whom the member can rate (see
+   [How well the member knows a person](#how-well-the-member-knows-a-person)).
 
 Good: "David Cohen and Sarah Johnson worked together at Northwind from 2019 to
 2022. Source: both LinkedIn profiles list the same security team. Strength:
@@ -87,7 +93,8 @@ gives it. Do not make a new word or a score.
 
 When the member asks to save a target, call `joey_save_target` with the
 `requestId`. The target becomes a prospect with high priority. Saved targets
-show in `joey_list_prospects`.
+show in `joey_list_prospects`. To remove the save, call `joey_save_target`
+with `saved: false`.
 
 ## Ask for a better path
 
@@ -121,45 +128,53 @@ show in `joey_list_prospects`.
 
 ## Ask for a path to a new person
 
-1. Get the name of the target from the member. Ask for the company and the
-   LinkedIn profile URL if the member has them.
-2. Do not guess a LinkedIn URL. Leave it out if the member does not give it.
+1. Ask the member for the LinkedIn URL of the person or the company. Joey
+   takes only a LinkedIn person URL (`https://www.linkedin.com/in/...`) or a
+   company URL (`https://www.linkedin.com/company/...`).
+2. Do not guess a LinkedIn URL. If you find a URL in a search, show it to the
+   member. Use it only after the member confirms that it is the right person.
 3. Make a new random UUID for `idempotencyKey`.
-4. Call `joey_request_path`.
-5. Tell the member that Joey researches the path. The workspace has a weekly
-   limit of new paths.
+4. Call `joey_request_path` with `linkedinUrl` and `idempotencyKey`.
+5. Tell the member that Joey researches the path. The path shows in
+   `joey_list_paths` when Joey delivers it. The workspace has a weekly limit of
+   new paths: `capacity` in the result gives the numbers.
 
 ## How well the member knows a person
 
 Use `joey_rate_familiarity` only with an answer from the member. Do not guess the
-level.
+rating. The tool rates the next person after the member on a path: the `rate`
+person of that path in `joey_get_path_report`. If `rate` is `null`, the path
+has no person to rate.
 
 1. Ask: "How well do you know David Cohen? Very well, somewhat, or not well?"
 2. Before the first rating in a session, tell the member: "Joey uses your answer
    to rank paths. Other Joey users can see you as a possible introducer to this
    person. You can turn this off in Joey Settings."
-3. Call `joey_rate_familiarity` with `requestId`, the `personKey` from the
-   report, and `level` (`VERY_WELL`, `SOMEWHAT` or `NOT_WELL`).
+3. Call `joey_rate_familiarity` with `requestId`, the `pathKey` of the path
+   (leave it out for path 1), and `rating` (`VERY_WELL`, `SOMEWHAT` or
+   `NOT_WELL`). To remove an answer, send `rating: null`.
 
 ## ICP and prospects
 
 - To read the ideal customer profile, call `joey_get_icp`.
 - To list the prospects, call `joey_list_prospects`.
 - Change the ICP only when an admin asks for the change:
-  1. Make sure that `joey_whoami` gives the admin role. If not, tell the member
-     that only a workspace admin can change the ICP.
+  1. Make sure that `joey_whoami` gives the role `ADMIN`. If not, tell the
+     member that only a workspace admin can change the ICP.
   2. Call `joey_get_icp` and keep its `version`.
   3. Show the change to the admin and ask for a "yes".
-  4. Call `joey_update_icp` with `expectedVersion` set to that version.
-  5. If the call fails with a version conflict, read the ICP again and show the
-     new text before you try again.
+  4. Call `joey_update_icp` with `expectedVersion` set to that version and only
+     the fields that change. A field that you do not give keeps its value.
+  5. If the call fails with `ICP_CHANGED`, read the ICP again and show the new
+     text before you try again.
 
 ## Errors
 
 - Auth error: tell the member to connect Joey again.
-- Not found or forbidden: the path is not in this workspace. Do not retry.
-- Rate limit: stop and tell the member to try later. Do not loop.
+- `NOT_FOUND` or `FORBIDDEN`: the path is not in this workspace. Do not retry.
+- `RATE_LIMITED`: stop and tell the member to try later. Do not loop.
 - Other code: tell the member the code in plain words. Do not guess a cause.
+  The tool reference lists what to do for each code.
 
 ## Other Joey skills
 

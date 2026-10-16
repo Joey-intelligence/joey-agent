@@ -36,7 +36,9 @@ Do not list `PATH_FOUND`, `MET` or stopped intros as stale.
 
 1. Call `joey_whoami`.
 2. Call `joey_get_intro_tracker`. To get only old intros, add `staleDays`, for
-   example `staleDays: 3` with `stage: "INTRO_REQUESTED"`.
+   example `staleDays: 3` with `stage: "INTRO_REQUESTED"`. Each row gives
+   `daysSinceChange`, and `connector` names the people between the member and
+   the target.
 3. Find the stale intros with the table above. Show a short list:
 
    ```
@@ -53,11 +55,11 @@ Do not list `PATH_FOUND`, `MET` or stopped intros as stale.
    | "We have a meeting on Tuesday." | Set `MEETING_SET`. |
    | "We met." | Set `MET`. |
    | "No answer yet." | Keep the stage. Offer a follow-up draft. |
-   | "It will not happen." | Ask for a "yes" to stop. Then call `joey_stop_intro` with a short `reason`. |
+   | "It will not happen." | Tell the member that a stop is final, and ask for a "yes". Then call `joey_stop_intro` with the `requestId`. |
 
-5. To set a stage, call `joey_set_intro_stage` with the `requestId`, the
-   `stage` and a short `note`. Example note: "Member says that David
-   introduced them by email on 2026-10-14."
+5. To set a stage, call `joey_set_intro_stage` with the `requestId` and the
+   `stage`. The intro keeps its path. Joey keeps no note, so tell the member
+   what you changed and why.
 6. If the answer means a stage before the current one, ask the member first.
    Change it only after a "yes".
 
