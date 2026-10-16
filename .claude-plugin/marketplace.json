@@ -10,7 +10,7 @@
       "name": "joey-agent",
       "source": "./",
       "description": "Use Joey warm introduction paths from your own AI agent: read path reports, make introductions, follow up, and keep the introduction tracker true.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "category": "productivity"
     }
   ]
