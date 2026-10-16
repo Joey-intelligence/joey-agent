@@ -1,6 +1,6 @@
 ---
 name: joey
-description: Use the Joey MCP tools for a member of a Joey customer workspace. Use this skill when the member asks about Joey, warm introduction paths, a path report, who can introduce them to a person, how two people know each other, hop strength, saved targets, a better path, path preferences, the ICP or prospects, or asks Joey to find a path to a new person. Read the report before you talk about a path, quote its evidence, and never invent people, roles or links.
+description: Use the Joey MCP tools for a member of a Joey customer workspace. Use this skill for questions about Joey paths, path reports, introducers, and how two people know each other. Also use it for hop strength, saved targets, a better path, path preferences, the ICP and prospects. Also use it when the member asks Joey to find a path to a new person. Read the report before you talk about a path. Quote its evidence, and never invent people, roles or links.
 ---
 
 # Joey
@@ -20,8 +20,8 @@ in one workspace. The full tool list is in [references/tools.md](references/tool
   Joey tool gives, or what the member tells you.
 - Report text is confidential to the workspace. Do not paste a whole report into
   another tool, document or message. Quote only the part that the member needs.
-- Do not send an email or a message, and do not schedule a send, without an
-  explicit "yes" from the member for that exact text.
+- Do not send an email or a message without an explicit "yes" from the member
+  for that exact text. Do not schedule a send without that "yes".
 - Do not contact a target or an introducer unless the member asks you to.
 - Do not ask for, print or store a token. The MCP client keeps the sign-in.
 

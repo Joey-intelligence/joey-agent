@@ -1,6 +1,6 @@
 ---
 name: joey-tracker-sync
-description: Keep the Joey introduction tracker of a member true with the member's own email and calendar. Use this skill when the member asks to sync, check or update the Joey intro tracker, or asks if an introducer replied, if an intro happened, or if a meeting with a target is set. Looks for replies from introducers and meetings with targets after each request date, proposes the stage updates as one batch with a reason for each, and applies them only after the member confirms.
+description: Keep the Joey introduction tracker of a member true with the member's own email and calendar. Use this skill when the member asks to sync, check or update the Joey intro tracker. Also use it when the member asks if an introducer replied or if a meeting with a target is set. The skill looks for replies from introducers and meetings with targets after each request date. It proposes the stage updates as one batch with a reason for each. It applies them only after the member confirms.
 ---
 
 # Sync the introduction tracker

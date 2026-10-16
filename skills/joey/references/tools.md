@@ -39,17 +39,22 @@ A member who is not an admin does not see `joey_update_icp`.
   - `query` (optional): a part of a target name or a company name.
   - `limit`: the number of rows on one page.
   - `cursor` (optional): the cursor from the last page.
-- Result: one row for each path request (`requestId`, target, target company,
-  hops, strength, intro stage, saved flag) and the cursor of the next page.
+- Result: one row for each path request, and the cursor of the next page. Each
+  row has the `requestId`, the target, the target company, the hops, the
+  strength, the intro stage and a saved flag.
 
 ### joey_get_path_report
 
 - Input: `requestId`.
 - Result: the report. It has one or more paths. Each path has a `pathKey`,
-  people, hops and a summary. Each hop has the two people, a strength word, a
-  basis (Public source, Inferred or User-confirmed), an explanation and
-  evidence (source kind, date, what the source records). The result also gives
-  the intro stage and the person to ask.
+  people, hops and a summary. Each hop has:
+  - the two people,
+  - a strength word,
+  - a basis: Public source, Inferred or User-confirmed,
+  - an explanation,
+  - the evidence: the source kind, the date and what the source records.
+
+  The result also gives the intro stage and the person to ask.
 
 ### joey_get_intro_draft
 
@@ -68,9 +73,10 @@ A member who is not an admin does not see `joey_update_icp`.
   - `stage` (optional): one of the [intro stages](#intro-stages).
   - `staleDays` (optional): give only intros with no change for this number of
     days.
-- Result: one row for each intro (`requestId`, target, introducer, stage, the
-  date of each stage, the last note, stopped or not) and the counters (paths
-  discovered, intros requested, intros made, meetings).
+- Result: one row for each intro, and the counters. Each row has the
+  `requestId`, the target, the introducer, the stage, the date of each stage,
+  the last note, and the stop state. The counters are paths discovered, intros
+  requested, intros made and meetings.
 
 ### joey_list_path_preferences
 

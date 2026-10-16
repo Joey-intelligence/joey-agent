@@ -1,6 +1,6 @@
 ---
 name: joey-make-intro
-description: Make a warm introduction request for a member of a Joey customer workspace. Use this skill when the member wants to ask a connector on a Joey path for an introduction, or to write to the target directly, for example "make the intro to Sarah", "ask David to introduce me", "draft the intro email" or "send the intro request". Gets the Joey draft, adapts it with the member, sends only after an explicit yes through the member's own email tool, then sets the Joey intro stage.
+description: Make a warm introduction request for a member of a Joey customer workspace. Use this skill when the member wants a connector on a Joey path to introduce them to a target. Also use it to write to the target directly. Example requests are "make the intro to Sarah", "ask David to introduce me" and "draft the intro email". The skill gets the Joey draft and adapts it with the member. It sends only after an explicit yes, through the member's own email tool. Then it sets the Joey intro stage.
 ---
 
 # Make an introduction request
@@ -68,9 +68,9 @@ It uses the Joey MCP tools. For the tool details, use the `joey` skill.
    - With no email tool: give the text in a block to copy, and a Gmail compose
      link (see [Gmail link](#gmail-link)). Then ask: "Did you send the
      introduction request?"
-8. **Set the stage.** After the send succeeds, or after the member says that
-   they sent it, call `joey_set_intro_stage` with `stage: "INTRO_REQUESTED"` and
-   a short note. Example note: "Email to David Cohen sent from Gmail on
+8. **Set the stage.** Do this after the send succeeds, or after the member says
+   that they sent it. Call `joey_set_intro_stage` with
+   `stage: "INTRO_REQUESTED"` and a short note. Example note: "Email to David Cohen sent from Gmail on
    2026-10-16." If the member did not send it yet, do not change the stage.
 9. **Offer a reminder.** Ask if the member wants a reminder in 3 days. For the
    reminder, use the `joey-intro-follow-up` skill.

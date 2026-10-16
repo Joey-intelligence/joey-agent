@@ -1,6 +1,6 @@
 ---
 name: joey-intro-follow-up
-description: Remind a member of a Joey customer workspace about introductions that need a follow-up. Use this skill when the member asks which intros have no answer, what to follow up on, for a weekly intro review, to update an intro stage, or to set an intro reminder. Reads the Joey intro tracker, finds stale intros, asks the member what happened, updates the stage, offers a short follow-up draft, and sets a reminder with the agent's own scheduler only after the member agrees.
+description: Remind a member of a Joey customer workspace about introductions that need a follow-up. Use this skill when the member asks which intros have no answer or what to follow up on. Also use it for a weekly intro review, an intro stage update or an intro reminder. The skill reads the Joey intro tracker and finds stale intros. It asks the member what happened, updates the stage and offers a short follow-up draft. It sets a reminder with the agent's own scheduler only after the member agrees.
 ---
 
 # Follow up on introductions
@@ -11,8 +11,8 @@ skill.
 
 ## Rules
 
-- Do not send a follow-up, and do not schedule a send, without an explicit "yes"
-  from the member for the exact recipient, subject and body.
+- Do not send a follow-up without an explicit "yes" from the member for the
+  exact recipient, subject and body. Do not schedule a send without that "yes".
 - Send only through the member's own email tool. Do not use any other channel.
 - Do not contact a target or an introducer unless the member asks.
 - Set a reminder only after the member agrees to it.
