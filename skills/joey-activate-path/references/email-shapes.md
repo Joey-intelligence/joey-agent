@@ -4,14 +4,18 @@ Use these examples to adapt a Joey draft. The names, companies and facts are
 examples only. In a real email, use only facts from the Joey report or from the
 member.
 
-A good intro request:
+A good request for an introduction:
 
 - Is short: 60 to 150 words.
 - Says how the member knows the introducer, in one line.
-- Gives one fact from the report about how the introducer knows the target.
+- Gives one fact from the report about how the next two people on the selected path know each other.
 - Gives one clear reason for the meeting.
 - Makes the ask easy to refuse.
 - Has a short note that the introducer can forward as it is.
+
+For a longer path, ask the recipient for help with the next hop. For example,
+for You → David → Mira → Sarah, ask David for an introduction to Mira and explain
+why you want to reach Sarah. Do not claim that David knows Sarah.
 
 ## Good examples
 

@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0 — 2026-10-18
+
+- Rename the path skills to `joey-activate-path` and `joey-path-follow-up`.
+- Add a weekly update check when a skill runs.
+- Clarify path activation, member claims and evidence limits.
+- Distinguish a local statement save from graph delivery and withdrawal.
+- Add `joey-attest` for member statements, consent for each chat, correction and
+  withdrawal. Structured claims go to the Joey trust network; source excerpts
+  stay private to the author.
+- Add `joey-trust` for relationship context, source attribution, conflicts and
+  derived trust support. Keep people, agent products and specific agents separate.
+- Add `trust:read` and `trust:write` permissions. Refresh the Pouch MCP snapshot
+  and keep all six skill ZIPs self-contained.
+- The skills act only when the host loads or invokes them. The plugin has no
+  background listener.
+
 ## 1.0.1 — 2026-10-16
 
 - `skills/joey/references/tools.json` is now the snapshot of the Pouch customer

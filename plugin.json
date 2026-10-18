@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "joey-agent",
-  "version": "1.0.1",
-  "description": "Use Joey warm introduction paths from your own AI agent: read path reports, make introductions, follow up, and keep the introduction tracker true.",
+  "version": "1.1.0",
+  "description": "Activate paths to get introductions through people you know. Record relationship and trust statements with your consent. Read their context, sources and trust support.",
   "author": {
     "name": "Joey",
     "url": "https://getjoey.io"
@@ -10,18 +10,25 @@
   "homepage": "https://getjoey.io",
   "repository": "https://github.com/Joey-intelligence/joey-agent",
   "license": "LicenseRef-Joey-Proprietary",
-  "keywords": ["joey", "warm-introductions", "introductions", "mcp"],
+  "keywords": [
+    "joey",
+    "warm-introductions",
+    "introductions",
+    "mcp"
+  ],
   "extensions": {
     "com.openai": {
       "interface": {
         "displayName": "Joey",
-        "shortDescription": "Make warm introductions with Joey.",
+        "shortDescription": "Activate paths to people with Joey.",
         "brandColor": "#635BDB",
         "defaultPrompt": [
-          "Use $joey to show my Joey paths and the best next introduction.",
-          "Use $joey-make-intro to write the introduction request for <target>.",
-          "Use $joey-intro-follow-up to find the introductions that need a follow-up.",
-          "Use $joey-tracker-sync to update my Joey introduction tracker from my email and calendar."
+          "Use $joey to show my paths and the next person to ask.",
+          "Use $joey-activate-path to prepare an introduction request for <target>.",
+          "Use $joey-path-follow-up to find paths that need a follow-up.",
+          "Use $joey-tracker-sync to update path progress from my email and calendar.",
+          "Use $joey-attest to record the relationship and trust statements that I choose to share.",
+          "Use $joey-trust to show the relationship context and trust support for <person or agent>."
         ]
       }
     }
