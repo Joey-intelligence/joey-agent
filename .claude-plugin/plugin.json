@@ -1,8 +1,8 @@
 {
   "name": "joey-agent",
   "displayName": "Joey",
-  "version": "1.0.1",
-  "description": "Use Joey warm introduction paths from your own AI agent: read path reports, make introductions, follow up, and keep the introduction tracker true.",
+  "version": "1.1.0",
+  "description": "Use Joey paths, introductions and relationship context from your own AI agent. Record relationship and trust statements with your consent, and read their trust support.",
   "author": {
     "name": "Joey",
     "url": "https://getjoey.io"
@@ -10,6 +10,11 @@
   "homepage": "https://getjoey.io",
   "repository": "https://github.com/Joey-intelligence/joey-agent",
   "license": "LicenseRef-Joey-Proprietary",
-  "keywords": ["joey", "warm-introductions", "introductions", "mcp"],
+  "keywords": [
+    "joey",
+    "warm-introductions",
+    "introductions",
+    "mcp"
+  ],
   "skills": "./skills/"
 }

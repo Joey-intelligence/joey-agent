@@ -6,7 +6,7 @@
 - This repository is a skills-only plugin for the AI agent of a Joey customer.
   A member of a Joey customer workspace installs it in Claude Code, Codex,
   Claude Desktop, claude.ai, Cursor or ChatGPT.
-- The plugin connects one remote MCP server, the Joey customer MCP, and adds four
+- The plugin connects one remote MCP server, the Joey customer MCP, and adds six
   skills. It has no hooks, no commands, no CLI, no server code and no network
   client of its own.
 - `AGENTS.md` is canonical. Keep the root `CLAUDE.md` as a relative symlink to it.
@@ -14,8 +14,8 @@
 
 ## What lives here
 
-- `skills/` — four skills: `joey`, `joey-make-intro`, `joey-intro-follow-up`,
-  `joey-tracker-sync`.
+- `skills/` — six skills: `joey`, `joey-make-intro`, `joey-intro-follow-up`,
+  `joey-tracker-sync`, `joey-attest`, `joey-trust`.
 - `skills/joey/references/tools.json` — the list of Joey MCP tools and prompts.
   It is a copy of the snapshot that the Pouch customer MCP test writes. Do not
   edit a tool entry by hand. Replace the file with a new snapshot.

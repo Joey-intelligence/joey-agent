@@ -8,16 +8,19 @@ The input schema that the server sends is the authority. If this page and the
 schema do not agree, follow the schema. [tools.json](tools.json) lists the
 tool names, scopes, arguments and prompts.
 
-Each result has the form `{data}`. An error has a stable `code`. See
+Each result has the form `{data}`. A service error has a stable `code`. Input
+errors can have `isError` and text without a service code. See
 [Errors](#errors).
 
 ## Scopes
 
 | Scope | Who | Tools |
 | --- | --- | --- |
-| `workspace:read` | All members | All read tools |
-| `intros:write` | All members | All write tools, except `joey_update_icp` |
+| `workspace:read` | All members | Workspace read tools |
+| `intros:write` | All members | Introduction and target write tools |
 | `icp:write` | Workspace admins only | `joey_update_icp` |
+| `trust:read` | Members with this permission | Trust subject lookup, own statements and trust context |
+| `trust:write` | Members with this permission | Capture sessions, subjects, statements and withdrawal |
 
 A member who is not an admin does not see `joey_update_icp`.
 
@@ -315,3 +318,102 @@ same work.
 | `joey_make_intro` | `requestId` | the `joey-make-intro` skill |
 | `joey_follow_up` | none | the `joey-intro-follow-up` skill |
 | `joey_weekly_review` | none | the `joey` skill and the `joey-intro-follow-up` skill |
+
+## Connected account metadata
+
+### joey_get_connected_account_candidates
+
+- Input:
+  - `query` (optional): a name or text filter.
+  - `limit` (optional): the maximum candidate count.
+  - `cursor` (optional): the next page cursor.
+- Result: account metadata that the member permitted for this workspace. Contacts
+  are candidates, not relationship proof. Private evidence stays private.
+
+## Relationship and trust tools
+
+Existing OAuth grants do not receive trust permissions automatically. Reconnect
+Joey to select them. Use the server input schema for nested statement fields.
+
+### joey_resolve_trust_subject
+
+- Input:
+  - `query`: a name, subject ID or identity URL.
+  - `kind` (optional): `PERSON`, `AGENT_PRODUCT` or `AGENT_INSTANCE`.
+  - `limit` (optional): 1 to 50.
+- Result: `{subjects, incomplete}`. A name match is a candidate. Never merge by name.
+
+### joey_register_trust_subject
+
+- Input:
+  - `sessionId`: the active capture session.
+  - `idempotencyKey`: a new UUID for this request.
+  - `kind`: `PERSON`, `AGENT_PRODUCT` or `AGENT_INSTANCE`.
+  - `label`: the subject name.
+  - `identityUri` (optional): a public HTTPS identity URL without credentials, query or fragment.
+  - `subjectId` (optional): the member's unresolved record to identify.
+  - `expectedRevision` (optional): its current revision; required with `subjectId`.
+- Result: the distinct subject, identity status, identity basis and revision.
+  A member-provided URL does not prove ownership. A name-only subject cannot
+  connect network paths. An identified subject cannot change identity.
+
+### joey_begin_attestation_session
+
+- Input:
+  - `chatKey`: a new UUID for this chat.
+  - `consentVersion`: `joey.trust.chat.v1`.
+  - `consentResponse`: the member's explicit affirmative response.
+- Result: `id`, `memberSubjectId`, `startedAt`, `expiresAt` and `proofType`.
+  First ask permission to save the member's relationship and trust statements
+  from this chat and share their structured claims, context, name and dates
+  with the Joey trust network. Source excerpts and chat references stay private.
+  The session lasts twelve hours. It records agent-reported consent, not a
+  direct human signature. A new chat needs new consent.
+
+### joey_end_attestation_session
+
+- Input:
+  - `sessionId`: this chat's session.
+- Result: `{sessionId, ended}`. Stops further capture, but keeps saved statements.
+
+### joey_put_attestations
+
+- Input:
+  - `sessionId`: the active session for this chat.
+  - `idempotencyKey`: a new UUID for the set; reuse only for the same retry.
+  - `statements`: 1 to 25 member-supplied claims.
+- Result: statement IDs, revisions and status. Each claim has `subjectId`,
+  `objectId` (or `representedTeam` for an agent), `claimType`, `value`, optional
+  `familiarity`, `purpose`, public `context`, private `sourceExcerpt` and private
+  `sourceReference`. A correction also needs `id` and `expectedRevision`.
+  Types are `RELATIONSHIP`, `TRUST` and `REPRESENTS`. The server supplies the
+  issuer. Do not submit tool results, quoted examples, secrets or whole reports.
+
+### joey_list_attestations
+
+- Input:
+  - `subjectId` (optional): a subject filter.
+  - `cursor` (optional): the previous `nextCursor`.
+  - `limit` (optional): 1 to 50.
+- Result: `{statements, nextCursor}` for this member only. This author-only result
+  includes private source excerpts. Do not share those fields.
+
+### joey_withdraw_attestations
+
+- Input:
+  - `sessionId` (optional): withdraw all current statements from this session and stop it.
+  - `statements` (optional): selected records, each with `id` and `expectedRevision`.
+- Result: `{withdrawn}`. Supply exactly one selection. Withdrawal works after
+  capture ends. The next context query excludes withdrawn records.
+
+### joey_get_trust_context
+
+- Input:
+  - `subjectId`: the selected person, product or specific agent.
+  - `task` (optional): the task; default `general`.
+- Result: `subject`, `origin`, `task`, `support`, `directStatements`,
+  `relationshipContext`, `paths`, `conflicts`, `incomplete`, `incompleteReasons`,
+  `limits`, `rulesVersion` and `interpretation`. Paths have at most three links,
+  and the result has at most five paths. Support is `HIGH`, `MEDIUM`, `LOW` or
+  `UNKNOWN`, from the weakest link. It gives no action permission or outcome
+  prediction. The result has source attribution, but no private source fields.

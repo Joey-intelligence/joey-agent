@@ -29,7 +29,7 @@ BUILD_SCRIPT = REPO_ROOT / "scripts" / "build_skill_zips.py"
 PLUGIN_NAME = "joey-agent"
 MCP_URL = "https://pouch.getjoey.io/api/customer/mcp"
 MCP_HOST_PATH = MCP_URL.split("://", 1)[1]
-EXPECTED_SKILLS = {"joey", "joey-make-intro", "joey-intro-follow-up", "joey-tracker-sync"}
+EXPECTED_SKILLS = {"joey", "joey-make-intro", "joey-intro-follow-up", "joey-tracker-sync", "joey-attest", "joey-trust"}
 # The server prompts and their arguments.
 EXPECTED_PROMPTS = {"joey_make_intro": {"requestId"}, "joey_follow_up": set(), "joey_weekly_review": set()}
 SEMVER = re.compile(
@@ -257,7 +257,7 @@ class McpServerTests(unittest.TestCase):
 
 
 class SkillTests(unittest.TestCase):
-    def test_skills_folder_has_exactly_the_four_skills(self):
+    def test_skills_folder_has_exactly_the_six_skills(self):
         found = {path.name for path in SKILLS_DIR.iterdir() if path.is_dir()}
         self.assertEqual(found, EXPECTED_SKILLS)
 
@@ -327,7 +327,7 @@ class ToolCatalogTests(unittest.TestCase):
             self.assertRegex(name, r"^joey_[a-z0-9_]+$")
         for entry in catalog["tools"]:
             with self.subTest(tool=entry["name"]):
-                self.assertIn(entry["scope"], {"workspace:read", "intros:write", "icp:write"})
+                self.assertIn(entry["scope"], {"workspace:read", "intros:write", "icp:write", "trust:read", "trust:write"})
                 self.assertIsInstance(entry["annotations"]["readOnlyHint"], bool)
 
     def test_the_server_prompts(self):

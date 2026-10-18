@@ -12,6 +12,141 @@
       }
     },
     {
+      "name": "joey_resolve_trust_subject",
+      "scope": "trust:read",
+      "arguments": [
+        "query",
+        "kind",
+        "limit"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_register_trust_subject",
+      "scope": "trust:write",
+      "arguments": [
+        "sessionId",
+        "idempotencyKey",
+        "kind",
+        "label",
+        "identityUri",
+        "subjectId",
+        "expectedRevision"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_begin_attestation_session",
+      "scope": "trust:write",
+      "arguments": [
+        "chatKey",
+        "consentVersion",
+        "consentResponse"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_end_attestation_session",
+      "scope": "trust:write",
+      "arguments": [
+        "sessionId"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_put_attestations",
+      "scope": "trust:write",
+      "arguments": [
+        "sessionId",
+        "idempotencyKey",
+        "statements"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_list_attestations",
+      "scope": "trust:read",
+      "arguments": [
+        "subjectId",
+        "cursor",
+        "limit"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_withdraw_attestations",
+      "scope": "trust:write",
+      "arguments": [
+        "sessionId",
+        "statements"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_get_trust_context",
+      "scope": "trust:read",
+      "arguments": [
+        "subjectId",
+        "task"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_get_connected_account_candidates",
+      "scope": "workspace:read",
+      "arguments": [
+        "query",
+        "limit",
+        "cursor"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
       "name": "joey_list_paths",
       "scope": "workspace:read",
       "arguments": [

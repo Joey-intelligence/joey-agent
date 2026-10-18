@@ -3,7 +3,8 @@
 Joey finds warm introduction paths to the people that your company wants to
 meet. This plugin connects your own AI agent to Joey. Your agent can then read
 your paths, help you make introductions, remind you to follow up, and keep your
-introduction tracker true.
+introduction tracker true. With your consent, it can also record relationship and
+trust statements and read the context behind trust support.
 
 ## What you need
 
@@ -14,7 +15,7 @@ introduction tracker true.
 ## What the plugin contains
 
 - The Joey MCP server at `https://pouch.getjoey.io/api/customer/mcp`.
-- Four skills:
+- Six skills:
 
 | Skill | What it does |
 | --- | --- |
@@ -22,6 +23,8 @@ introduction tracker true.
 | [joey-make-intro](skills/joey-make-intro/SKILL.md) | Writes the intro email with you and sends it after your yes, then updates Joey. |
 | [joey-intro-follow-up](skills/joey-intro-follow-up/SKILL.md) | Finds intros with no answer, updates their stage, and offers follow-ups and reminders. |
 | [joey-tracker-sync](skills/joey-tracker-sync/SKILL.md) | Reads your email and calendar and proposes intro stage updates for you to confirm. |
+| [joey-attest](skills/joey-attest/SKILL.md) | Records, corrects and withdraws relationship and trust statements after consent for this chat. |
+| [joey-trust](skills/joey-trust/SKILL.md) | Shows relationship context, source attribution, conflicts and derived trust support for a person or agent. |
 
 ## Sign in
 
@@ -31,9 +34,23 @@ The first time that your agent uses Joey, it opens a browser page.
 2. Choose the workspace.
 3. Approve the agent.
 
-The agent gets access only to that workspace. The agent keeps the sign-in, so
-you never copy a token. To remove the access, revoke the agent in Joey Settings.
+The grant gives access to the selected workspace. Trust permissions also give
+access to the Joey trust network. The agent keeps the sign-in, so you never
+copy a token. To remove the access, revoke the agent in Joey Settings.
 Joey Settings also shows these install steps with copy buttons.
+
+Trust reads need `trust:read`. Statement changes need `trust:write`. Existing
+grants do not receive these permissions automatically. Reconnect Joey and select
+them if needed.
+
+The agent asks once in each chat before it records relationship or trust facts.
+Structured claims, relevant context, your name and dates go to the Joey trust
+network. Source excerpts and chat references stay private to you. The session
+lasts twelve hours. You can stop capture or withdraw saved statements. These are
+agent submissions under reported member consent, not direct human signatures.
+The skills act only when the host loads or invokes them. They do not listen in
+the background. Trust support gives no permission to act and predicts no intro
+outcome.
 
 ## Install
 
@@ -68,7 +85,7 @@ codex mcp login joey
 
 1. Add Joey as a custom connector with the URL
    `https://pouch.getjoey.io/api/customer/mcp`. Then connect and sign in.
-2. Get the four skill zips from the latest release of this repository, or build
+2. Get the six skill zips from the latest release of this repository, or build
    them (see [Development](#development)).
 3. Upload each zip as a skill in the Skills settings.
 
@@ -147,6 +164,9 @@ claude plugin validate .
 
 For a new version, change the version in the four manifests and add an entry to
 [CHANGELOG.md](CHANGELOG.md) in the same commit. Attach the zips to the release.
+
+Before release of version `1.1.0`, deploy the Pouch trust contract and verify its
+permissions, source privacy and withdrawal. Release the plugin after that check.
 
 ## License
 

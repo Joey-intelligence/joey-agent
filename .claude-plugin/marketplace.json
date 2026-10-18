@@ -9,8 +9,8 @@
     {
       "name": "joey-agent",
       "source": "./",
-      "description": "Use Joey warm introduction paths from your own AI agent: read path reports, make introductions, follow up, and keep the introduction tracker true.",
-      "version": "1.0.1",
+      "description": "Use Joey paths, introductions and relationship context from your own AI agent. Record relationship and trust statements with your consent, and read their trust support.",
+      "version": "1.1.0",
       "category": "productivity"
     }
   ]
