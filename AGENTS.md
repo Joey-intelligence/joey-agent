@@ -14,7 +14,7 @@
 
 ## What lives here
 
-- `skills/` — six skills: `joey`, `joey-make-intro`, `joey-intro-follow-up`,
+- `skills/` — six skills: `joey`, `joey-activate-path`, `joey-path-follow-up`,
   `joey-tracker-sync`, `joey-attest`, `joey-trust`.
 - `skills/joey/references/tools.json` — the list of Joey MCP tools and prompts.
   It is a copy of the snapshot that the Pouch customer MCP test writes. Do not

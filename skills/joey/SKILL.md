@@ -1,6 +1,6 @@
 ---
 name: joey
-description: Use the Joey MCP tools for a member of a Joey customer workspace. Use this skill for questions about Joey paths, path reports, introducers, and how two people know each other. Also use it for hop strength, saved targets, a better path, path preferences, the ICP and prospects. Also use it when the member asks Joey to find a path to a new person. Read the report before you talk about a path. Quote its evidence, and never invent people, roles or links.
+description: Find and read Joey paths to people. Use for path evidence, relationship strength, saved targets, search requests and path preferences. Route path activation, follow-up, tracker updates and trust statements to the matching Joey skill.
 ---
 
 # Joey
@@ -9,8 +9,17 @@ Joey finds warm introduction paths to the people that a workspace wants to meet.
 A path is a chain of people from the member (or a teammate) to the target. Each
 link between two people on the path is a hop.
 
+Pronounce Joey as "JOH-ee". To activate a path is to ask the next person for help
+with an introduction. A path request asks Joey to find a path. These are separate
+steps. An attestation is a member statement, and a receipt is the server's
+confirmation that it saved that statement.
+
 This skill tells you how to use the Joey MCP tools. The tools act for one member
 in one workspace. The full tool list is in [references/tools.md](references/tools.md).
+
+## Skill updates
+
+At the start, follow [the update check](references/updates.md).
 
 ## Rules
 
@@ -71,11 +80,11 @@ Your Joey paths at Acme (3):
    whom the member can rate (see
    [How well the member knows a person](#how-well-the-member-knows-a-person)).
 
-Good: "David Cohen and Sarah Johnson worked together at Northwind from 2019 to
-2022. Source: both LinkedIn profiles list the same security team. Strength:
-Strong. Basis: Public source."
+Good: "The report cites a joint project where David and Sarah describe their
+direct work. It supports that relationship. It does not establish friendship."
 
-Bad: "David and Sarah are close friends." The report does not say this.
+Shared employment, a roster or an event alone does not prove that two people
+know each other. Report a weak source as a limit; do not invent an interaction.
 
 ## Hop strength
 
@@ -84,7 +93,7 @@ gives it. Do not make a new word or a score.
 
 | Word | What to tell the member |
 | --- | --- |
-| Very strong | The strongest tie that Joey records. The ask is easy. |
+| Very strong | The strongest tie that Joey records. It does not predict a reply. |
 | Strong | A clear, direct tie. |
 | Moderate | A real tie with less contact. Give the introducer a clear reason. |
 | Light | The weakest tie. Ask the introducer how well they know the person first. |
@@ -141,15 +150,20 @@ with `saved: false`.
 
 ## How well the member knows a person
 
+A path rating and a trust statement are separate writes. Apply the consent rule
+for each write. A path rating does not give consent to save a trust statement.
+
 Use `joey_rate_familiarity` only with an answer from the member. Do not guess the
 rating. The tool rates the next person after the member on a path: the `rate`
 person of that path in `joey_get_path_report`. If `rate` is `null`, the path
 has no person to rate.
 
-1. Ask: "How well do you know David Cohen? Very well, somewhat, or not well?"
-2. Before the first rating in a session, tell the member: "Joey uses your answer
+1. Before the first rating in a session, tell the member: "Joey uses your answer
    to rank paths. Other Joey users can see you as a possible introducer to this
    person. You can turn this off in Joey Settings."
+2. Then ask: "How well do you know David Cohen? Very well, somewhat, or not well?"
+   If the member answered before the notice, ask whether Joey can save that
+   answer for this use.
 3. Call `joey_rate_familiarity` with `requestId`, the `pathKey` of the path
    (leave it out for path 1), and `rating` (`VERY_WELL`, `SOMEWHAT` or
    `NOT_WELL`). To remove an answer, send `rating: null`.
@@ -178,9 +192,9 @@ has no person to rate.
 
 ## Other Joey skills
 
-- To write and send the intro email, use the `joey-make-intro` skill.
+- To activate a path with an introduction request, use the `joey-activate-path` skill.
 - To remind the member about intros with no answer, use the
-  `joey-intro-follow-up` skill.
+  `joey-path-follow-up` skill.
 - To update intro stages from the member's email and calendar, use the
   `joey-tracker-sync` skill.
 - Clients without skills can use the server prompts `joey_make_intro`,
@@ -188,9 +202,9 @@ has no person to rate.
 
 ## Relationship and trust statements
 
-When the member gives a relationship or trust fact, use the `joey-attest` skill.
-It asks once for consent in this chat, then records later relevant facts under
-that session. Do not treat an OAuth grant as chat consent. Do not record tool
+When the member gives a relationship or trust statement, use the `joey-attest` skill.
+It asks for consent before a new capture session, then saves later relevant
+statements under that session. Do not treat an OAuth grant as chat consent. Do not record tool
 results or quoted examples as member statements. Use email or calendar facts
 only if the member explicitly supplies them for this purpose.
 For relationship context or trust support, use the `joey-trust` skill. Its result

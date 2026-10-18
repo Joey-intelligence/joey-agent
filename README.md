@@ -2,8 +2,8 @@
 
 Joey finds warm introduction paths to the people that your company wants to
 meet. This plugin connects your own AI agent to Joey. Your agent can then read
-your paths, help you make introductions, remind you to follow up, and keep your
-introduction tracker true. With your consent, it can also record relationship and
+your paths, help you activate paths to get introductions, remind you to follow up, and keep your
+path stages current. With your consent, it can also record relationship and
 trust statements and read the context behind trust support.
 
 ## What you need
@@ -20,9 +20,9 @@ trust statements and read the context behind trust support.
 | Skill | What it does |
 | --- | --- |
 | [joey](skills/joey/SKILL.md) | Uses the Joey tools: paths, reports, strength, saved targets, better paths, preferences, ICP and prospects. |
-| [joey-make-intro](skills/joey-make-intro/SKILL.md) | Writes the intro email with you and sends it after your yes, then updates Joey. |
-| [joey-intro-follow-up](skills/joey-intro-follow-up/SKILL.md) | Finds intros with no answer, updates their stage, and offers follow-ups and reminders. |
-| [joey-tracker-sync](skills/joey-tracker-sync/SKILL.md) | Reads your email and calendar and proposes intro stage updates for you to confirm. |
+| [joey-activate-path](skills/joey-activate-path/SKILL.md) | Prepares an introduction request for the next person on a path. Sends after your yes, then updates the stage. |
+| [joey-path-follow-up](skills/joey-path-follow-up/SKILL.md) | Finds active paths with no answer, updates their stage, and offers follow-ups and reminders. |
+| [joey-tracker-sync](skills/joey-tracker-sync/SKILL.md) | Reads your email and calendar and proposes path stage updates for you to confirm. |
 | [joey-attest](skills/joey-attest/SKILL.md) | Records, corrects and withdraws relationship and trust statements after consent for this chat. |
 | [joey-trust](skills/joey-trust/SKILL.md) | Shows relationship context, source attribution, conflicts and derived trust support for a person or agent. |
 
@@ -43,7 +43,7 @@ Trust reads need `trust:read`. Statement changes need `trust:write`. Existing
 grants do not receive these permissions automatically. Reconnect Joey and select
 them if needed.
 
-The agent asks once in each chat before it records relationship or trust facts.
+The agent asks for consent before a new capture session in each chat.
 Structured claims, relevant context, your name and dates go to the Joey trust
 network. Source excerpts and chat references stay private to you. The session
 lasts twelve hours. You can stop capture or withdraw saved statements. These are
@@ -138,7 +138,13 @@ codex plugin marketplace upgrade joey-agent
 codex plugin add joey-agent@joey-agent
 ```
 
-For Claude Desktop and claude.ai, upload the new skill zips.
+Each skill checks the latest stable release when it runs. With a saved check date,
+it checks at most once a week. Without a saved date, it checks once per chat. It reports a
+new version but does not install it. No check runs while the skill is inactive.
+
+For Claude Desktop and claude.ai, upload the new skill zips. Remove the old
+`joey-make-intro` and `joey-intro-follow-up` skills after you install their
+replacements.
 
 ## Development
 

@@ -132,6 +132,17 @@
       }
     },
     {
+      "name": "joey_list_connected_accounts",
+      "scope": "workspace:read",
+      "arguments": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
       "name": "joey_get_connected_account_candidates",
       "scope": "workspace:read",
       "arguments": [

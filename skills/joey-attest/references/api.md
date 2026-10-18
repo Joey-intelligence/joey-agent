@@ -51,7 +51,21 @@ member's locator claim. `MEMBER_NAMED` has no clear identity yet.
 
 A relationship needs two people. A trust claim starts at a person. A
 representation starts at an agent and names a person or team. The receipt lists
-`statements`, each with `id`, `revision` and `status`.
+`statements`, each with `id`, `revision`, `status` and `graphDelivery`.
+
+`graphDelivery` has `state`, `revision`, `deliveredRevision` and `disposition`.
+The delivery revision differs from the statement revision. Identity resolution
+can send an existing statement without a content correction. States are:
+
+- `PENDING`: the local save is complete; graph delivery is not confirmed.
+- `SYNCED`: the graph confirmed the current delivery revision. Check
+  `disposition` for `ACTIVE` or `WITHDRAWN`.
+- `WITHHELD`: an unresolved identity prevents an active graph claim.
+
+The initial receipt remains a record of that write. To check later delivery,
+read the current record. Graph claims keep the member, purpose, context, proof
+type and revisions. They contain no private source excerpt or chat reference.
+They remain separate from public research facts.
 
 `joey_list_attestations` takes optional `subjectId`, `cursor` and `limit` (1 to
 50). It returns the author's records and `nextCursor`. This author-only result
@@ -62,7 +76,10 @@ includes private source fields. Do not pass them to another tool or message.
 - `sessionId` for all current statements from that session.
 - `statements`, each with `id` and `expectedRevision`, for selected records.
 
-It returns `{withdrawn}`. It needs `trust:write`, but no active capture session.
+It returns `{withdrawn, graphDelivery}`. New graph removals are `PENDING`; a
+repeat with no change is `UNCHANGED`. It needs `trust:write`, but no active
+capture session. Read the author's record for the current graph delivery state
+only when `trust:read` is available.
 
 ## Refusals and uncertain responses
 

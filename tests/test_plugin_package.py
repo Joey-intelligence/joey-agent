@@ -29,7 +29,7 @@ BUILD_SCRIPT = REPO_ROOT / "scripts" / "build_skill_zips.py"
 PLUGIN_NAME = "joey-agent"
 MCP_URL = "https://pouch.getjoey.io/api/customer/mcp"
 MCP_HOST_PATH = MCP_URL.split("://", 1)[1]
-EXPECTED_SKILLS = {"joey", "joey-make-intro", "joey-intro-follow-up", "joey-tracker-sync", "joey-attest", "joey-trust"}
+EXPECTED_SKILLS = {"joey", "joey-activate-path", "joey-path-follow-up", "joey-tracker-sync", "joey-attest", "joey-trust"}
 # The server prompts and their arguments.
 EXPECTED_PROMPTS = {"joey_make_intro": {"requestId"}, "joey_follow_up": set(), "joey_weekly_review": set()}
 SEMVER = re.compile(
@@ -209,6 +209,12 @@ class ManifestTests(unittest.TestCase):
         latest = re.search(r"(?m)^## (\S+)", changelog)
         self.assertTrue(latest, "CHANGELOG.md has no version entry")
         self.assertEqual(latest.group(1), version)
+        for skill in SKILLS_DIR.iterdir():
+            if skill.is_dir():
+                update = (skill / "references/updates.md").read_text()
+                installed = re.search(r"Installed release: `([^`]+)`", update)
+                self.assertIsNotNone(installed, str(skill))
+                self.assertEqual(installed.group(1), version)
 
     def test_one_description_in_all_manifests(self):
         descriptions = {

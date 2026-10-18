@@ -31,7 +31,16 @@ A member who is not an admin does not see `joey_update_icp`.
 - Input: none.
 - Result: `user` (`id`, `name`, `email`), `workspace` (`id`, `name`), `role`
   (`ADMIN` or `MEMBER`), `scopes`, and `client` (the name of this agent).
-- Call it first in each session.
+- Call it first when the task needs workspace context and `workspace:read` is
+  present. A known-statement or known-session withdrawal needs only
+  `trust:write` and can proceed without this read.
+
+### joey_list_connected_accounts
+
+- Input: none.
+- Result: the member's connected provider accounts and current access state.
+  This read contains no provider credentials.
+- Use it when the member asks which accounts Joey can use.
 
 ### joey_list_paths
 
@@ -88,7 +97,7 @@ A member who is not an admin does not see `joey_update_icp`.
   gmailUrl, cached}`.
   - `to` is the person to write to: `name` and `email`. The `email` can be
     `null`.
-  - `mode` is `ASK_INTRO` (the person introduces the member to the target) or
+  - `mode` is `ASK_INTRO` (ask the next person for help with the next hop) or
     `REACH_OUT` (the person is the target).
   - `viaTeammate` is `true` when the member is not on the path. Then the email
     goes to the first person on the path, a teammate of the member.
@@ -315,9 +324,9 @@ same work.
 
 | Prompt | Arguments | Same as |
 | --- | --- | --- |
-| `joey_make_intro` | `requestId` | the `joey-make-intro` skill |
-| `joey_follow_up` | none | the `joey-intro-follow-up` skill |
-| `joey_weekly_review` | none | the `joey` skill and the `joey-intro-follow-up` skill |
+| `joey_make_intro` | `requestId` | the `joey-activate-path` skill |
+| `joey_follow_up` | none | the `joey-path-follow-up` skill |
+| `joey_weekly_review` | none | the `joey` skill and the `joey-path-follow-up` skill |
 
 ## Connected account metadata
 
@@ -382,12 +391,14 @@ Joey to select them. Use the server input schema for nested statement fields.
   - `sessionId`: the active session for this chat.
   - `idempotencyKey`: a new UUID for the set; reuse only for the same retry.
   - `statements`: 1 to 25 member-supplied claims.
-- Result: statement IDs, revisions and status. Each claim has `subjectId`,
+- Result: statement IDs, revisions, status and `graphDelivery`. Each claim has `subjectId`,
   `objectId` (or `representedTeam` for an agent), `claimType`, `value`, optional
-  `familiarity`, `purpose`, public `context`, private `sourceExcerpt` and private
+  `familiarity`, `purpose`, network `context`, private `sourceExcerpt` and private
   `sourceReference`. A correction also needs `id` and `expectedRevision`.
   Types are `RELATIONSHIP`, `TRUST` and `REPRESENTS`. The server supplies the
   issuer. Do not submit tool results, quoted examples, secrets or whole reports.
+  A local save can have `graphDelivery.state: "PENDING"`. Do not call it a
+  completed graph write or submit a duplicate to force delivery.
 
 ### joey_list_attestations
 
@@ -396,15 +407,21 @@ Joey to select them. Use the server input schema for nested statement fields.
   - `cursor` (optional): the previous `nextCursor`.
   - `limit` (optional): 1 to 50.
 - Result: `{statements, nextCursor}` for this member only. This author-only result
-  includes private source excerpts. Do not share those fields.
+  includes private source excerpts. Do not share those fields. `graphDelivery`
+  gives the current delivery state and revision. `SYNCED` confirms the graph
+  state in `disposition`. `WITHHELD` means that an unresolved identity prevents
+  an active graph claim.
 
 ### joey_withdraw_attestations
 
 - Input:
   - `sessionId` (optional): withdraw all current statements from this session and stop it.
   - `statements` (optional): selected records, each with `id` and `expectedRevision`.
-- Result: `{withdrawn}`. Supply exactly one selection. Withdrawal works after
-  capture ends. The next context query excludes withdrawn records.
+- Result: `{withdrawn, graphDelivery}`. Supply exactly one selection. Withdrawal
+  works after capture ends. The next Pouch context query excludes withdrawn
+  records. New graph removals are `PENDING`; a repeat with no change is
+  `UNCHANGED`. Read the author's record to check graph delivery when `trust:read`
+  is available. Do not require read permission for withdrawal.
 
 ### joey_get_trust_context
 

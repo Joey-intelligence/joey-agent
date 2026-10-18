@@ -2,6 +2,10 @@
 
 ## 1.1.0 — 2026-10-18
 
+- Rename the path skills to `joey-activate-path` and `joey-path-follow-up`.
+- Add a weekly update check when a skill runs.
+- Clarify path activation, member claims and evidence limits.
+- Distinguish a local statement save from graph delivery and withdrawal.
 - Add `joey-attest` for member statements, consent for each chat, correction and
   withdrawal. Structured claims go to the Joey trust network; source excerpts
   stay private to the author.

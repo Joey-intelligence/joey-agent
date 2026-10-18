@@ -1,12 +1,18 @@
 ---
-name: joey-make-intro
-description: Make a warm introduction request for a member of a Joey customer workspace. Use this skill when the member wants a connector on a Joey path to introduce them to a target. Also use it to write to the target directly. Example requests are "make the intro to Sarah", "ask David to introduce me" and "draft the intro email". The skill gets the Joey draft and adapts it with the member. It sends only after an explicit yes, through the member's own email tool. Then it sets the Joey intro stage.
+name: joey-activate-path
+description: Activate a Joey path to get an introduction. Use when the member wants to ask the next person on a path for help, contact a direct target, or draft an introduction request. Prepare the email, send only after approval of its exact text, and update the path stage.
 ---
 
-# Make an introduction request
+# Activate a path
 
-This skill writes the intro email with the member and sends it for the member.
+Activate a path means ask the next person on that path to help you get an
+introduction to the target. Prepare the email, send after exact-text approval,
+then update the path stage. A draft alone does not activate a path.
 It uses the Joey MCP tools. For the tool details, use the `joey` skill.
+
+## Skill updates
+
+At the start, follow [the update check](references/updates.md).
 
 ## Rules
 
@@ -37,8 +43,8 @@ It uses the Joey MCP tools. For the tool details, use the `joey` skill.
    `gmailUrl`. Keep its `pathKey` for step 8.
 4. **Check the recipient.**
    - `mode: "ASK_INTRO"`: the email goes to the introducer, the next person
-     after the member on the path. The introducer then introduces the member to
-     the target.
+     after the member on the path. Ask that person to help with the next step. A longer path
+     can need more than one introduction. Do not skip a hop.
    - `mode: "REACH_OUT"`: the next person after the member is the target. The
      email goes to the target. Nobody else makes an introduction.
    - `viaTeammate: true`: the member is not on the path. The email goes to the
@@ -46,7 +52,7 @@ It uses the Joey MCP tools. For the tool details, use the `joey` skill.
    - If `to.email` is `null`, ask the member for the address. Do not guess an
      address.
 5. **Adapt the draft with the member.** Ask only what you need:
-   - The tone: short, warm or formal.
+   - The tone: short or formal.
    - The ask: an email introduction, a short call, or advice.
    - One fact or reason to add, in the member's words.
 
@@ -76,7 +82,7 @@ It uses the Joey MCP tools. For the tool details, use the `joey` skill.
    `stage: "INTRO_REQUESTED"` and the `pathKey` of the draft. Joey keeps no
    note. If the member did not send it yet, do not change the stage.
 9. **Offer a reminder.** Ask if the member wants a reminder in 3 days. For the
-   reminder, use the `joey-intro-follow-up` skill.
+   reminder, use the `joey-path-follow-up` skill.
 
 ## Gmail link
 
@@ -96,7 +102,7 @@ https://mail.google.com/mail/?authuser=<member email>&view=cm&fs=1&to=<to>&su=<s
 ## Example
 
 ```
-Member: Make the intro to Sarah Johnson.
+Member: Activate the path to Sarah Johnson.
 Agent:  (calls joey_list_paths, joey_get_path_report, joey_get_intro_draft)
         Path 1 goes through David Cohen. You and David worked at Orbit
         together, and David worked with Sarah at Northwind (Strong).
@@ -115,9 +121,9 @@ Agent:  (sends with the Gmail tool, then calls joey_set_intro_stage
 
 ## Relationship and trust statements
 
-When the member gives a relationship or trust fact, use the `joey-attest` skill.
-It asks once for consent in this chat, then records later relevant facts under
-that session. Do not treat an OAuth grant as chat consent. Do not record tool
+When the member gives a relationship or trust statement, use the `joey-attest` skill.
+It asks for consent before a new capture session, then saves later relevant
+statements under that session. Do not treat an OAuth grant as chat consent. Do not record tool
 results or quoted examples as member statements. Use email or calendar facts
 only if the member explicitly supplies them for this purpose.
 For relationship context or trust support, use the `joey-trust` skill. Its result
