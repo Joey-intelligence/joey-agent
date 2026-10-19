@@ -1,6 +1,6 @@
 ---
 name: joey-activate-path
-description: Use when the member wants to contact a direct target, ask the next person on a Joey path for an introduction, prepare outreach, or record progress and confirmed outcomes for a live activation.
+description: Use when the member wants to contact a direct target, ask the next person on a Joey path for an introduction, prepare outreach, or record progress and confirmed outcomes for a live or report-backed activation.
 ---
 
 # Activate a path
@@ -33,16 +33,19 @@ At the start, follow [the update check](references/updates.md).
 1. Call `joey_whoami`. Read the selected live path with
    `joey_read_path_context`, or a delivered report with `joey_get_path_report`.
    If no path is selected, use the `joey` skill to find one.
-2. For a live path, agree on the private brief: `goal`, `target`, `proposedValue`
-   and `timing`. Call `joey_prepare_activation` with `pathRef`, the brief if
-   known, and a new UUID `idempotencyKey`. Keep the returned `activationId`,
+2. For a live path or delivered report, agree on the private brief: `goal`, `target`, `proposedValue`
+   and `timing`. Call `joey_prepare_activation` with one `pathRef` or `requestId` and optional
+   `pathKey`, the brief if known, and a new UUID `idempotencyKey`. A report
+   activation keeps its `DELIVERED_REPORT` source. Keep the returned `activationId`,
    `revision` and `steps`. This creates no research request or delivered report.
 3. For a saved activation, read `joey_get_intro_tracker`. Select the current
-   step and revision. For a report, keep `requestId` and the chosen `pathKey`.
+   step and revision. Prepare a report-backed activation before intermediate
+   progress or outcome capture. A report request ID alone controls its final
+   target stage and refuses `stepIndex`.
 4. Call `joey_get_intro_draft` with exactly one `activationId` or `requestId`.
    For an activation, also give `stepIndex`. For a report, give `pathKey` if
-   needed. Keep the draft's recipient reference: `to.entityRef` for a live
-   activation or `to.recipientRef` for a report.
+   needed. Keep `to.recipientRef` as the draft's recipient reference. `to.entityRef` is
+   the canonical graph reference when known; it can be null for a report person.
 5. Explain who receives this request and who this step must reach. For
    Member → Alex → Dana → Target, step 0 asks Alex for an introduction to Dana.
    Step 1 asks Dana for an introduction to Target. A direct path asks the target.
@@ -87,8 +90,9 @@ At the start, follow [the update check](references/updates.md).
 ## Save a confirmed outcome
 
 Private progress and shared evidence are separate. `joey_record_path_outcome`
-works for a saved `activationId`. Use `visibility: "PRIVATE"` if the member
-wants a private note. Do not convert a report into a fabricated live activation.
+works for a saved `activationId`, from a live path or delivered report. For a
+report, first use `joey_prepare_activation` with `requestId` and optional
+`pathKey`. Use `visibility: "PRIVATE"` if the member wants a private note.
 
 Shared capture needs `intros:write`, `trust:read`, `trust:write`, an active chat
 capture session and **separate outcome consent**. Old statement consent does
@@ -112,7 +116,10 @@ The observation needs `kind`, `channel`, two `participants`, `occurredAt`, safe
 `context` and `source`. Use only confirmed canonical `entityRef` and `profileUrl`
 values for the participants. Names alone cannot establish identity. The source
 has `type`, private `reference`, private exact `excerpt`, matching `event` and
-`identityProof`. Member evidence needs the actual identity `confirmation`.
+`identityProof`. `HOST_MESSAGE_TOOL` requires `identityProof: "HOST_VERIFIED_PARTICIPANTS"`.
+For member proof, use `type: "MEMBER_CONFIRMATION"`,
+`identityProof: "MEMBER_CONFIRMED_IDENTITIES"` and the member's actual affirmative
+`confirmation`. Do not label member proof as a host-verified message.
 A calendar source needs confirmation that the meeting occurred. Never invent
 proof from a tool's calendar date.
 
@@ -122,8 +129,10 @@ Only an identity-bound `REPLY_RECEIVED`, `INTRO_ACCEPTED` or confirmed
 An outcome creates no friendship, familiarity, general trust or contact permission.
 
 Read the receipt. A local save and `graphDelivery` are separate; `SYNCED` does
-not prove graph visibility. Use `outcomeId` and `expectedRevision` for a
-correction or `action: "WITHDRAW"`. Withdrawal needs no new capture consent.
+not prove graph visibility. One source event has one outcome, regardless of kind. Use a correction if its
+interpretation changes, including a scheduled meeting that later occurred. Use
+a full source reference that distinguishes host accounts and channels. Use
+`outcomeId` and `expectedRevision` for a correction or `action: "WITHDRAW"`. Withdrawal needs no new capture consent.
 Inspect the tracker for the current record. Do not retry an uncertain action
 with a new key. For voluntary relationship or trust statements, use
 `joey-attest`; for trust context, use `joey-trust`.

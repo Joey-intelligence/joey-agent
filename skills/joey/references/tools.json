@@ -75,6 +75,8 @@
       "scope": "intros:write",
       "arguments": [
         "pathRef",
+        "requestId",
+        "pathKey",
         "brief",
         "idempotencyKey"
       ],

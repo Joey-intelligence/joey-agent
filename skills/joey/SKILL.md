@@ -8,7 +8,9 @@ description: Use when the member asks for people, warm paths, graph connections,
 Joey finds paths to people. A path is a chain of people; each link is a hop.
 Start with the member's goal. Find a useful path, explain its evidence and trust
 context, then use the `joey-activate-path` skill if the member asks for contact.
-A research request, a delivered report and a private activation are separate records.
+A research request, a delivered report and a private activation are separate
+records. A selected report can supply a report-backed activation with durable
+steps and outcomes.
 
 The full tool reference is [references/tools.md](references/tools.md).
 

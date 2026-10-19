@@ -2,8 +2,8 @@
 
 Joey finds paths to people for personal accounts and company workspaces. This
 plugin connects your AI agent to live graph evidence and delivered reports.
-Your agent can prepare introductions, track each step and check confirmed
-outcomes. A message needs your approval of its exact recipient, channel and
+Your agent can prepare introductions from live paths or delivered reports,
+track each step and check confirmed outcomes. A message needs your approval of its exact recipient, channel and
 text. Shared outcomes need separate consent from relationship and trust statements.
 
 ## What you need

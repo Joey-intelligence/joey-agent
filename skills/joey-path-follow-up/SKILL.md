@@ -49,7 +49,8 @@ At the start, follow [the update check](references/updates.md).
 ## Outcomes and statements
 
 A tracker change alone creates no graph edge. Use `joey-activate-path` for
-`joey_record_path_outcome` on a saved activation. NETWORK outcomes need separate
+`joey_record_path_outcome` on a saved activation. A delivered report can prepare that activation through
+`joey_prepare_activation` with `requestId` and optional `pathKey`. NETWORK outcomes need separate
 explicit outcome consent for this chat, not old statement consent. Share only
 identity-bound replies, accepted introductions or confirmed completed meetings.
 A sent message or scheduled meeting stays private. Unknown identities stay

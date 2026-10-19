@@ -97,17 +97,17 @@ and separate outcome consent. Public graph context access adds no new charge.
 
 - Input:
   - `requestId` (optional): a delivered report. Select this or `activationId`.
-  - `activationId` (optional): a saved live activation. Select this or `requestId`.
+  - `activationId` (optional): a saved activation from a live path or delivered report. Select this or `requestId`.
   - `stepIndex` (optional): the selected activation step; default 0.
   - `pathKey` (optional): the selected report path.
   - `regenerate` (optional): request a new report draft.
 - Result: a draft for the next recipient. A live draft has `activationId`,
-  `stepIndex`, `to` (`entityRef`, `name`, `email`), `target`, `subject`, `body`,
+  `stepIndex`, `to` (`recipientRef`, nullable `entityRef`, `name`, `email`), `target`, `subject`, `body`,
   `brief`, `briefDisclosure` and `recipientInterest: "UNKNOWN"`. The live path is
   revalidated. A report draft has `pathKey`, `to` (`recipientRef`, `name`,
   `email`), `mode`, `viaTeammate`, `contextChips`, `gmailUrl` and `cached`.
-- Keep `to.entityRef` or the report's `to.recipientRef` as the send's
-  `recipientRef`. An absent email address is not permission to guess one.
+- Keep `to.recipientRef` as the send's `recipientRef` for an activation or
+  report draft. A report person can have no canonical `entityRef`. An absent email address is not permission to guess one.
   Adapt the draft to the requested host channel. Show exact recipient, channel,
   subject and text before a send. A draft or compose link is not a send.
 
@@ -191,10 +191,11 @@ and separate outcome consent. Public graph context access adds no new charge.
 
 - Input:
   - `requestId` (optional): a delivered report. Select this or `activationId`.
-  - `activationId` (optional): a saved live activation. Select this or `requestId`.
+  - `activationId` (optional): a saved activation from a live path or delivered report. Select this or `requestId`.
   - `expectedRevision` (optional): required for an activation change.
   - `idempotencyKey` (optional): new UUID for an activation action; same key for an exact retry.
-  - `stepIndex` (optional): selected activation step; default 0.
+  - `stepIndex` (optional): selected activation step; default 0. A report
+    `requestId` alone refuses this field; prepare its activation first.
   - `confirmation` (optional): the member's actual progress confirmation; required for later activation stages.
   - `approval` (optional): required for `INTRO_REQUESTED`. Exact `recipientRef`,
     actual `recipient`, `channel`, `subject`, `text` and affirmative `response`.
@@ -510,19 +511,23 @@ Joey to select them. Use the server input schema for nested statement fields.
 ### joey_prepare_activation
 
 - Input:
-  - `pathRef`: selected scoped live path reference.
+  - `pathRef` (optional): selected scoped live path reference. Select this or `requestId`.
+  - `requestId` (optional): current delivered report. Select this or `pathRef`.
+  - `pathKey` (optional): selected delivered report path.
   - `brief` (optional): private `goal`, `target`, `proposedValue` and `timing`.
   - `idempotencyKey`: new UUID; reuse only for an exact retry.
 - Result: private `activationId`, `revision`, ordered `steps`, `finalStage`,
   selected path context and dates. Each step has a recipient, target and stage.
-  It revalidates the path and creates no research request or delivered report.
-  Save this record before a live introduction. It sends no message.
+  It revalidates a live path or reads the current delivered report. The result
+  keeps its LIVE_GRAPH or DELIVERED_REPORT source. It creates no research
+  request or delivered report. Save this record before an introduction with
+  intermediate progress or outcomes. It sends no message.
 
 
 ### joey_record_path_outcome
 
 - Input:
-  - `activationId`: saved live activation UUID.
+  - `activationId`: saved activation UUID, from a live path or delivered report.
   - `action`: `SAVE` or `WITHDRAW`.
   - `idempotencyKey`: new UUID for this exact action.
   - `outcomeId` (optional): existing outcome for a correction or withdrawal.
@@ -541,6 +546,10 @@ Joey to select them. Use the server input schema for nested statement fields.
   `occurrenceConfirmation` when needed. Source types are `HOST_MESSAGE_TOOL`,
   `HOST_CALENDAR_TOOL` and `MEMBER_CONFIRMATION`. Identity proof is
   `HOST_VERIFIED_PARTICIPANTS` or `MEMBER_CONFIRMED_IDENTITIES`.
+  `HOST_MESSAGE_TOOL` requires `HOST_VERIFIED_PARTICIPANTS`. For member-confirmed
+  identities, use `type: "MEMBER_CONFIRMATION"`,
+  `identityProof: "MEMBER_CONFIRMED_IDENTITIES"` and the actual affirmative
+  `confirmation`. Do not label member proof as a host-verified message.
 - Result: attributed outcome with ID, revision, visibility and `graphDelivery`.
   Only identity-bound `REPLY_RECEIVED`, `INTRO_ACCEPTED` or confirmed
   `MEETING_OCCURRED` can add an interaction edge. `MESSAGE_SENT` and

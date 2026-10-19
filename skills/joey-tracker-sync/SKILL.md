@@ -60,7 +60,8 @@ nor a relationship. Do not turn a sent message, a scheduled meeting or a contact
 entry into shared interaction evidence.
 
 For an observation on a saved activation, use `joey_record_path_outcome` as the
-`joey-activate-path` skill describes. Keep `HOST_MESSAGE_TOOL`,
+`joey-activate-path` skill describes. A delivered report can prepare an activation
+through `joey_prepare_activation` with `requestId` and optional `pathKey`. Keep `HOST_MESSAGE_TOOL`,
 `HOST_CALENDAR_TOOL` and `MEMBER_CONFIRMATION` sources distinct. Preserve the
 private reference and exact relevant excerpt only in the author record. Check
 canonical participant profiles and get actual attendance confirmation for a
