@@ -1,14 +1,14 @@
 # Joey for your AI agent
 
-Joey finds warm introduction paths to the people that your company wants to
-meet. This plugin connects your own AI agent to Joey. Your agent can then read
-your paths, help you activate paths to get introductions, remind you to follow up, and keep your
-path stages current. With your consent, it can also record relationship and
-trust statements and read the context behind trust support.
+Joey finds paths to people for personal accounts and company workspaces. This
+plugin connects your AI agent to live graph evidence and delivered reports.
+Your agent can prepare introductions, track each step and check confirmed
+outcomes. A message needs your approval of its exact recipient, channel and
+text. Shared outcomes need separate consent from relationship and trust statements.
 
 ## What you need
 
-- A Joey account in a company workspace. Joey is invite only.
+- A Joey personal account or a company workspace account.
 - One of these agents: Claude Code, Codex, Claude Desktop, claude.ai, Cursor or
   ChatGPT.
 
@@ -19,10 +19,10 @@ trust statements and read the context behind trust support.
 
 | Skill | What it does |
 | --- | --- |
-| [joey](skills/joey/SKILL.md) | Uses the Joey tools: paths, reports, strength, saved targets, better paths, preferences, ICP and prospects. |
+| [joey](skills/joey/SKILL.md) | Finds live people, connections and paths. Reads evidence, reports and trust context. |
 | [joey-activate-path](skills/joey-activate-path/SKILL.md) | Prepares an introduction request for the next person on a path. Sends after your yes, then updates the stage. |
 | [joey-path-follow-up](skills/joey-path-follow-up/SKILL.md) | Finds active paths with no answer, updates their stage, and offers follow-ups and reminders. |
-| [joey-tracker-sync](skills/joey-tracker-sync/SKILL.md) | Reads your email and calendar and proposes path stage updates for you to confirm. |
+| [joey-tracker-sync](skills/joey-tracker-sync/SKILL.md) | Reads relevant host messages and calendar events. Proposes progress and confirmed outcomes. |
 | [joey-attest](skills/joey-attest/SKILL.md) | Records, corrects and withdraws relationship and trust statements after consent for this chat. |
 | [joey-trust](skills/joey-trust/SKILL.md) | Shows relationship context, source attribution, conflicts and derived trust support for a person or agent. |
 
@@ -119,8 +119,10 @@ The Joey server also gives instructions and three prompts: `joey_make_intro`,
 
 ## Safety
 
-- Your agent sends an email only after you say yes to the exact text.
-- Your agent sends email only through your own email tool.
+- Your agent sends only after your yes to the exact recipient, channel and text.
+- Your agent uses an available host message tool through your account.
+- A failed send changes no progress. A sent message creates no graph edge.
+- A calendar entry alone does not prove a completed meeting.
 - Your agent contacts nobody unless you ask.
 - Your agent sets a reminder only after you agree.
 - Path reports are confidential to your workspace. Your agent quotes only the
@@ -171,8 +173,9 @@ claude plugin validate .
 For a new version, change the version in the four manifests and add an entry to
 [CHANGELOG.md](CHANGELOG.md) in the same commit. Attach the zips to the release.
 
-Before release of version `1.1.0`, deploy the Pouch trust contract and verify its
-permissions, source privacy and withdrawal. Release the plugin after that check.
+Before release of version `1.2.0`, release Joey OS, then Pouch. Verify confirmed
+profile identity, scopes, source privacy, outcome consent and withdrawal. Release
+the plugin only after those checks. Local tests do not prove live availability.
 
 ## License
 
@@ -181,3 +184,14 @@ Proprietary. See [LICENSE](LICENSE).
 Personal relationship answers use four strengths: weak, medium, strong, and very strong.
 Joey shares old and new personal answers as attributed statements. Weak is positive; an explicit No is separate.
 Source excerpts and chat references stay private to their author.
+
+Live graph reads need no delivered report. An empty report list does not show
+graph absence. Shared member edges need a confirmed public profile and the
+required trust permission. A local save, graph delivery and graph visibility
+are separate states. SYNCED delivery alone does not prove visibility.
+
+Confirmed outcomes keep their event source separate from public research and
+member statements. A reply, accepted introduction or completed meeting can add
+an interaction edge after explicit outcome consent and identity checks. It
+creates no familiarity level, general trust or permission to contact anyone.
+Private source excerpts and references stay with their author.

@@ -1,6 +1,6 @@
 ---
 name: joey-attest
-description: Save relationship and trust statements that the member chooses to share with the Joey trust network. Ask for consent before a new capture session. Also use to inspect, correct or withdraw saved statements. Keep source excerpts private.
+description: Use when the member voluntarily gives relationship or trust statements, asks to save them with Joey, or asks to inspect, correct or withdraw those statements.
 ---
 
 # Record relationship and trust statements
@@ -95,8 +95,10 @@ remain until the member withdraws them or deletes the account.
 7. Report a local save only after a receipt. Give a short summary, statement IDs
    and revisions. `graphDelivery` reports delivery to the graph separately.
    `PENDING` means the server must still deliver the change. Do not submit a
-   duplicate to force delivery. `SYNCED` confirms the current graph revision.
-   `WITHHELD` means the identity is not clear, so the graph holds no active claim.
+   duplicate to force delivery. `SYNCED` confirms delivery of the current command, not graph visibility.
+   Inspect `visibility` for the identity limit. The member must confirm a public
+   graph profile before their edge can appear. Do not create an account node
+   or merge namesakes. A name-only or conflicted identity can stay withheld.
    Say that the member can correct or withdraw the statement.
 
 See [references/api.md](references/api.md) for fields, receipts and refusals.
@@ -126,3 +128,16 @@ See [references/api.md](references/api.md) for fields, receipts and refusals.
 - After a correction or withdrawal, get fresh context with
   `joey_get_trust_context` before you discuss its support rank. Do not reuse an
   earlier result.
+
+## Separate outcome evidence
+
+Member statements and confirmed outcomes are different source types. Do not
+turn host message or calendar results into member statements. Use the
+`joey-activate-path` skill for `joey_record_path_outcome`. Shared outcomes need
+separate explicit outcome consent; this statement session alone does not cover
+them. A send, scheduled meeting or tracker stage creates no interaction edge.
+A confirmed outcome creates no familiarity level or general trust.
+
+A whole-session withdrawal also withdraws the shared outcomes from that session.
+Ending capture leaves saved records in place. Check each outcome's current
+record in `joey_get_intro_tracker` for delivery and removal state.

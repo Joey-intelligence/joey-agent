@@ -22,7 +22,11 @@ errors can have `isError` and text without a service code. See
 | `trust:read` | Members with this permission | Trust subject lookup, own statements and trust context |
 | `trust:write` | Members with this permission | Capture sessions, subjects, statements and withdrawal |
 
-A member who is not an admin does not see `joey_update_icp`.
+A member who is not an admin does not see `joey_update_icp`. Personal workspaces
+have fewer report and workspace tools. Use the connected server schema. Live
+graph reads and private activations work for personal and company workspaces.
+Shared graph reads also need `trust:read`; shared outcomes need both trust scopes
+and separate outcome consent. Public graph context access adds no new charge.
 
 ## Read tools
 
@@ -30,7 +34,10 @@ A member who is not an admin does not see `joey_update_icp`.
 
 - Input: none.
 - Result: `user` (`id`, `name`, `email`), `workspace` (`id`, `name`), `role`
-  (`ADMIN` or `MEMBER`), `scopes`, and `client` (the name of this agent).
+  (`ADMIN` or `MEMBER`), `scopes`, `client`, `capabilities` and `graphIdentity`.
+  Identity has status, revision, confirmed entity reference/profile URL and a
+  hidden-edge reason. `CLAIMED` is the confirmed profile state; a missing
+  profile must not become a synthetic account node.
 - Call it first when the task needs workspace context and `workspace:read` is
   present. A known-statement or known-session withdrawal needs only
   `trust:write` and can proceed without this read.
@@ -89,23 +96,20 @@ A member who is not an admin does not see `joey_update_icp`.
 ### joey_get_intro_draft
 
 - Input:
-  - `requestId`: from `joey_list_paths`.
-  - `pathKey` (optional): the path. Path 1 if you do not give it.
-  - `regenerate` (optional): `true` makes a new draft in place of the saved
-    one.
-- Result: `{pathKey, to, mode, viaTeammate, subject, body, contextChips,
-  gmailUrl, cached}`.
-  - `to` is the person to write to: `name` and `email`. The `email` can be
-    `null`.
-  - `mode` is `ASK_INTRO` (ask the next person for help with the next hop) or
-    `REACH_OUT` (the person is the target).
-  - `viaTeammate` is `true` when the member is not on the path. Then the email
-    goes to the first person on the path, a teammate of the member.
-  - `gmailUrl` opens a Gmail compose window in the member's account with this
-    recipient, subject and body.
-- Joey writes the draft with AI from the hop evidence. The server limits the
-  number of new drafts for each member in one hour. A saved draft
-  (`cached: true`) does not count.
+  - `requestId` (optional): a delivered report. Select this or `activationId`.
+  - `activationId` (optional): a saved live activation. Select this or `requestId`.
+  - `stepIndex` (optional): the selected activation step; default 0.
+  - `pathKey` (optional): the selected report path.
+  - `regenerate` (optional): request a new report draft.
+- Result: a draft for the next recipient. A live draft has `activationId`,
+  `stepIndex`, `to` (`entityRef`, `name`, `email`), `target`, `subject`, `body`,
+  `brief`, `briefDisclosure` and `recipientInterest: "UNKNOWN"`. The live path is
+  revalidated. A report draft has `pathKey`, `to` (`recipientRef`, `name`,
+  `email`), `mode`, `viaTeammate`, `contextChips`, `gmailUrl` and `cached`.
+- Keep `to.entityRef` or the report's `to.recipientRef` as the send's
+  `recipientRef`. An absent email address is not permission to guess one.
+  Adapt the draft to the requested host channel. Show exact recipient, channel,
+  subject and text before a send. A draft or compose link is not a send.
 
 ### joey_get_intro_tracker
 
@@ -113,7 +117,11 @@ A member who is not an admin does not see `joey_update_icp`.
   - `stage` (optional): one of the [intro stages](#intro-stages), or `STOPPED`.
   - `staleDays` (optional): only the open intros (not `MET`, not stopped) with
     no change for at least this number of days.
-- Result: `{counters, openCount, rows}`.
+- Result: `{counters, openCount, rows, activations, activationCompleteness}`.
+  Activations have revisions, per-step stages and private outcomes. The result
+  has limits of 100 activations and 500 outcomes. Check completeness before a
+  claim that all records are shown. A stage filter can match an intermediate
+  step; final-stage progress remains separate.
   - `counters`: `pathsDiscovered`, `introsRequested`, `introsMade` and
     `meetings`.
   - Each row has `requestId`, `target` (`name`, `organization`), `connector`,
@@ -182,22 +190,39 @@ A member who is not an admin does not see `joey_update_icp`.
 ### joey_set_intro_stage
 
 - Input:
-  - `requestId`: from `joey_list_paths`.
+  - `requestId` (optional): a delivered report. Select this or `activationId`.
+  - `activationId` (optional): a saved live activation. Select this or `requestId`.
+  - `expectedRevision` (optional): required for an activation change.
+  - `idempotencyKey` (optional): new UUID for an activation action; same key for an exact retry.
+  - `stepIndex` (optional): selected activation step; default 0.
+  - `confirmation` (optional): the member's actual progress confirmation; required for later activation stages.
+  - `approval` (optional): required for `INTRO_REQUESTED`. Exact `recipientRef`,
+    actual `recipient`, `channel`, `subject`, `text` and affirmative `response`.
+  - `sendReceipt` (optional): required for `INTRO_REQUESTED`. Required fields
+    are `recipientRef`, actual `recipient`, `channel`, `subject`, exact `text`,
+    `status`, `source`, `messageReference` and `sentAt`. The first five fields
+    must equal the corresponding approval fields.
   - `stage`: one of the [intro stages](#intro-stages).
-  - `pathKey` (optional): the path that the intro uses. If you do not give it,
-    the intro keeps its path (path 1 for a new intro). Do not give it with
-    `PATH_FOUND`.
-- Result: `{requestId, intro}`.
-- The tracker shows that this agent made the change. A stopped intro takes no
-  change (`INTRO_STOPPED`).
-- Joey keeps no note with a stage. Tell the member the reason in your answer.
+  - `pathKey` (optional): selected report path; omit for an activation.
+- Result: current report intro or activation with its revision and steps.
+  `SENT` must match the exact approved version. `FAILED` changes no progress.
+  Channels are `EMAIL`, `SLACK`, `SMS` or `OTHER`; use null for no subject.
+  Source is `HOST_TOOL_REPORTED` or `MEMBER_CONFIRMED`, as the evidence requires.
+  A receipt proves only the reported send. It creates no relationship edge.
+- Intermediate activation stages do not advance the final target. The next
+  step requires the preceding introduction. Other stage changes need actual
+  member confirmation. A calendar date alone does not prove a completed meeting.
+  A changed revision needs a fresh tracker read. A stopped record takes no change.
 
 ### joey_stop_intro
 
 - Input:
-  - `requestId`: from `joey_list_paths`.
-- Result: `{requestId, intro}`.
-- A stop is final. Only a requested intro can stop (`INTRO_NOT_STARTED`).
+  - `requestId` (optional): delivered report. Select this or `activationId`.
+  - `activationId` (optional): saved activation. Select this or `requestId`.
+  - `expectedRevision` (optional): required for an activation stop.
+  - `idempotencyKey` (optional): required new UUID for an activation action.
+- Result: stopped report intro or private activation. A stop is final.
+  Ask the member before the call. A repeat with the same action key changes nothing.
 
 ### joey_rate_familiarity
 
@@ -313,7 +338,7 @@ of a path is the word of its weakest hop.
 | `RATING_NOT_ALLOWED` | This path has no person that the member can rate. Do not retry. |
 | `TARGET_COMPANY_REQUIRED` | Joey does not know the company of the target, so it cannot save the target. |
 | `INVALID_TARGET_URL` | Ask the member for a LinkedIn person or company URL. Do not guess one. |
-| `IDEMPOTENCY_CONFLICT` | The key was used for another request. Make a new key. |
+| `IDEMPOTENCY_CONFLICT` | The key has different content. Inspect the earlier action before a new write; do not duplicate an uncertain save. |
 | Other code | Tell the member the code in plain words. Do not guess a cause. |
 
 ## Server prompts
@@ -323,7 +348,7 @@ same work.
 
 | Prompt | Arguments | Same as |
 | --- | --- | --- |
-| `joey_make_intro` | `requestId` | the `joey-activate-path` skill |
+| `joey_make_intro` | one `requestId`, `pathRef` or `activationId` | the `joey-activate-path` skill |
 | `joey_follow_up` | none | the `joey-path-follow-up` skill |
 | `joey_weekly_review` | none | the `joey` skill and the `joey-path-follow-up` skill |
 
@@ -407,14 +432,15 @@ Joey to select them. Use the server input schema for nested statement fields.
   - `limit` (optional): 1 to 50.
 - Result: `{statements, nextCursor}` for this member only. This author-only result
   includes private source excerpts. Do not share those fields. `graphDelivery`
-  gives the current delivery state and revision. `SYNCED` confirms the graph
-  state in `disposition`. `WITHHELD` means that an unresolved identity prevents
+  gives the current delivery state and revision. `SYNCED` confirms delivery,
+  not graph visibility. Check `visibility` for a profile confirmation limit.
+  `WITHHELD` means that an unresolved identity prevents
   an active graph claim.
 
 ### joey_withdraw_attestations
 
 - Input:
-  - `sessionId` (optional): withdraw all current statements from this session and stop it.
+  - `sessionId` (optional): withdraw all current statements and shared outcomes from this session and stop it.
   - `statements` (optional): selected records, each with `id` and `expectedRevision`.
 - Result: `{withdrawn, graphDelivery}`. Supply exactly one selection. Withdrawal
   works after capture ends. The next Pouch context query excludes withdrawn
@@ -433,3 +459,116 @@ Joey to select them. Use the server input schema for nested statement fields.
   and the result has at most five paths. Support is `HIGH`, `MEDIUM`, `LOW` or
   `UNKNOWN`, from the weakest link. It gives no action permission or outcome
   prediction. The result has source attribution, but no private source fields.
+
+### joey_search_graph_people
+
+- Input:
+  - `query`: person name or public profile URL; 2 to 2,048 characters.
+  - `limit` (optional): 1 to 20 candidates.
+- Result: current matching graph people and completeness. A name match is a
+  candidate, not proof of identity. Select a clear canonical profile before a
+  path search. A missing match is not proof of graph absence.
+
+
+### joey_get_graph_connections
+
+- Input:
+  - `entityRef`: canonical graph person UUID.
+  - `offset` (optional): start position.
+  - `limit` (optional): 1 to 100 connections.
+- Result: current connections with exact source evidence, strength, review state,
+  revisions and completeness. Public reads need `workspace:read`; shared member
+  evidence also needs `trust:read`. Unknown familiarity stays unknown.
+
+
+### joey_find_graph_paths
+
+- Input:
+  - `originRefs` (optional): 1 to 20 canonical graph person UUIDs. If absent,
+    the member must have a confirmed public graph profile.
+  - `target`: `entityRefs` (1 to 20 UUIDs), `profileUrl`, or `company` with
+    optional `roles` (at most 10). Use a supplied or confirmed profile URL.
+  - `maxHops` (optional): 1 to 5; default 3.
+  - `maxPaths` (optional): 1 to 10; default 5.
+- Result: live paths with scoped `pathRef` values, people, hop evidence,
+  revisions and completeness limits. It creates no report or research request.
+  An empty bounded search does not prove that no path exists. Shared member
+  evidence needs `trust:read`; no name-based member identity is allowed.
+
+
+### joey_read_path_context
+
+- Input:
+  - `pathRef`: selected scoped reference from a live path search.
+  - `brief` (optional): private `goal`, `target`, `proposedValue` and `timing`.
+- Result: revalidated path, evidence, available trust context, next recipient,
+  private brief and completeness. Recipient interest stays unknown. Do not
+  disclose the brief without the member's approval. Read this before a live
+  path explanation or activation. An old reference needs a fresh search.
+
+
+### joey_prepare_activation
+
+- Input:
+  - `pathRef`: selected scoped live path reference.
+  - `brief` (optional): private `goal`, `target`, `proposedValue` and `timing`.
+  - `idempotencyKey`: new UUID; reuse only for an exact retry.
+- Result: private `activationId`, `revision`, ordered `steps`, `finalStage`,
+  selected path context and dates. Each step has a recipient, target and stage.
+  It revalidates the path and creates no research request or delivered report.
+  Save this record before a live introduction. It sends no message.
+
+
+### joey_record_path_outcome
+
+- Input:
+  - `activationId`: saved live activation UUID.
+  - `action`: `SAVE` or `WITHDRAW`.
+  - `idempotencyKey`: new UUID for this exact action.
+  - `outcomeId` (optional): existing outcome for a correction or withdrawal.
+  - `expectedRevision` (optional): required with `outcomeId`.
+  - `visibility` (optional): required for SAVE; `PRIVATE` or `NETWORK`.
+  - `sessionId` (optional): active chat capture session; required for NETWORK.
+  - `outcomeConsent` (optional): first NETWORK capture needs
+    `version: "joey.outcomes.chat.v1"` and the member's explicit affirmative
+    `response`. Statement consent does not cover outcome capture.
+  - `observation` (optional): required for SAVE. See fields below.
+- Observation fields: `kind`, `channel`, exactly two `participants`,
+  `occurredAt`, safe `context`, and `source`. Each participant has `label` and
+  confirmed `entityRef` and `profileUrl` when known. A name alone cannot bind an
+  identity. Source fields are `type`, private `reference`, private exact
+  `excerpt`, matching `event`, `identityProof`, and actual `confirmation` or
+  `occurrenceConfirmation` when needed. Source types are `HOST_MESSAGE_TOOL`,
+  `HOST_CALENDAR_TOOL` and `MEMBER_CONFIRMATION`. Identity proof is
+  `HOST_VERIFIED_PARTICIPANTS` or `MEMBER_CONFIRMED_IDENTITIES`.
+- Result: attributed outcome with ID, revision, visibility and `graphDelivery`.
+  Only identity-bound `REPLY_RECEIVED`, `INTRO_ACCEPTED` or confirmed
+  `MEETING_OCCURRED` can add an interaction edge. `MESSAGE_SENT` and
+  `MEETING_SCHEDULED` remain private progress. A calendar source needs member
+  confirmation that the meeting occurred. Unknown identities stay withheld.
+  No outcome creates familiarity, general trust or contact permission.
+- NETWORK also needs `trust:read` and `trust:write`, in addition to
+  `intros:write`. Before its first capture, explain the shared issuer, confirmed
+  profiles, event type, date and safe context; keep source excerpts and
+  references private. Wait for a separate explicit yes. A local save is not
+  graph visibility; inspect delivery separately. Withdraw with the ID and
+  revision, without observation or visibility. Withdrawal needs no new consent.
+
+
+## Live read and activation errors
+
+An unresolved profile, a bounded empty search, absent permission, an old reference
+and a service outage are different results. Do not report all of them as no path.
+For an old reference or changed graph revision, search and read context again.
+For `ACTIVATION_CHANGED`, inspect the current tracker revision. For
+`SEND_APPROVAL_MISMATCH`, get the exact approved send details; do not invent a
+receipt. For `OUTCOME_CONSENT_REQUIRED`, obtain the separate explicit consent
+before shared capture. `GRAPH_MEMBER_SYNC_PENDING` means the shared layer has
+undelivered changes; do not reuse an old shared answer.
+
+## Prompt selection
+
+`joey_make_intro` accepts one `requestId`, `pathRef` or `activationId`.
+`joey_follow_up` and `joey_weekly_review` have no arguments. These prompts serve
+clients with no installed skills and keep references as data. They do not grant
+permission to send or to share private outcomes.

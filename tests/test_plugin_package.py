@@ -31,7 +31,7 @@ MCP_URL = "https://pouch.getjoey.io/api/customer/mcp"
 MCP_HOST_PATH = MCP_URL.split("://", 1)[1]
 EXPECTED_SKILLS = {"joey", "joey-activate-path", "joey-path-follow-up", "joey-tracker-sync", "joey-attest", "joey-trust"}
 # The server prompts and their arguments.
-EXPECTED_PROMPTS = {"joey_make_intro": {"requestId"}, "joey_follow_up": set(), "joey_weekly_review": set()}
+EXPECTED_PROMPTS = {"joey_make_intro": {"requestId", "pathRef", "activationId"}, "joey_follow_up": set(), "joey_weekly_review": set()}
 SEMVER = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
     r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
