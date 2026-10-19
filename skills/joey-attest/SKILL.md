@@ -78,7 +78,8 @@ remain until the member withdraws them or deletes the account.
    the author's review list and cannot connect network paths.
 4. Select the claim that the member gave:
    - `RELATIONSHIP`: `KNOWS` or `DOES_NOT_KNOW`. Supply familiarity only when the
-     member gives it: `VERY_WELL`, `SOMEWHAT` or `NOT_WELL`. Omit an unknown level.
+     member gives it: `weak`, `medium`, `strong` or `very_strong`. Omit an unknown level.
+     Weak is positive. Keep an explicit No as `DOES_NOT_KNOW`, with no familiarity.
    - `TRUST`: `TRUST` or `DISTRUST`. Use `purpose: "general"` for general trust,
      or the member's stated task. Do not invent a task restriction.
    - `REPRESENTS`: an agent represents a person or named team. This is a member

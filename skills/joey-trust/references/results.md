@@ -26,8 +26,8 @@ or trust. It does not make that person the issuer.
 | --- | --- |
 | Explicit trust for the requested task | High |
 | Explicit general trust | Medium |
-| Very well familiarity | Medium |
-| Somewhat familiarity | Low |
+| Strong or very strong familiarity | Medium |
+| Weak or medium familiarity | Low |
 | A third-party report | Low |
 | No positive familiarity or trust detail | Unknown |
 
@@ -59,3 +59,7 @@ prove ownership of a person profile or agent.
 - `FORBIDDEN` or `NOT_FOUND`: stop. Do not probe other IDs.
 - `RATE_LIMITED`: stop and tell the member to try later. Do not loop.
 - Other error: give the code or short error text. Do not guess a trust result.
+
+`NATIVE_MEMBER_REPORTED` identifies a statement from the native member flow.
+`UNSURE` preserves an old uncertain answer and supplies no relationship edge.
+A native negative statement belongs to its author. It is not a universal exclusion.
