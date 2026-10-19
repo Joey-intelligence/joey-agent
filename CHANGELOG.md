@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1 — 2026-10-20
+
+- Allow the numeric `id` query in canonical Facebook profile URLs.
+- Keep other identity URL queries invalid.
+
 ## 1.2.0 — 2026-10-19
 
 - Find people, connections and warm paths in the live graph without a report.

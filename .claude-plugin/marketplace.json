@@ -10,7 +10,7 @@
       "name": "joey-agent",
       "source": "./",
       "description": "Find live paths to people. Prepare introductions with your agent and exact approval. Record confirmed outcomes and voluntary trust statements with separate consent.",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "category": "productivity"
     }
   ]
