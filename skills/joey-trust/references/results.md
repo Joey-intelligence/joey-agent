@@ -63,3 +63,11 @@ prove ownership of a person profile or agent.
 `NATIVE_MEMBER_REPORTED` identifies a statement from the native member flow.
 `UNSURE` preserves an old uncertain answer and supplies no relationship edge.
 A native negative statement belongs to its author. It is not a universal exclusion.
+
+## Live graph context
+
+`joey_read_path_context` returns the selected live path and available trust
+context under the required scopes. Keep public sources, member statements and
+confirmed outcomes separate. An outcome proves a specific interaction; it adds
+no general trust or familiarity level. A local save, delivery and visible edge
+are different states. Read fresh context after a correction or withdrawal.

@@ -59,7 +59,9 @@ can send an existing statement without a content correction. States are:
 
 - `PENDING`: the local save is complete; graph delivery is not confirmed.
 - `SYNCED`: the graph confirmed the current delivery revision. Check
-  `disposition` for `ACTIVE` or `WITHDRAWN`.
+  `disposition` for `ACTIVE` or `WITHDRAWN`. Delivery alone does not prove
+  visibility. Check `visibility`; a member must confirm a public graph profile
+  before their edge can appear. Do not create an account node or merge namesakes.
 - `WITHHELD`: an unresolved identity prevents an active graph claim.
 
 The initial receipt remains a record of that write. To check later delivery,
@@ -73,7 +75,7 @@ includes private source fields. Do not pass them to another tool or message.
 
 `joey_withdraw_attestations` takes exactly one of:
 
-- `sessionId` for all current statements from that session.
+- `sessionId` for all current statements and shared outcomes from that session.
 - `statements`, each with `id` and `expectedRevision`, for selected records.
 
 It returns `{withdrawn, graphDelivery}`. New graph removals are `PENDING`; a

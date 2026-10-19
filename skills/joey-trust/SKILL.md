@@ -1,6 +1,6 @@
 ---
 name: joey-trust
-description: Read relationship context and trust support for a person, agent product or specific agent. Use when the member asks who knows someone, why they have trust support, or which human paths support trust for a task. Show sources, conflicts and limits.
+description: Use when the member asks who knows a person, why a person or agent has trust support, which human paths support trust for a task, or what sources and conflicts limit that support.
 ---
 
 # Read relationship context and trust support
@@ -67,3 +67,19 @@ At the start, follow [the update check](references/updates.md).
 See [references/results.md](references/results.md) for the output and support
 rules. Before a later discussion of support after a correction or withdrawal,
 query again with `trust:read`. A withdrawal alone needs no context read.
+
+## Live path context
+
+For a live graph route, use `joey_read_path_context` with the selected `pathRef`.
+It revalidates the route and includes available trust context under `trust:read`.
+Keep public facts, member statements and confirmed outcomes separate. A reply,
+accepted introduction or completed meeting proves only that event. It adds no
+general trust or familiarity. A member's profile must be confirmed before their
+edge can appear. `SYNCED` delivery alone does not prove graph visibility.
+
+Keep the outreach brief private unless the member approves its disclosure.
+Recipient interest stays unknown unless separate evidence establishes it.
+Show revision, review and completeness limits. After a correction, withdrawal
+or old-reference error, read fresh context. Do not reuse an earlier route.
+Use `joey-activate-path` only when the member asks to contact someone; keep its
+exact recipient, channel and text approval rule.

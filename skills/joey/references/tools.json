@@ -12,6 +12,103 @@
       }
     },
     {
+      "name": "joey_search_graph_people",
+      "scope": "workspace:read",
+      "arguments": [
+        "query",
+        "limit"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_get_graph_connections",
+      "scope": "workspace:read",
+      "arguments": [
+        "entityRef",
+        "offset",
+        "limit"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_find_graph_paths",
+      "scope": "workspace:read",
+      "arguments": [
+        "originRefs",
+        "target",
+        "maxHops",
+        "maxPaths"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_read_path_context",
+      "scope": "workspace:read",
+      "arguments": [
+        "pathRef",
+        "brief"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_prepare_activation",
+      "scope": "intros:write",
+      "arguments": [
+        "pathRef",
+        "requestId",
+        "pathKey",
+        "brief",
+        "idempotencyKey"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_record_path_outcome",
+      "scope": "intros:write",
+      "arguments": [
+        "activationId",
+        "action",
+        "idempotencyKey",
+        "outcomeId",
+        "expectedRevision",
+        "visibility",
+        "sessionId",
+        "outcomeConsent",
+        "observation"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
       "name": "joey_resolve_trust_subject",
       "scope": "trust:read",
       "arguments": [
@@ -239,6 +336,8 @@
       "scope": "workspace:read",
       "arguments": [
         "requestId",
+        "activationId",
+        "stepIndex",
         "pathKey",
         "regenerate"
       ],
@@ -268,6 +367,13 @@
       "scope": "intros:write",
       "arguments": [
         "requestId",
+        "activationId",
+        "expectedRevision",
+        "idempotencyKey",
+        "stepIndex",
+        "confirmation",
+        "approval",
+        "sendReceipt",
         "stage",
         "pathKey"
       ],
@@ -282,7 +388,10 @@
       "name": "joey_stop_intro",
       "scope": "intros:write",
       "arguments": [
-        "requestId"
+        "requestId",
+        "activationId",
+        "expectedRevision",
+        "idempotencyKey"
       ],
       "annotations": {
         "readOnlyHint": false,
@@ -378,7 +487,9 @@
     {
       "name": "joey_make_intro",
       "arguments": [
-        "requestId"
+        "requestId",
+        "pathRef",
+        "activationId"
       ]
     },
     {

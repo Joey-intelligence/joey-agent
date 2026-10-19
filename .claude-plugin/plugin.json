@@ -1,8 +1,8 @@
 {
   "name": "joey-agent",
   "displayName": "Joey",
-  "version": "1.1.1",
-  "description": "Activate paths to get introductions through people you know. Record relationship and trust statements with your consent. Read their context, sources and trust support.",
+  "version": "1.2.0",
+  "description": "Find live paths to people. Prepare introductions with your agent and exact approval. Record confirmed outcomes and voluntary trust statements with separate consent.",
   "author": {
     "name": "Joey",
     "url": "https://getjoey.io"

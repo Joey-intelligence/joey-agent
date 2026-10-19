@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0 — 2026-10-19
+
+- Find people, connections and warm paths in the live graph without a report.
+- Keep confirmed profile identity, source attribution and unknown strength clear.
+- Save private activation steps without a research request or delivered report.
+- Use host message tools after exact recipient, channel and text approval.
+- Keep intermediate progress separate from final-target progress.
+- Add confirmed outcomes with separate consent, private sources and withdrawal.
+- Refresh the generated MCP snapshot and the prompts for clients without skills.
+
 ## 1.1.1 — 2026-10-19
 
 - Use four relationship strengths. A weak relationship is positive.
