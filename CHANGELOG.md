@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.1 — 2026-10-19
+
+- Use four relationship strengths. A weak relationship is positive.
+- Explain shared personal answers and attributed negative statements.
+- Refresh the customer MCP tool snapshot from Pouch.
+- Keep exact-text approval before each send.
+
 ## 1.1.0 — 2026-10-18
 
 - Rename the path skills to `joey-activate-path` and `joey-path-follow-up`.

@@ -204,15 +204,13 @@ A member who is not an admin does not see `joey_update_icp`.
 - Input:
   - `requestId`: from `joey_list_paths`.
   - `pathKey` (optional): the path. Path 1 if you do not give it.
-  - `rating`: `VERY_WELL`, `SOMEWHAT` or `NOT_WELL`, or `null` to remove the
+  - `rating`: `weak`, `medium`, `strong` or `very_strong`, or `null` to remove the
     answer.
 - Result: `{pathKey, person, rating}`. The tool rates the next person after the
   member on the path: the `rate` person of `joey_get_path_report`.
-- The answer is not private to the member. Joey uses it to rank paths. The member
-  controls this with the switch "Share my ratings with the Joey graph" in Joey
-  Settings. With OPEN (the default), other Joey users can see the member as a
-  possible introducer to this person. With NOBODY, Joey uses the answer only to
-  rank the paths of the member.
+- Joey shares all old and new personal relationship answers as attributed member statements.
+  Other members can see the member as a possible introducer on relevant paths.
+- Weak is positive. An explicit No needs the `joey-attest` skill; it is not a weak rating.
 
 ### joey_delete_path_preference
 
@@ -285,9 +283,10 @@ of a path is the word of its weakest hop.
 
 | Rating | Words in the Joey app |
 | --- | --- |
-| `VERY_WELL` | Very well |
-| `SOMEWHAT` | Somewhat |
-| `NOT_WELL` | Not well |
+| `weak` | Weak |
+| `medium` | Medium |
+| `strong` | Strong |
+| `very_strong` | Very strong |
 
 ## Idempotency keys
 

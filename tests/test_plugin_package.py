@@ -323,6 +323,22 @@ class SkillTests(unittest.TestCase):
 
 
 class ToolCatalogTests(unittest.TestCase):
+    def test_personal_answers_use_current_strength_contract(self):
+        paths = [
+            SKILLS_DIR / "joey" / "SKILL.md",
+            SKILLS_DIR / "joey" / "references" / "tools.md",
+            SKILLS_DIR / "joey-attest" / "SKILL.md",
+            SKILLS_DIR / "joey-attest" / "references" / "api.md",
+        ]
+        for path in paths:
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(path=path):
+                for value in ("weak", "medium", "strong", "very_strong"):
+                    self.assertIn("`" + value + "`", text)
+                for value in ("VERY_WELL", "SOMEWHAT", "NOT_WELL"):
+                    self.assertNotIn(value, text)
+        self.assertNotIn("You can turn this off", paths[0].read_text(encoding="utf-8"))
+
     def test_tools_json_lists_unique_joey_tools(self):
         catalog = json.loads(TOOLS_JSON.read_text(encoding="utf-8"))
         names = [entry["name"] for entry in catalog["tools"]]

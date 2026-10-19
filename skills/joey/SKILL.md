@@ -158,15 +158,14 @@ rating. The tool rates the next person after the member on a path: the `rate`
 person of that path in `joey_get_path_report`. If `rate` is `null`, the path
 has no person to rate.
 
-1. Before the first rating in a session, tell the member: "Joey uses your answer
-   to rank paths. Other Joey users can see you as a possible introducer to this
-   person. You can turn this off in Joey Settings."
-2. Then ask: "How well do you know David Cohen? Very well, somewhat, or not well?"
-   If the member answered before the notice, ask whether Joey can save that
-   answer for this use.
-3. Call `joey_rate_familiarity` with `requestId`, the `pathKey` of the path
-   (leave it out for path 1), and `rating` (`VERY_WELL`, `SOMEWHAT` or
-   `NOT_WELL`). To remove an answer, send `rating: null`.
+1. Before the first rating in a session, tell the member that Joey shares personal relationship answers with its trust network.
+   Other members can see the member as an introducer on relevant paths.
+2. Ask for `weak`, `medium`, `strong` or `very_strong`. Never choose a strength for the member.
+   Weak is positive. It does not mean that the member does not know the person.
+3. Call `joey_rate_familiarity` with `requestId`, the path's `pathKey`, and the exact `rating`.
+   Omit `pathKey` for path 1. To remove a path rating, send `rating: null`.
+4. For an explicit No or a statement with context, use the `joey-attest` skill.
+   Keep its capture consent and statement attribution. Do not turn No into `weak`.
 
 ## ICP and prospects
 

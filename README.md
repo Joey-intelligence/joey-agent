@@ -177,3 +177,7 @@ permissions, source privacy and withdrawal. Release the plugin after that check.
 ## License
 
 Proprietary. See [LICENSE](LICENSE).
+
+Personal relationship answers use four strengths: weak, medium, strong, and very strong.
+Joey shares old and new personal answers as attributed statements. Weak is positive; an explicit No is separate.
+Source excerpts and chat references stay private to their author.
