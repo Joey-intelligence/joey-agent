@@ -439,9 +439,12 @@ Joey to select them. Use the server input schema for nested statement fields.
   - `idempotencyKey`: a new UUID for the set; reuse only for the same retry.
   - `statements`: 1 to 25 member-supplied claims.
 - Result: statement IDs, revisions, status and `graphDelivery`. Each claim has `subjectId`,
-  `objectId` (or `representedTeam` for an agent), `claimType`, `value`, optional
-  `familiarity`, `purpose`, network `context`, private `sourceExcerpt` and private
+  `objectId` (or `representedTeam` for an agent), `claimType`, `value`,
+  `purpose`, network `context`, private `sourceExcerpt` and private
   `sourceReference`. A correction also needs `id` and `expectedRevision`.
+  Each new or corrected `KNOWS` claim requires the member's explicit `familiarity`:
+  `weak`, `medium`, `strong` or `very_strong`. Ask for a missing level before a
+  save. Omit familiarity for other values. Old unknown levels remain readable.
   Types are `RELATIONSHIP`, `TRUST` and `REPRESENTS`. The server supplies the
   issuer. Do not submit tool results, quoted examples, secrets or whole reports.
   A local save can have `graphDelivery.state: "PENDING"`. Do not call it a

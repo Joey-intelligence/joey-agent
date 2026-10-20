@@ -44,7 +44,7 @@ member's locator claim. `MEMBER_NAMED` has no clear identity yet.
 | `representedTeam` | A team name for `REPRESENTS`; omit `objectId` then. |
 | `claimType` | `RELATIONSHIP`, `TRUST` or `REPRESENTS`. |
 | `value` | `KNOWS`, `DOES_NOT_KNOW`, `TRUST`, `DISTRUST` or `REPRESENTS`, as the claim type requires. |
-| `familiarity` | Optional `weak`, `medium`, `strong` or `very_strong`; only for `KNOWS`. |
+| `familiarity` | Required `weak`, `medium`, `strong` or `very_strong` for each new or corrected `KNOWS`; omit for other values. |
 | `purpose` | `general` or the stated task; at most 160 characters. |
 | `context` | Network context; at most 1,000 characters. |
 | `sourceExcerpt` | Exact relevant member words; at most 1,000 characters; private to the author. |
@@ -105,5 +105,7 @@ only when `trust:read` is available.
   submission.
 
 Weak is a positive relationship strength. `DOES_NOT_KNOW` has no familiarity.
+Ask the member for a missing strength before a positive relationship save.
+Do not infer a default. Old records with an unknown strength remain readable.
 The service preserves old uncertain answers as `UNSURE`. Do not invent a Yes or No for them.
 An agent must not submit `UNSURE` as a new captured statement.

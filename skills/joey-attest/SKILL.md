@@ -77,8 +77,10 @@ remain until the member withdraws them or deletes the account.
    the identity is still unclear, omit the URL. The name-only record stays in
    the author's review list and cannot connect network paths.
 4. Select the claim that the member gave:
-   - `RELATIONSHIP`: `KNOWS` or `DOES_NOT_KNOW`. Supply familiarity only when the
-     member gives it: `weak`, `medium`, `strong` or `very_strong`. Omit an unknown level.
+   - `RELATIONSHIP`: `KNOWS` or `DOES_NOT_KNOW`. Every new or corrected `KNOWS`
+     claim needs a member-supplied familiarity level: `weak`, `medium`, `strong`
+     or `very_strong`. If the member gives no level, ask for one before a save.
+     Do not save a positive claim with an unknown level or infer a default.
      Weak is positive. Keep an explicit No as `DOES_NOT_KNOW`, with no familiarity.
    - `TRUST`: `TRUST` or `DISTRUST`. Use `purpose: "general"` for general trust,
      or the member's stated task. Do not invent a task restriction.
@@ -111,6 +113,10 @@ See [references/api.md](references/api.md) for fields, receipts and refusals.
   with the corrected claim through `joey_put_attestations`. Use an active session
   for this chat. An explicit correction request supplies the new statement; it does
   not remove the chat consent requirement.
+- For a positive relationship correction, use the member's explicit strength.
+  If the member corrects only the context, preserve their saved explicit
+  strength. Ask for a strength if the saved level is unknown. Keep old unknown
+  levels unchanged when you only inspect records.
 - To resolve a name-only subject, use `joey_register_trust_subject` with its
   `subjectId`, `expectedRevision` and clear identity URL. Do not change the
   identity of an already identified subject.

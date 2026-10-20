@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.2 — 2026-10-20
+
+- Require explicit member strength for each new or corrected positive relationship.
+- Ask for a missing strength before a save. Preserve old unknown records on read.
+- Keep trust, no-acquaintance and confirmed outcomes separate from familiarity.
+
 ## 1.3.1 — 2026-10-20
 
 - Add the exact OAuth endpoints and a sign-in fault procedure.
