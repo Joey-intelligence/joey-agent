@@ -173,7 +173,7 @@ claude plugin validate .
 For a new version, change the version in the four manifests and add an entry to
 [CHANGELOG.md](CHANGELOG.md) in the same commit. Attach the zips to the release.
 
-Before release of version `1.2.0`, release Joey OS, then Pouch. Verify confirmed
+Before release of version `1.2.1`, release Joey OS, then Pouch. Verify confirmed
 profile identity, scopes, source privacy, outcome consent and withdrawal. Release
 the plugin only after those checks. Local tests do not prove live availability.
 

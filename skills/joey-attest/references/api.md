@@ -25,7 +25,9 @@ Do not reuse it in another chat or with another grant.
   owns, also send `subjectId` and `expectedRevision`.
 
 Kinds are `PERSON`, `AGENT_PRODUCT` and `AGENT_INSTANCE`. An identity URL must be
-public HTTPS with no credentials, query or fragment. Each subject returns `id`,
+public HTTPS with no credentials or fragment.
+A canonical Facebook profile URL can contain its numeric `id` query. Other query parameters are not permitted.
+Each subject returns `id`,
 `kind`, `label`, `identityUri`, `identityStatus`, `identityBasis` and `revision`.
 `AUTHENTICATED_ACCOUNT` identifies a Joey account. `MEMBER_PROVIDED_URI` is a
 member's locator claim. `MEMBER_NAMED` has no clear identity yet.

@@ -384,7 +384,8 @@ Joey to select them. Use the server input schema for nested statement fields.
   - `idempotencyKey`: a new UUID for this request.
   - `kind`: `PERSON`, `AGENT_PRODUCT` or `AGENT_INSTANCE`.
   - `label`: the subject name.
-  - `identityUri` (optional): a public HTTPS identity URL without credentials, query or fragment.
+  - `identityUri` (optional): a public HTTPS identity URL without credentials or fragment.
+    A canonical Facebook profile URL can contain its numeric `id` query. Other query parameters are not permitted.
   - `subjectId` (optional): the member's unresolved record to identify.
   - `expectedRevision` (optional): its current revision; required with `subjectId`.
 - Result: the distinct subject, identity status, identity basis and revision.
