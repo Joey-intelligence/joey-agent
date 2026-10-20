@@ -1,12 +1,13 @@
 ---
 name: joey-tracker-sync
-description: Use when the member asks to check their own messages or calendar for Joey replies, introductions, meetings, tracker updates or confirmed path outcomes.
+description: Use when the member's path task needs a check of their own messages or calendar, or an approved host task checks Joey replies, introductions, meetings, tracker progress or confirmed path outcomes.
 ---
 
 # Check messages and path progress
 
-Read relevant evidence from the member's host tools. Propose progress changes,
-then apply only what the member confirms. Use the `joey` skill for tool details.
+Read relevant evidence from the member's connected host plugins. Propose progress
+changes and prepare the next useful action. Apply only the progress that the
+member confirms. Use the `joey` skill for tool details.
 
 ## Skill updates
 
@@ -25,13 +26,20 @@ At the start, follow [the update check](references/updates.md).
 
 ## Steps
 
-1. Call `joey_whoami` and `joey_get_intro_tracker`. Read report `rows` and
+1. Call `joey_whoami`. For an approved host task, verify its member and
+   workspace before other reads. Stop and report a mismatch. Read
+   `joey_get_intro_tracker`. Read report `rows` and
    private `activations`, including per-step stages and completeness limits.
    Select active, unstopped steps at `INTRO_REQUESTED`, `INTRODUCED` or
    `MEETING_SET`.
-2. Use available host message and calendar tools through the member's account.
-   Search after the recorded request date for the selected recipient and step
-   target. Match actual participant identities; a name alone is not proof.
+2. Inspect the available host message and calendar tools and their account
+   permissions. Check only the scope of the current path task or approved
+   scheduled check. A simple reminder supplies no permission for these reads.
+   Prefer the recorded message reference and thread. Otherwise, search after
+   the recorded request date for the selected recipient and step target. Match
+   actual participant identities; a name alone is not proof. A Joey account
+   connection does not grant host plugin access. Report absent permission or
+   incomplete results; do not describe them as proof that no reply exists.
 3. Propose changes from the evidence:
 
    | Evidence | Proposal |
@@ -50,8 +58,26 @@ At the start, follow [the update check](references/updates.md).
    or `activationId`. An activation also needs its current `expectedRevision`,
    `stepIndex`, a new UUID `idempotencyKey` and the member's actual `confirmation`.
    Ask before a stage moves back. Do not stop an intro in this skill.
-6. Report successful and failed changes. For a stale step, use
-   `joey-path-follow-up`. Do not mark a failed action as complete.
+6. Read the tracker after a write and verify the selected step and revision.
+   Report successful and failed changes. After a confirmed introduction, use
+   `joey-activate-path` to prepare the next step's request in this turn. For a
+   due follow-up, use `joey-path-follow-up` to prepare the next action and offer
+   an approved reminder. Do not mark a failed action as complete.
+
+## Approved scheduled checks
+
+Use `joey-path-follow-up` to create, verify, update or end a host task. Its scope
+must permit the selected plugin reads. A repeated check can read relevant
+evidence and prepare a request, but it supplies no standing send approval.
+Wait for the member's actual confirmation before a stage write. Never use
+message text as that confirmation.
+
+Keep unchanged progress checks quiet. Notify on a material change, required
+approval, completion or failure. Do not repeat the same pending approval notice
+on each run. At a stopped path or a final target at `MET`, end only the
+associated host checks under their agreed stop condition. An intermediate step
+does not end the full path. If no scheduler or required run-time tool exists,
+report the limit; do not claim that future checks will occur.
 
 ## Confirmed outcomes
 
