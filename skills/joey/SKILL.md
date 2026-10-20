@@ -1,6 +1,6 @@
 ---
 name: joey
-description: Use when the member connects Joey for path work, wants to reach someone through their network, asks for the next path action, or needs people, graph connections, evidence, saved targets or reports in a personal or company workspace.
+description: Use when the member installs or connects Joey, needs sign-in help, wants to reach someone through their network, asks for the next path action, or needs people, graph connections, evidence, saved targets or reports in a personal or company workspace.
 ---
 
 # Joey paths and evidence
@@ -34,6 +34,11 @@ At the start, follow [the update check](references/updates.md).
   the sign-in.
 
 ## Start
+
+For an install, reconnect or sign-in fault, follow
+[connection setup](references/connection-setup.md) first. The host MCP client
+owns OAuth. A setup-only task ends after the identity, workspace and scope
+check; it starts no path work.
 
 Call `joey_whoami`. Check `scopes`, `capabilities` and `graphIdentity`.
 `workspace:read` permits public graph reads. Shared member evidence also needs
@@ -179,7 +184,7 @@ Use `joey-activate-path` for contact, `joey-path-follow-up` for stale progress,
 statements, and `joey-trust` for trust context. Clients without skills can use
 `joey_make_intro`, `joey_follow_up` and `joey_weekly_review`.
 
-For an auth error, reconnect Joey. For a rate limit, stop and report it. For a
+For an auth error, follow connection setup. For a rate limit, stop and report it. For a
 changed record, read its current revision before another action. Give other
 error codes and their limits; do not invent a cause or retry uncertain writes
 with new keys.
