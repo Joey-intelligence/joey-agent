@@ -10,8 +10,8 @@ Shared outcomes need separate consent from relationship and trust statements.
 ## What you need
 
 - A Joey personal account or a company workspace account.
-- One of these agents: Claude Code, Codex, Claude Desktop, claude.ai, Cursor or
-  ChatGPT.
+- An MCP client with OAuth, such as Claude Code, Codex, Claude Desktop,
+  claude.ai, Cursor, ChatGPT or Muse.
 - For a send or progress check, a connected host plugin with the required
   account permission. Joey account connections and host plugin access are separate.
 - For future reminders or repeated checks, a host scheduler. A scheduled
@@ -58,15 +58,21 @@ limit before it claims a scheduled check.
 ## Sign in
 
 The first time that your agent uses Joey, it opens a browser page.
+Use the host MCP client's OAuth sign-in. Follow
+[connection setup](skills/joey/references/connection-setup.md) for the exact
+endpoints and a sign-in fault. The host keeps the callback, state and PKCE.
+Do not create or edit the browser authorization URL by hand.
 
 1. Sign in to Joey.
 2. Choose the workspace.
 3. Approve the agent.
+4. Let the agent call `joey_whoami`. Confirm the identity, workspace and scopes.
+   A Connect card or login page alone does not prove that setup is complete.
 
 The grant gives access to the selected workspace. Trust permissions also give
 access to the Joey trust network. The agent keeps the sign-in, so you never
 copy a token. To remove the access, revoke the agent in Joey Settings.
-Joey Settings also shows these install steps with copy buttons.
+Joey Settings has one setup prompt for the plugin and MCP.
 
 Trust reads need `trust:read`. Statement changes need `trust:write`. Existing
 grants do not receive these permissions automatically. Reconnect Joey and select
@@ -103,13 +109,9 @@ codex plugin marketplace add Joey-intelligence/joey-agent
 codex plugin add joey-agent@joey-agent
 ```
 
-The plugin contains the Joey server with OAuth sign-in. If the Joey tools do not
-show in Codex, add the server and sign in with these commands:
-
-```bash
-codex mcp add joey --url https://pouch.getjoey.io/api/customer/mcp
-codex mcp login joey
-```
+Start a new session and use the MCP sign-in action for Joey. The plugin already
+adds its server. If the tools do not show, inspect the installed plugin and its
+server, then reconnect that server. Do not add a duplicate Joey connector.
 
 ### Claude Desktop and claude.ai
 
@@ -141,6 +143,18 @@ Agent Skills, copy the folders in `skills/` to its skills folder.
 Add Joey as a connector with the URL `https://pouch.getjoey.io/api/customer/mcp`
 and OAuth sign-in. Connectors with write tools need the developer mode of
 ChatGPT.
+
+### Muse
+
+Use the existing Joey connector. If none exists, add one custom MCP connector
+with `https://pouch.getjoey.io/api/customer/mcp`. Install the skills from this
+repository through the host's skill support.
+
+Follow [connection setup](skills/joey/references/connection-setup.md) before
+Connect. If the host needs an authorization endpoint, copy the exact live
+`authorization_endpoint`. Do not assume that a plugin update changed a
+separate saved connector. Check its saved endpoint, then use a fresh Connect
+action. Complete setup only after `joey_whoami` succeeds.
 
 ### Agents without skills
 
@@ -199,6 +213,8 @@ separate skill behavior check. Give each case and the current skills to an
 independent agent with simulated tools. Compare its actions with the case
 checks. Do not send real messages or create real tasks for these cases.
 Package tests alone do not prove skill behavior or future host execution.
+Use [the connection setup cases](tests/fixtures/connection-setup-skill-cases.json)
+for the same simulated check of install, route faults and success claims.
 
 Build the skill zips in `dist/`:
 
@@ -217,7 +233,7 @@ For a new version, change the version in the four manifests and add an entry to
 
 Before a release, verify confirmed profile identity, scopes, source privacy,
 outcome consent and withdrawal. A release with a changed MCP contract needs
-the matching Joey OS and Pouch release first. Version `1.3.0` uses the existing
+the matching Joey OS and Pouch release first. Version `1.3.1` uses the existing
 MCP contract. Test host send receipts and approved task execution separately;
 local tests do not prove live availability.
 

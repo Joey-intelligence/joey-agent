@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.1 — 2026-10-20
+
+- Add the exact OAuth endpoints and a sign-in fault procedure.
+- Keep callback, state, PKCE and token exchange with the host MCP client.
+- Verify setup through `joey_whoami` before a success claim.
+- Keep unexposed connector request fields unknown.
+- Check connection URLs in the package tests.
+
 ## 1.3.0 — 2026-10-20
 
 - Propose and prepare the next path action within the member's goal.

@@ -28,6 +28,8 @@ BUILD_SCRIPT = REPO_ROOT / "scripts" / "build_skill_zips.py"
 
 PLUGIN_NAME = "joey-agent"
 MCP_URL = "https://pouch.getjoey.io/api/customer/mcp"
+OAUTH_DISCOVERY_URL = "https://pouch.getjoey.io/.well-known/oauth-authorization-server"
+OAUTH_AUTHORIZE_URL = "https://pouch.getjoey.io/oauth/authorize"
 MCP_HOST_PATH = MCP_URL.split("://", 1)[1]
 EXPECTED_SKILLS = {"joey", "joey-activate-path", "joey-path-follow-up", "joey-tracker-sync", "joey-attest", "joey-trust"}
 # The server prompts and their arguments.
@@ -260,6 +262,15 @@ class McpServerTests(unittest.TestCase):
                 mentions += 1
                 self.assertEqual(match.group(0), MCP_URL, f"{path.relative_to(REPO_ROOT)}")
         self.assertGreater(mentions, 2)
+        connection_urls = {MCP_URL, OAUTH_DISCOVERY_URL, OAUTH_AUTHORIZE_URL}
+        setup_paths = (REPO_ROOT / "README.md", SKILLS_DIR / "joey" / "SKILL.md",
+                       SKILLS_DIR / "joey" / "references" / "connection-setup.md")
+        for path in setup_paths:
+            for url in re.findall(r"https://pouch\.getjoey\.io/[^\s\"'`)<>]*", path.read_text(encoding="utf-8")):
+                self.assertIn(url, connection_urls, str(path.relative_to(REPO_ROOT)))
+        setup = (SKILLS_DIR / "joey" / "references" / "connection-setup.md").read_text(encoding="utf-8")
+        for url in connection_urls:
+            self.assertIn(url, setup)
 
 
 class SkillTests(unittest.TestCase):
