@@ -28,6 +28,27 @@ graph reads and private activations work for personal and company workspaces.
 Shared graph reads also need `trust:read`; shared outcomes need both trust scopes
 and separate outcome consent. Public graph context access adds no new charge.
 
+## Host tools and scheduled work
+
+Joey supplies path context, drafts and progress records. It has no message-send
+tool or scheduler. Inspect connected host plugins for the required message,
+contact, calendar and task tools. Use their actual schemas and the member's
+authorized account. A Joey connected-account record alone grants no host access.
+
+The `joey` skill proposes and prepares the next action within a path goal.
+The `joey-activate-path` skill sends through the host only after exact approval
+and records a matching receipt. The `joey-path-follow-up` skill creates and
+verifies approved host reminders or repeated checks. The `joey-tracker-sync`
+skill reads only relevant evidence within the agreed account and task scope.
+Stage changes still need the member's actual confirmation.
+
+A host schedule must use durable activation or report references and the
+correct member and workspace. It must not keep an old scoped `pathRef`, a whole
+report or an old send approval as permission for future contact. Each send
+needs a new exact yes. Keep unchanged checks quiet and end the task at its
+approved stop condition. The plugin adds no background listener or connection
+hook. A server prompt alone does not create a schedule.
+
 ## Read tools
 
 ### joey_whoami

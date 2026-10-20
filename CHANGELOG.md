@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.0 — 2026-10-20
+
+- Propose and prepare the next path action within the member's goal.
+- Include paths that need their first request and reuse saved activations.
+- Check relevant progress through connected host plugins in approved tasks.
+- Create and verify approved reminders and repeated progress checks.
+- Keep task scope, time zone, duplicate checks and stop conditions explicit.
+- Require a new exact approval before each send. Resolve uncertain sends
+  without duplicate contact.
+- Add simulated path action cases. Keep the existing MCP contract.
+- Add package tests and the ZIP build to CI for pull requests and `main`.
+
 ## 1.2.1 — 2026-10-20
 
 - Allow the numeric `id` query in canonical Facebook profile URLs.

@@ -2,15 +2,20 @@
 
 Joey finds paths to people for personal accounts and company workspaces. This
 plugin connects your AI agent to live graph evidence and delivered reports.
-Your agent can prepare introductions from live paths or delivered reports,
-track each step and check confirmed outcomes. A message needs your approval of its exact recipient, channel and
-text. Shared outcomes need separate consent from relationship and trust statements.
+Your agent proposes and prepares the next path action. It can send an approved
+request, set an approved reminder and check progress through connected plugins.
+Each message needs your approval of its exact recipient, channel and text.
+Shared outcomes need separate consent from relationship and trust statements.
 
 ## What you need
 
 - A Joey personal account or a company workspace account.
 - One of these agents: Claude Code, Codex, Claude Desktop, claude.ai, Cursor or
   ChatGPT.
+- For a send or progress check, a connected host plugin with the required
+  account permission. Joey account connections and host plugin access are separate.
+- For future reminders or repeated checks, a host scheduler. A scheduled
+  progress check also needs access to Joey and the selected host plugins.
 
 ## What the plugin contains
 
@@ -19,12 +24,36 @@ text. Shared outcomes need separate consent from relationship and trust statemen
 
 | Skill | What it does |
 | --- | --- |
-| [joey](skills/joey/SKILL.md) | Finds live people, connections and paths. Reads evidence, reports and trust context. |
+| [joey](skills/joey/SKILL.md) | Finds paths, explains evidence and prepares the next action for the member's goal. |
 | [joey-activate-path](skills/joey-activate-path/SKILL.md) | Prepares an introduction request for the next person on a path. Sends after your yes, then updates the stage. |
-| [joey-path-follow-up](skills/joey-path-follow-up/SKILL.md) | Finds active paths with no answer, updates their stage, and offers follow-ups and reminders. |
-| [joey-tracker-sync](skills/joey-tracker-sync/SKILL.md) | Reads relevant host messages and calendar events. Proposes progress and confirmed outcomes. |
+| [joey-path-follow-up](skills/joey-path-follow-up/SKILL.md) | Prepares first asks and follow-ups. Creates and verifies approved host reminders and repeated checks. |
+| [joey-tracker-sync](skills/joey-tracker-sync/SKILL.md) | Checks relevant host messages and calendar events in the current task or an approved scheduled check. Proposes progress and the next action. |
 | [joey-attest](skills/joey-attest/SKILL.md) | Records, corrects and withdraws relationship and trust statements after consent for this chat. |
 | [joey-trust](skills/joey-trust/SKILL.md) | Shows relationship context, source attribution, conflicts and derived trust support for a person or agent. |
+
+## How Joey continues a path
+
+1. Connect Joey and give your goal. Your agent reads the current path and
+   progress. It checks the available host tools and their account permissions.
+2. Your agent prepares the next request in the same turn. It reuses a saved
+   activation and keeps each intermediate step separate from the final target.
+3. Review the actual recipient, channel, subject and full text. After your yes,
+   your agent sends that version through your host plugin and checks the Joey
+   progress record. Each later send needs a new exact approval.
+4. Your agent offers an activation reminder if you defer the first request,
+   or a progress check after a send. Approve its scope, time and time zone.
+   Your agent checks for an existing task, creates or updates the approved
+   host task, then verifies its state and schedule.
+5. You can approve repeated checks through selected mail or calendar plugins.
+   Your agent checks only the selected path evidence, proposes confirmed
+   progress changes and prepares the next request. A stage change still needs
+   your confirmation. A calendar date alone does not prove attendance.
+
+Repeated checks stay quiet while progress is unchanged. They notify you of a
+material change, required action, completion or failure. They end at their
+agreed stop condition. A reminder supplies no send approval or mail-read
+permission. If the host cannot run the required tools, your agent states that
+limit before it claims a scheduled check.
 
 ## Sign in
 
@@ -48,9 +77,10 @@ Structured claims, relevant context, your name and dates go to the Joey trust
 network. Source excerpts and chat references stay private to you. The session
 lasts twelve hours. You can stop capture or withdraw saved statements. These are
 agent submissions under reported member consent, not direct human signatures.
-The skills act only when the host loads or invokes them. They do not listen in
-the background. Trust support gives no permission to act and predicts no intro
-outcome.
+The skills act when the host loads or invokes them, including an approved host
+task. The plugin has no connection hook or background listener. A connection
+alone starts no contact or scheduled check. Trust support gives no permission
+to act and predicts no intro outcome.
 
 ## Install
 
@@ -116,6 +146,8 @@ ChatGPT.
 
 The Joey server also gives instructions and three prompts: `joey_make_intro`,
 `joey_follow_up` and `joey_weekly_review`. Agents without skills can use them.
+These prompts start manual tasks. A prompt name alone creates no schedule.
+The installed skills supply the host reminder and repeated-check procedure.
 
 ## Safety
 
@@ -124,7 +156,8 @@ The Joey server also gives instructions and three prompts: `joey_make_intro`,
 - A failed send changes no progress. A sent message creates no graph edge.
 - A calendar entry alone does not prove a completed meeting.
 - Your agent contacts nobody unless you ask.
-- Your agent sets a reminder only after you agree.
+- Your agent sets a reminder or repeated check only after you approve its scope
+  and schedule. Each send still needs its own exact approval.
 - Path reports are confidential to your workspace. Your agent quotes only the
   parts that you need.
 
@@ -158,6 +191,15 @@ Run the tests (standard library only):
 python3 -I -m unittest discover -s tests -v
 ```
 
+GitHub Actions runs the package tests and ZIP build for pull requests and
+`main`. See [the CI workflow](.github/workflows/checks.yml).
+
+Use [the path action cases](tests/fixtures/path-action-skill-cases.json) for a
+separate skill behavior check. Give each case and the current skills to an
+independent agent with simulated tools. Compare its actions with the case
+checks. Do not send real messages or create real tasks for these cases.
+Package tests alone do not prove skill behavior or future host execution.
+
 Build the skill zips in `dist/`:
 
 ```bash
@@ -173,9 +215,11 @@ claude plugin validate .
 For a new version, change the version in the four manifests and add an entry to
 [CHANGELOG.md](CHANGELOG.md) in the same commit. Attach the zips to the release.
 
-Before release of version `1.2.1`, release Joey OS, then Pouch. Verify confirmed
-profile identity, scopes, source privacy, outcome consent and withdrawal. Release
-the plugin only after those checks. Local tests do not prove live availability.
+Before a release, verify confirmed profile identity, scopes, source privacy,
+outcome consent and withdrawal. A release with a changed MCP contract needs
+the matching Joey OS and Pouch release first. Version `1.3.0` uses the existing
+MCP contract. Test host send receipts and approved task execution separately;
+local tests do not prove live availability.
 
 ## License
 

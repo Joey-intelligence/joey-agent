@@ -1,6 +1,6 @@
 # Check for a skill update
 
-Installed release: `1.2.1`.
+Installed release: `1.3.0`.
 
 When this skill starts, check for an update if the last successful check was
 at least seven days ago. Use a check date from host state if one is available.

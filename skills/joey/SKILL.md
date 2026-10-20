@@ -1,13 +1,14 @@
 ---
 name: joey
-description: Use when the member asks for people, warm paths, graph connections, path evidence, relationship strength, saved targets, reports or path preferences in a personal or company workspace.
+description: Use when the member connects Joey for path work, wants to reach someone through their network, asks for the next path action, or needs people, graph connections, evidence, saved targets or reports in a personal or company workspace.
 ---
 
 # Joey paths and evidence
 
 Joey finds paths to people. A path is a chain of people; each link is a hop.
 Start with the member's goal. Find a useful path, explain its evidence and trust
-context, then use the `joey-activate-path` skill if the member asks for contact.
+context, then propose and prepare the next action for that goal. Use the
+`joey-activate-path` skill to prepare the exact request for approval.
 A research request, a delivered report and a private activation are separate
 records. A selected report can supply a report-backed activation with durable
 steps and outcomes.
@@ -43,6 +44,18 @@ not confirmed, ask the member to confirm the correct public profile in Joey.
 Do not create an account node or select a namesake. An explicit `originRefs`
 search is possible, but do not describe its origin as the member without proof.
 
+When the member connects Joey for path work, continue an existing goal in this
+chat. If no goal exists, ask whom the member wants to reach and why. A connection
+grant alone supplies no contact request or reminder consent. A task that asks
+only for evidence stays a read; do not create an activation for that task.
+
+Inspect the available host plugins and tool schemas for the member's account.
+Identify message reads, contact lookup, message sends, calendar reads and a
+scheduler as separate capabilities. Use the tools that the current task needs.
+A Joey connected-account record does not grant host tool access. Check the
+account and its permission before use. Report a missing tool or permission;
+do not install a plugin or change an account grant as a side effect.
+
 ## Find a live path
 
 1. Resolve people with `joey_search_graph_people`. Use the supplied public
@@ -68,6 +81,41 @@ not show graph absence. A bounded empty graph search, unresolved identity,
 missing permission, old path reference and service outage are different results.
 Do not turn one into another. After an old reference or changed revision,
 search again and read fresh context.
+
+## Prepare the next action
+
+For a goal to reach someone, activate a path or manage path progress, continue
+through these steps in the same turn. Do not end with an offer to prepare text
+when the selected path and required facts already permit that work.
+
+1. Read `joey_get_intro_tracker`. Include `PATH_FOUND` records in a first
+   review; a stale-only filter can omit paths that still need their first ask.
+   Match the selected path to an existing activation before a new private save.
+   Use `joey_list_paths` and `joey_get_path_report` for delivered paths as needed.
+   Respect the member's selected target and the returned completeness limits.
+2. Propose the most useful next action for that goal. Prefer a confirmed next
+   hop or a due follow-up to a duplicate request. If two paths need a material
+   choice, explain it and ask. A missing reply is not proof of refusal.
+
+   | Current state | Next action |
+   | --- | --- |
+   | `PATH_FOUND` | Prepare the first request for approval. Offer an activation reminder if the member defers it. |
+   | `INTRO_REQUESTED` | Check relevant progress through connected tools. Prepare a follow-up when due. |
+   | Confirmed intermediate introduction | Prepare the request to the next person on the path. |
+   | `MEETING_SET` | Check the agreed date. Ask whether a past meeting occurred. |
+   | Final target `MET`, or stopped path | End its approved progress checks. Prepare no further contact for that path. |
+
+3. Use `joey-activate-path` for the complete next request. Resolve the actual
+   recipient and show the channel, subject if applicable and full exact text.
+   Ask only for missing facts, a material choice and required approval. A broad
+   request to manage the network permits preparation, not a send.
+4. Use `joey-tracker-sync` for relevant message or calendar checks within the
+   member's task. Use `joey-path-follow-up` to propose a reminder or repeated
+   progress check. Create it only after approval of its scope and schedule.
+
+The host must load a skill or run an approved scheduled task. These skills add
+no connection hook or background listener. Propose a host task when the member
+wants progress checks after this chat turn ends.
 
 ## Evidence and strength
 
