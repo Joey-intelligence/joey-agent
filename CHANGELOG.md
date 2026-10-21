@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.4.0 — 2026-10-21
+
+- Follow `outcome`, `reason.code` and `recommendedNextAction` of each graph
+  read and each error. Keep `NOT_IN_GRAPH`, `AMBIGUOUS`, `IDENTITY_UNRESOLVED`
+  and `NO_PERMISSION` separate.
+- Find a company and its people with `joey_search_graph_companies`. Select a
+  company from `company.candidates` of a company path search.
+- Read request capacity in `joey_whoami` before a request. Report the delivery
+  state and its estimate. Read a request again with `joey_get_path_request`.
+- Apply the same rules to scheduled and interactive calls. Report an unknown
+  denial code as a host limit.
+- Detect the server version through `joey_whoami`. Copy the new tool snapshot.
+
 ## 1.3.2 — 2026-10-20
 
 - Require explicit member strength for each new or corrected positive relationship.

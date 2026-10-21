@@ -234,7 +234,9 @@ For a new version, change the version in the four manifests and add an entry to
 Before a release, verify confirmed profile identity, scopes, source privacy,
 outcome consent and withdrawal. A release with a changed MCP contract needs
 the matching Joey OS and Pouch release first. Version `1.3.2` requires explicit
-strength for each new or corrected positive member relationship. Test host send
+strength for each new or corrected positive member relationship. Version
+`1.4.0` needs Pouch customer MCP server version `1.1.0` (`server.version` in
+`joey_whoami`) for outcomes, next actions, company search and delivery states. Test host send
 receipts and approved task execution separately;
 local tests do not prove live availability.
 
