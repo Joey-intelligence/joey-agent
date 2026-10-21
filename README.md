@@ -10,8 +10,9 @@ Shared outcomes need separate consent from relationship and trust statements.
 ## What you need
 
 - A Joey personal account or a company workspace account.
-- An MCP client with OAuth, such as Claude Code, Codex, Claude Desktop,
-  claude.ai, Cursor, ChatGPT or Muse.
+- An AI assistant that can add a remote MCP server with OAuth, such as Claude
+  Duet, Muse, Grok Bot, Dots, ChatGPT, Claude Desktop, claude.ai, Claude Code,
+  Codex or Cursor.
 - For a send or progress check, a connected host plugin with the required
   account permission. Joey account connections and host plugin access are separate.
 - For future reminders or repeated checks, a host scheduler. A scheduled
@@ -138,17 +139,40 @@ Add the server to `~/.cursor/mcp.json`:
 Cursor opens the sign-in page when it connects. If your Cursor version supports
 Agent Skills, copy the folders in `skills/` to its skills folder.
 
-### ChatGPT
+### ChatGPT and Dots
 
-Add Joey as a connector with the URL `https://pouch.getjoey.io/api/customer/mcp`
-and OAuth sign-in. Connectors with write tools need the developer mode of
-ChatGPT.
+Add Joey as a custom MCP server in ChatGPT with the URL
+`https://pouch.getjoey.io/api/customer/mcp` and OAuth sign-in. Connectors with
+write tools need the developer mode of ChatGPT. A Dot uses the same ChatGPT
+plugin settings, so add Joey there once.
+
+### Claude Duet
+
+Claude Duet uses the connectors and skills of your Claude account. Follow the
+steps for [Claude Desktop and claude.ai](#claude-desktop-and-claudeai).
 
 ### Muse
 
-Use the existing Joey connector. If none exists, add one custom MCP connector
-with `https://pouch.getjoey.io/api/customer/mcp`. Install the skills from this
-repository through the host's skill support.
+Ask Muse in chat to create a custom connector with the URL
+`https://pouch.getjoey.io/api/customer/mcp`. Muse opens the Joey sign-in page.
+Use the existing Joey connector if one exists. Muse can save the skills from
+this repository as its skills.
+
+### Grok and Grok Bot
+
+- Grok: open the Grok connector settings, add a new custom connector, and enter
+  `https://pouch.getjoey.io/api/customer/mcp`.
+- Grok Bot: ask the Bot in chat to add a custom server with the same URL. It
+  then shows in the Bot's plugin settings.
+
+The Joey sign-in for Grok and Grok Bot needs Pouch customer MCP server version
+`1.1.0`.
+
+### Other assistants
+
+An assistant that can add a custom remote MCP server with OAuth can use Joey.
+Add one server with the URL above and sign in. If the assistant has no custom
+MCP server option, it cannot use Joey yet.
 
 Follow [connection setup](skills/joey/references/connection-setup.md) before
 Connect. If the host needs an authorization endpoint, copy the exact live
