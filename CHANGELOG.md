@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.0 — 2026-10-22
+
+- Continue a new connection into a first run: one identity line, the
+  onboarding step from `joey_whoami`, one goal question and a first path.
+- Give the web link of each onboarding step and of a next action to the
+  member. Never confirm a profile for the member.
+- Ask for the missing facts of a brief in one question.
+- Run the weekly update check only for uploaded skills, after the first
+  result, and with no new permission. Plugin manager installs skip it.
+- Add install steps for Claude Duet, Muse, Grok, Grok Bot and Dots, and a
+  quick start with the setup prompt.
+
 ## 1.4.0 — 2026-10-21
 
 - Follow `outcome`, `reason.code` and `recommendedNextAction` of each graph

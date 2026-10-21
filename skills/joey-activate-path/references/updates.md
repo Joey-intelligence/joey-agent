@@ -1,6 +1,6 @@
 # Check for a skill update
 
-Installed release: `1.4.0`.
+Installed release: `1.5.0`.
 
 Do the check after the first result of the member's task, not before it. Never
 let the check delay or stop the task.
