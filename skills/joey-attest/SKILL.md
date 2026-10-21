@@ -11,7 +11,7 @@ It is not a direct human signature or a verified public fact.
 
 ## Skill updates
 
-At the start, follow [the update check](references/updates.md).
+For a version question or a missing tool, follow [the update check](references/updates.md).
 
 ## Rules
 

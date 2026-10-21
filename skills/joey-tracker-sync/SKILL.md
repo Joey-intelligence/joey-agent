@@ -11,7 +11,7 @@ member confirms. Use the `joey` skill for tool details.
 
 ## Skill updates
 
-At the start, follow [the update check](references/updates.md).
+For a version question or a missing tool, follow [the update check](references/updates.md).
 
 ## Rules
 
