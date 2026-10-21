@@ -163,6 +163,23 @@ The Joey server also gives instructions and three prompts: `joey_make_intro`,
 These prompts start manual tasks. A prompt name alone creates no schedule.
 The installed skills supply the host reminder and repeated-check procedure.
 
+## Evidence and privacy
+
+Personal relationship answers use four strengths: weak, medium, strong, and very strong.
+Joey shares old and new personal answers as attributed statements. Weak is positive; an explicit No is separate.
+Source excerpts and chat references stay private to their author.
+
+Live graph reads need no delivered report. An empty report list does not show
+graph absence. Shared member edges need a confirmed public profile and the
+required trust permission. A local save, graph delivery and graph visibility
+are separate states. SYNCED delivery alone does not prove visibility.
+
+Confirmed outcomes keep their event source separate from public research and
+member statements. A reply, accepted introduction or completed meeting can add
+an interaction edge after explicit outcome consent and identity checks. It
+creates no familiarity level, general trust or permission to contact anyone.
+Private source excerpts and references stay with their author.
+
 ## Safety
 
 - Your agent sends only after your yes to the exact recipient, channel and text.
@@ -182,18 +199,16 @@ The installed skills supply the host reminder and repeated-check procedure.
 claude plugin marketplace update joey-agent
 claude plugin update joey-agent@joey-agent
 
-# Codex
+# Codex: get the new marketplace version, then install it again
 codex plugin marketplace upgrade joey-agent
 codex plugin add joey-agent@joey-agent
 ```
 
-Each skill checks the latest stable release when it runs. With a saved check date,
-it checks at most once a week. Without a saved date, it checks once per chat. It reports a
-new version but does not install it. No check runs while the skill is inactive.
+For Claude Desktop and claude.ai, upload the new skill zips.
 
-For Claude Desktop and claude.ai, upload the new skill zips. Remove the old
-`joey-make-intro` and `joey-intro-follow-up` skills after you install their
-replacements.
+A skill checks for a new release only when you ask about the version, or when
+the Joey server has a tool that the skill does not know. It reports a new
+version but does not install it.
 
 ## Development
 
@@ -243,18 +258,3 @@ local tests do not prove live availability.
 ## License
 
 Proprietary. See [LICENSE](LICENSE).
-
-Personal relationship answers use four strengths: weak, medium, strong, and very strong.
-Joey shares old and new personal answers as attributed statements. Weak is positive; an explicit No is separate.
-Source excerpts and chat references stay private to their author.
-
-Live graph reads need no delivered report. An empty report list does not show
-graph absence. Shared member edges need a confirmed public profile and the
-required trust permission. A local save, graph delivery and graph visibility
-are separate states. SYNCED delivery alone does not prove visibility.
-
-Confirmed outcomes keep their event source separate from public research and
-member statements. A reply, accepted introduction or completed meeting can add
-an interaction edge after explicit outcome consent and identity checks. It
-creates no familiarity level, general trust or permission to contact anyone.
-Private source excerpts and references stay with their author.
