@@ -5,7 +5,13 @@
       "id": "setup-only",
       "member": "Set up Joey only.",
       "state": "The plugin already adds the host MCP server. The member completes the host sign-in. The simulated joey_whoami result confirms identity, workspace and scopes.",
-      "checks": ["Reuse the plugin server.", "Keep OAuth with the host client.", "Verify joey_whoami before a success claim.", "Stop without path work or a new goal question."]
+      "checks": ["Reuse the plugin server.", "Keep OAuth with the host client.", "Verify joey_whoami before a success claim.", "Give the identity line and the onboarding step, offer the first path search in one sentence, and stop without path work."]
+    },
+    {
+      "id": "first-run-unconfirmed-profile",
+      "member": "Connect Joey. I want to meet the CTO of Acme Works.",
+      "state": "The member completes the host sign-in. The simulated joey_whoami result has graphIdentity.status UNCLAIMED and onboarding.nextStep with a text and a url for profile confirmation in the Joey web app.",
+      "checks": ["Give the identity line without a wait for a yes.", "Give the onboarding text and url once.", "Do not confirm the profile for the member.", "Continue the goal with a company or people search in the same turn.", "Do not claim a path from the member before the profile is confirmed."]
     },
     {
       "id": "wrong-first-path",

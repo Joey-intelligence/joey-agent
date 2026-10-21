@@ -27,9 +27,11 @@ the path from the MCP URL or reconstruct it from words.
    Verify the saved authorization endpoint before a fresh Connect action.
 4. The member signs in, selects the workspace and approves the requested access.
    Do not approve new or broader access on the member's behalf.
-5. Call `joey_whoami`. Confirm the returned identity, workspace and scopes.
-   Report setup as complete only after that call succeeds. For a setup-only
-   task, stop here. Do not start path work or request a new goal.
+5. Call `joey_whoami`. Report setup as complete only after that call succeeds.
+   Give the returned identity and workspace in one line.
+6. Continue with the first run in the `joey` skill: the onboarding step, the
+   member's goal and a first path. If the member asked only for setup, give the
+   onboarding step, offer the first path search in one sentence, and stop.
 
 ## A sign-in fault
 

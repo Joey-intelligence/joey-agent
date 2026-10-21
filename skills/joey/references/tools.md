@@ -599,8 +599,8 @@ Joey to select them. Use the server input schema for nested statement fields.
   and `people`. Each person has `entityRef`, `label`, `anchors`, `current` and
   `roles` (`organization`, `title`, `capacity`, `status`).
 - The graph has no company records. A company is the organization name of
-  people's roles. The search compares close spellings, such as "GroundUp",
-  "Ground Up" and "Ground Up Ventures". A company is a candidate name, not a
+  people's roles. The search compares close spellings, such as "AcmeWorks",
+  "Acme Works" and "Acme Works Ventures". A company is a candidate name, not a
   merge of people. Each person keeps its own `entityRef`.
 - `MATCHED` means that one company has exactly the name. Otherwise ask the
   member to select one company. `NOT_IN_GRAPH` means that no graph person has

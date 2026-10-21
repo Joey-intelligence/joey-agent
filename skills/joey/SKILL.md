@@ -37,24 +37,41 @@ For a version question or a missing tool, follow [the update check](references/u
 
 For an install, reconnect or sign-in fault, follow
 [connection setup](references/connection-setup.md) first. The host MCP client
-owns OAuth. A setup-only task ends after the identity, workspace and scope
-check; it starts no path work.
+owns OAuth.
 
-Call `joey_whoami`. Check `scopes`, `capabilities` and `graphIdentity`.
+## First run
+
+Use this flow after a new connection, in a new chat with Joey, or when the
+member asks what Joey can do. Do not stop between the steps for a yes.
+
+1. Call `joey_whoami`. Tell the member, in one line, the name, workspace and
+   access that Joey returned. Then continue.
+2. If `onboarding.nextStep` exists, give its `text` and `url` once. The member
+   does this step in the Joey web app. Do not open it or do it for the member.
+   With no `onboarding` field, and a `graphIdentity.status` other than
+   `CLAIMED`, ask the member to confirm the public profile in the Joey web app.
+3. Continue with the parts that work now. Do not wait for the member to finish
+   onboarding. Search, company lists and connections work with no confirmed
+   profile. A path from the member needs `graphIdentity.status: "CLAIMED"`.
+4. Continue an existing goal in this chat. If no goal exists, ask once whom the
+   member wants to reach and why. Ask it in one question with the onboarding
+   step.
+5. Find the target and the best path (see [Find a live path](#find-a-live-path)).
+   Show the path and its evidence. Then prepare the next action for approval.
+
+If the member asks only for setup, give the identity line and the onboarding
+step. Offer the first path search in one sentence, and stop there.
+
 `workspace:read` permits public graph reads. Shared member evidence also needs
-`trust:read`. An absent scope is not an empty graph. Read `server.version`. If
-it is earlier than `1.1.0`, the server gives no `outcome` or
-`recommendedNextAction`; then use `status` and the error code only.
+`trust:read`. An absent scope is not an empty graph. If `server.version` is
+earlier than `1.1.0`, the server gives no `outcome` or `recommendedNextAction`;
+then use `status` and the error code only.
 
-Default path origins need `graphIdentity.status: "CLAIMED"`. If the profile is
-not confirmed, ask the member to confirm the correct public profile in Joey.
-Do not create an account node or select a namesake. An explicit `originRefs`
-search is possible, but do not describe its origin as the member without proof.
-
-When the member connects Joey for path work, continue an existing goal in this
-chat. If no goal exists, ask whom the member wants to reach and why. A connection
-grant alone supplies no contact request or reminder consent. A task that asks
-only for evidence stays a read; do not create an activation for that task.
+Do not create an account node or select a namesake for the member. An explicit
+`originRefs` search is possible, but do not describe its origin as the member
+without proof. A connection grant alone supplies no contact request or reminder
+consent. A task that asks only for evidence stays a read; do not create an
+activation for that task.
 
 Inspect the available host plugins and tool schemas for the member's account.
 Identify message reads, contact lookup, message sends, calendar reads and a
@@ -69,7 +86,7 @@ do not install a plugin or change an account grant as a side effect.
    profile URL when possible. For a name, select the correct profile before a
    path search. Ask if more than one candidate fits. For people at a company,
    use `joey_search_graph_companies`. It compares close spellings, such as
-   "GroundUp" and "Ground Up Ventures", and lists the known people.
+   "AcmeWorks" and "Acme Works Ventures", and lists the known people.
 2. To inspect a person's current links, use `joey_get_graph_connections` with
    the returned `entityRef`. Respect pagination and completeness limits.
 3. Call `joey_find_graph_paths` with a `target`:
@@ -81,8 +98,9 @@ do not install a plugin or change an account grant as a side effect.
    `maxPaths` only when the task needs other search limits.
 4. Select a path. Call `joey_read_path_context` with its `pathRef` before you
    describe it. Add a private `brief` with `goal`, `target`, `proposedValue`
-   and `timing` when those facts are known. Ask for material gaps. Do not invent
-   the recipient's interest or disclose the brief without approval.
+   and `timing` when those facts are known. Ask for all material gaps in one
+   question, once. Do not invent the recipient's interest or disclose the brief
+   without approval.
 5. Explain each hop with its exact source, evidence type, date, strength and
    review status. State the returned completeness limits and unknown facts.
    A scoped `pathRef` is not a delivered report or a permanent identity.
