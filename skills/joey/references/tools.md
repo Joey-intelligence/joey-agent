@@ -78,6 +78,14 @@ hook. A server prompt alone does not create a schedule.
 - Also: `server` (`name`, `version`, `changes`), `pathRequests.capacity` (see
   [Capacity](#capacity)) and `contextPolicy` (see
   [Scheduled and interactive calls](#scheduled-and-interactive-calls)).
+- Also: `onboarding` (`complete`, `steps`, `nextStep`). Each step has `step`
+  (`CONFIRM_PROFILE`, `SET_ICP` or `CONNECT_ACCOUNTS`), `status` (`DONE`,
+  `TODO` or `NOT_AVAILABLE`), `required`, `url` and `text`. `nextStep` is the
+  first required step that is `TODO`, or null. `url` is the page of the Joey
+  web app where the member does the step; it is null in a personal workspace.
+  Only `CONFIRM_PROFILE` blocks a default path search. A member who cannot set
+  the ICP gets `NOT_AVAILABLE`; a workspace admin sets it. Give `text` and
+  `url` to the member once. Do not do the step for the member.
 - Read `pathRequests.capacity` before `joey_request_path`.
 - Call it first when the task needs workspace context and `workspace:read` is
   present. A known-statement or known-session withdrawal needs only
@@ -378,7 +386,8 @@ delivery limit; `openLimit` and `weekLimit` then give only the nominal values.
 ### Delivery state
 
 `delivery` has `state`, `reason`, `queuePosition`, `pathFound`,
-`estimatedDelivery` and `message`.
+`estimatedDelivery` and `message`. For `WAITING_FOR_ICP`, `url` gives the
+ICP page of the Joey web app, and `message` says who can set the ICP.
 
 | `state` | Meaning |
 | --- | --- |
@@ -395,8 +404,9 @@ An estimate can change. Do not promise a date to the member.
 
 `joey_search_graph_people`, `joey_search_graph_companies` and
 `joey_find_graph_paths` give `outcome`, `reason` (`code`, `message`) and
-`recommendedNextAction` (`action`, `tool`, `missingScopes`, `text`). `status`
-keeps its old values.
+`recommendedNextAction` (`action`, `tool`, `missingScopes`, `text`, `url`).
+`url` is a page of the Joey web app for a member step, or null. `status` keeps
+its old values.
 
 | `outcome` | Meaning | `reason.code` |
 | --- | --- | --- |
@@ -448,8 +458,10 @@ asks for research, and only with a confirmed URL.
 | `IDEMPOTENCY_CONFLICT` | The key has different content. Inspect the earlier action before a new write; do not duplicate an uncertain save. |
 | Other code | Tell the member the code in plain words. Do not guess a cause. |
 
-Each Joey error also gives `recommendedNextAction` (`action`, `tool`, `text`).
-Follow it when it fits the member's task.
+Each Joey error also gives `recommendedNextAction` (`action`, `tool`, `text`,
+`url`). Follow it when it fits the member's task. `GRAPH_IDENTITY_UNRESOLVED`
+gives the profile page of the Joey web app in `url`. Give it to the member.
+Never confirm a profile for the member.
 
 ## Server prompts
 
