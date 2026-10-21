@@ -13,7 +13,7 @@ missing facts or a material choice; do not ask whether to draft it again.
 
 ## Skill updates
 
-For a version question or a missing tool, follow [the update check](references/updates.md).
+After the first result, follow [the update check](references/updates.md).
 
 ## Rules
 

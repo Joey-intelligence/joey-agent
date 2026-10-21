@@ -17,7 +17,7 @@ the support for the same path.
 
 ## Skill updates
 
-For a version question or a missing tool, follow [the update check](references/updates.md).
+After the first result, follow [the update check](references/updates.md).
 
 ## Rules
 

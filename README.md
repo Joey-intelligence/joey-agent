@@ -230,9 +230,10 @@ codex plugin add joey-agent@joey-agent
 
 For Claude Desktop and claude.ai, upload the new skill zips.
 
-A skill checks for a new release only when you ask about the version, or when
-the Joey server has a tool that the skill does not know. It reports a new
-version but does not install it.
+Uploaded skills check the latest stable release at most once a week, after the
+first result of a task. Skills from a plugin manager leave updates to it. A
+skill also checks when you ask about the version, or when the Joey server lacks
+a tool that the skill names. It reports a new version but does not install it.
 
 ## Development
 

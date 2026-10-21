@@ -17,7 +17,7 @@ The full tool reference is [references/tools.md](references/tools.md).
 
 ## Skill updates
 
-For a version question or a missing tool, follow [the update check](references/updates.md).
+After the first result, follow [the update check](references/updates.md).
 
 ## Rules
 
