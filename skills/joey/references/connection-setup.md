@@ -39,6 +39,15 @@ verified. Mark it as unknown.
 
 Compare the popup's first URL path and parameter names with discovery. A staff
 login page needs this route check. The last page alone does not show the cause.
+
+Joey answers a wrong authorization path, such as `/oauthoauthorize`, with
+HTTP 400 and the page "This is not a valid Joey authorization link". The page
+gives the received path and the correct authorization endpoint. Correct the
+saved endpoint from discovery, then use a fresh Connect action. An unknown or
+malformed `client_id` shows an error on the consent page. A bad `code_challenge`,
+`response_type` or `resource` returns to the host callback with an OAuth
+`error`, such as `invalid_request`.
+
 Do not infer that a request lacks `resource`, state or PKCE because the connector
 tool omits that field from its spec. Use the actual request or server result.
 

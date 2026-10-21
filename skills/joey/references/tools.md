@@ -8,9 +8,15 @@ The input schema that the server sends is the authority. If this page and the
 schema do not agree, follow the schema. [tools.json](tools.json) lists the
 tool names, scopes, arguments and prompts.
 
-Each result has the form `{data}`. A service error has a stable `code`. Input
-errors can have `isError` and text without a service code. See
-[Errors](#errors).
+Each result has the form `{data}`. A service error has a stable `code` and
+`recommendedNextAction`. Input errors can have `isError` and text without a
+service code. See [Errors](#errors) and
+[Outcomes and next actions](#outcomes-and-next-actions).
+
+`joey_whoami` gives `server.version` and `server.changes`. This page describes
+server version `1.1.0`. An earlier server gives no `outcome`,
+`recommendedNextAction`, `delivery`, `joey_search_graph_companies` or
+`joey_get_path_request`.
 
 ## Scopes
 
@@ -27,6 +33,16 @@ have fewer report and workspace tools. Use the connected server schema. Live
 graph reads and private activations work for personal and company workspaces.
 Shared graph reads also need `trust:read`; shared outcomes need both trust scopes
 and separate outcome consent. Public graph context access adds no new charge.
+
+## Scheduled and interactive calls
+
+Joey sees only the connection's token. It applies the same scopes, limits and
+errors to scheduled, background and interactive calls. `joey_whoami` gives
+`contextPolicy.scheduledCalls: "SAME_AS_INTERACTIVE"`. A Joey HTTP refusal has
+a JSON `code` and `recommendedNextAction`, for example `ORIGIN_NOT_ALLOWED` or
+`RATE_LIMITED`. A denial with a code that this page does not give, such as
+`read_only_preparation`, comes from the host or its proxy. Report it as a host
+limit. Do not retry it in a loop.
 
 ## Host tools and scheduled work
 
@@ -59,6 +75,10 @@ hook. A server prompt alone does not create a schedule.
   Identity has status, revision, confirmed entity reference/profile URL and a
   hidden-edge reason. `CLAIMED` is the confirmed profile state; a missing
   profile must not become a synthetic account node.
+- Also: `server` (`name`, `version`, `changes`), `pathRequests.capacity` (see
+  [Capacity](#capacity)) and `contextPolicy` (see
+  [Scheduled and interactive calls](#scheduled-and-interactive-calls)).
+- Read `pathRequests.capacity` before `joey_request_path`.
 - Call it first when the task needs workspace context and `workspace:read` is
   present. A known-statement or known-session withdrawal needs only
   `trust:write` and can proceed without this read.
@@ -182,10 +202,22 @@ hook. A server prompt alone does not create a schedule.
     (`https://www.linkedin.com/company/...`).
   - `idempotencyKey`: see [Idempotency keys](#idempotency-keys).
 - Result: `{requestId, status, targetUrl, targetKind, deliveredPaths,
-  capacity}`. Joey researches the path. The path shows in `joey_list_paths`
-  when Joey delivers it. `capacity` gives the open requests and the paths of
-  this week, with their limits.
+  capacity, delivery}`. Joey researches the path. The path shows in
+  `joey_list_paths` when Joey delivers it. See [Capacity](#capacity) and
+  [Delivery state](#delivery-state). A personal workspace also gives `created`.
+- `status: "SEARCHING"` means that Joey researches the target. It does not
+  promise a delivery date. Read `delivery.state` for that.
 - If the workspace asked for this target before, the member joins that request.
+- A full open request limit refuses the request with `OPEN_CAPACITY_REACHED`
+  or `QUOTA_OPEN_REACHED`. Joey saves no request then.
+
+### joey_get_path_request
+
+- Input:
+  - `requestId`: from `joey_request_path`.
+- Result: the same shape as `joey_request_path`, read again. Use it to report
+  the current research and delivery state of a request. Company and personal
+  workspaces have it.
 
 ### joey_save_target
 
@@ -335,6 +367,56 @@ of a path is the word of its weakest hop.
 | `strong` | Strong |
 | `very_strong` | Very strong |
 
+### Capacity
+
+`capacity` has `openUsed`, `openLimit`, `weekDelivered`, `weekLimit`,
+`limited`, `openRemaining`, `weekRemaining`, `weekStart` and `weekResetsAt`.
+`null` in `openRemaining` or `weekRemaining` means no limit. With
+`limited: false`, the workspace has no open request limit and no weekly
+delivery limit; `openLimit` and `weekLimit` then give only the nominal values.
+
+### Delivery state
+
+`delivery` has `state`, `reason`, `queuePosition`, `pathFound`,
+`estimatedDelivery` and `message`.
+
+| `state` | Meaning |
+| --- | --- |
+| `RESEARCHING` | Joey researches the target, and the week has capacity. |
+| `QUEUED_FOR_WEEKLY_CAPACITY` | The weekly limit is full. A found path waits for a later week. `queuePosition` and `estimatedDelivery` (`notBefore`, `notAfter`, `basis: "ESTIMATE"`) are set. |
+| `DELIVERED` | The member can read a delivered path. |
+| `WAITING_FOR_ICP` | A company request waits for the workspace ICP. |
+| `READY_NO_PATH` | The research ended without a delivered path. |
+| `UNAVAILABLE` | Joey cannot research this target. |
+
+An estimate can change. Do not promise a date to the member.
+
+## Outcomes and next actions
+
+`joey_search_graph_people`, `joey_search_graph_companies` and
+`joey_find_graph_paths` give `outcome`, `reason` (`code`, `message`) and
+`recommendedNextAction` (`action`, `tool`, `missingScopes`, `text`). `status`
+keeps its old values.
+
+| `outcome` | Meaning | `reason.code` |
+| --- | --- | --- |
+| `MATCHED` | One person has the profile, or one company has exactly the name. | `PROFILE_MATCHED`, `COMPANY_MATCHED` |
+| `CANDIDATE` | One name match. It is not an identity. | `NAME_SINGLE_CANDIDATE`, `COMPANY_CANDIDATES` |
+| `AMBIGUOUS` | More than one match. The member selects one. | `NAME_CANDIDATES`, `PROFILE_CANDIDATES`, `COMPANY_CANDIDATES` |
+| `NOT_IN_GRAPH` | No match in the current graph. | `NAME_NOT_FOUND`, `PROFILE_NOT_FOUND`, `COMPANY_NOT_FOUND`, `COMPANY_HAS_NO_CURRENT_PEOPLE` |
+| `IDENTITY_UNRESOLVED` | A record exists, but Joey cannot read its canonical person now, or the selected people are not current. | `PROFILE_NOT_CANONICAL`, `TARGET_NOT_CURRENT` |
+| `NO_PERMISSION` | The only paths use shared member evidence. The connection has no `trust:read`. | `MEMBER_PERMISSION_REQUIRED` |
+| `PATHS_FOUND` | Joey found current paths within the limits. | `PATHS_FOUND` |
+| `NO_PATH_WITHIN_LIMITS` | The target is known, but no path is within the limits. | `NO_PATH_WITHIN_LIMITS`, `SEARCH_INCOMPLETE` |
+
+Next action codes: `FIND_PATHS`, `CONFIRM_CANDIDATE`, `SELECT_CANDIDATE`,
+`SELECT_COMPANY`, `REQUEST_RESEARCH`, `ASK_FOR_PROFILE_URL`,
+`SEARCH_PERSON_AGAIN`, `RETRY_LATER`, `WIDEN_SEARCH`, `READ_PATH_CONTEXT` and
+`RECONNECT_WITH_SCOPE`. A next action is advice. It grants no permission and
+it is not the member's request. `missingScopes` names the scopes of the step
+that the connection does not have. Use `REQUEST_RESEARCH` only when the member
+asks for research, and only with a confirmed URL.
+
 ## Idempotency keys
 
 `joey_request_path` and `joey_find_better_path` take an `idempotencyKey`.
@@ -356,12 +438,18 @@ of a path is the word of its weakest hop.
 | `INTRO_STOPPED` | The intro is stopped. Tell the member. Do not change it. |
 | `INTRO_NOT_STARTED` | The intro is not requested yet, so it cannot stop. |
 | `BETTER_PATH_OPEN` | Joey already looks for a better path to this target. Tell the member to wait for it. |
-| `OPEN_CAPACITY_REACHED` or `QUOTA_OPEN_REACHED` | The workspace has the most open searches that it can have. Tell the member. |
+| `OPEN_CAPACITY_REACHED` or `QUOTA_OPEN_REACHED` | The workspace has the most open searches that it can have. Joey saved no request. Tell the member. |
+| `GRAPH_IDENTITY_UNRESOLVED` | The member's public profile is not confirmed. Ask the member to confirm it in Joey, or select explicit `originRefs`. |
+| `GRAPH_UNAVAILABLE`, `GRAPH_BUSY` or `GRAPH_MEMBER_SYNC_PENDING` | Try again later. Do not loop. |
+| `ORIGIN_NOT_ALLOWED` (HTTP 403) | A browser page called the MCP. Call it from the MCP client. |
 | `RATING_NOT_ALLOWED` | This path has no person that the member can rate. Do not retry. |
 | `TARGET_COMPANY_REQUIRED` | Joey does not know the company of the target, so it cannot save the target. |
 | `INVALID_TARGET_URL` | Ask the member for a LinkedIn person or company URL. Do not guess one. |
 | `IDEMPOTENCY_CONFLICT` | The key has different content. Inspect the earlier action before a new write; do not duplicate an uncertain save. |
 | Other code | Tell the member the code in plain words. Do not guess a cause. |
+
+Each Joey error also gives `recommendedNextAction` (`action`, `tool`, `text`).
+Follow it when it fits the member's task.
 
 ## Server prompts
 
@@ -491,9 +579,32 @@ Joey to select them. Use the server input schema for nested statement fields.
 - Input:
   - `query`: person name or public profile URL; 2 to 2,048 characters.
   - `limit` (optional): 1 to 20 candidates.
-- Result: current matching graph people and completeness. A name match is a
+- Result: `status`, `outcome`, `reason`, `recommendedNextAction`, `people`,
+  `needsSelection`, `identityRule` and `revisions`. A name match is a
   candidate, not proof of identity. Select a clear canonical profile before a
-  path search. A missing match is not proof of graph absence.
+  path search.
+- `NOT_IN_GRAPH` with `NAME_NOT_FOUND` means that no graph person has a name
+  that contains the text. Another spelling or the public profile URL can still
+  match. `PROFILE_NOT_FOUND` means that no graph person has the profile.
+
+### joey_search_graph_companies
+
+- Input:
+  - `query`: a company name; 2 to 200 characters.
+  - `limit` (optional): 1 to 10 companies; default 5.
+  - `peopleLimit` (optional): 0 to 50 people for each company; default 10.
+- Result: `outcome`, `reason`, `recommendedNextAction`, `companies` and
+  `revisions`. Each company has `name`, `aliases` (other spellings of the
+  same name), `exactName`, `currentPeople`, `formerPeople`, `peopleComplete`
+  and `people`. Each person has `entityRef`, `label`, `anchors`, `current` and
+  `roles` (`organization`, `title`, `capacity`, `status`).
+- The graph has no company records. A company is the organization name of
+  people's roles. The search compares close spellings, such as "GroundUp",
+  "Ground Up" and "Ground Up Ventures". A company is a candidate name, not a
+  merge of people. Each person keeps its own `entityRef`.
+- `MATCHED` means that one company has exactly the name. Otherwise ask the
+  member to select one company. `NOT_IN_GRAPH` means that no graph person has
+  a role at a company with this name or a close spelling.
 
 
 ### joey_get_graph_connections
@@ -516,10 +627,16 @@ Joey to select them. Use the server input schema for nested statement fields.
     optional `roles` (at most 10). Use a supplied or confirmed profile URL.
   - `maxHops` (optional): 1 to 5; default 3.
   - `maxPaths` (optional): 1 to 10; default 5.
-- Result: live paths with scoped `pathRef` values, people, hop evidence,
-  revisions and completeness limits. It creates no report or research request.
-  An empty bounded search does not prove that no path exists. Shared member
-  evidence needs `trust:read`; no name-based member identity is allowed.
+- Result: `status`, `outcome`, `reason`, `recommendedNextAction`, `company`,
+  live paths with scoped `pathRef` values, people, hop evidence, revisions and
+  completeness limits. It creates no report or research request. An empty
+  bounded search does not prove that no path exists. Shared member evidence
+  needs `trust:read`; no name-based member identity is allowed.
+- A `company` target resolves through the company search first. `company`
+  gives `query`, `outcome`, `resolved` and `candidates`. With no exact company,
+  the result has no paths and lists `candidates`. Call again with the exact
+  `name` that the member selects. The path search uses the current people of
+  the resolved company.
 
 
 ### joey_read_path_context

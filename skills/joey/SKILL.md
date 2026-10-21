@@ -42,7 +42,9 @@ check; it starts no path work.
 
 Call `joey_whoami`. Check `scopes`, `capabilities` and `graphIdentity`.
 `workspace:read` permits public graph reads. Shared member evidence also needs
-`trust:read`. An absent scope is not an empty graph.
+`trust:read`. An absent scope is not an empty graph. Read `server.version`. If
+it is earlier than `1.1.0`, the server gives no `outcome` or
+`recommendedNextAction`; then use `status` and the error code only.
 
 Default path origins need `graphIdentity.status: "CLAIMED"`. If the profile is
 not confirmed, ask the member to confirm the correct public profile in Joey.
@@ -65,12 +67,16 @@ do not install a plugin or change an account grant as a side effect.
 
 1. Resolve people with `joey_search_graph_people`. Use the supplied public
    profile URL when possible. For a name, select the correct profile before a
-   path search. Ask if more than one candidate fits.
+   path search. Ask if more than one candidate fits. For people at a company,
+   use `joey_search_graph_companies`. It compares close spellings, such as
+   "GroundUp" and "Ground Up Ventures", and lists the known people.
 2. To inspect a person's current links, use `joey_get_graph_connections` with
    the returned `entityRef`. Respect pagination and completeness limits.
 3. Call `joey_find_graph_paths` with a `target`:
    - Known people: `entityRefs` or a confirmed `profileUrl`.
-   - A company and preferred roles: `company` and `roles`.
+   - A company and preferred roles: `company` and `roles`. The server resolves
+     the company first. Read `company.resolved`, or show `company.candidates`
+     and ask the member to select one exact name.
    Omit `originRefs` to use the member's confirmed profile. Use `maxHops` and
    `maxPaths` only when the task needs other search limits.
 4. Select a path. Call `joey_read_path_context` with its `pathRef` before you
@@ -86,6 +92,23 @@ not show graph absence. A bounded empty graph search, unresolved identity,
 missing permission, old path reference and service outage are different results.
 Do not turn one into another. After an old reference or changed revision,
 search again and read fresh context.
+
+Each graph read gives `outcome`, `reason.code` and `recommendedNextAction`.
+Each refusal gives `error.recommendedNextAction`. Follow the next action:
+
+| `outcome` | What to do |
+| --- | --- |
+| `MATCHED` | Use the `entityRef` or the resolved company. |
+| `CANDIDATE` | Confirm the person or company with the member. A name match is not an identity. |
+| `AMBIGUOUS` | Show the candidates with their profiles. Ask the member to select one. |
+| `NOT_IN_GRAPH` | Tell the member that the current graph has no match. Offer research with the confirmed LinkedIn URL. |
+| `IDENTITY_UNRESOLVED` | Search again or try later. Do not use a name match in its place. |
+| `NO_PERMISSION` | Tell the member which scope is missing. Do not report no path. |
+| `NO_PATH_WITHIN_LIMITS` | State the limits. Offer a wider search or research. |
+
+`NOT_IN_GRAPH` for a name covers only that spelling. A next action is advice.
+It grants no permission. A step with `missingScopes` needs a new connection
+with those scopes. Do not file a research request unless the member asks.
 
 ## Prepare the next action
 
@@ -156,6 +179,13 @@ do not replace a live graph tier or an unknown value with a report word.
   confirmed LinkedIn URL and a new UUID `idempotencyKey`. Company requests are
   available in company workspaces; personal requests need a person URL. Do not
   guess a URL or say that a new request is a delivered path.
+- Before a request, read `pathRequests.capacity` in `joey_whoami`. With
+  `limited: false`, the workspace has no request or weekly delivery limit. With
+  `weekRemaining: 0`, tell the member that a found path waits for a later week.
+- After a request, report `status` and `delivery.state`. `SEARCHING` means that
+  Joey researches the target. `QUEUED_FOR_WEEKLY_CAPACITY` means that a found
+  path waits; give `queuePosition` and `estimatedDelivery` as an estimate. Read
+  the request again with `joey_get_path_request`. Do not promise a date.
 - For a better report path, use `joey_find_better_path`. Get the member's
   `preference` (`chip`, `text`, or both) and ask whether to save it. Use the
   returned schema for available chips. Do not convert a shared employer into
@@ -188,3 +218,9 @@ For an auth error, follow connection setup. For a rate limit, stop and report it
 changed record, read its current revision before another action. Give other
 error codes and their limits; do not invent a cause or retry uncertain writes
 with new keys.
+
+Joey applies the same rules to scheduled, background and interactive calls
+(`contextPolicy` in `joey_whoami`). A Joey refusal has a code from the tool
+reference. A denial with another code, such as `read_only_preparation`, comes
+from the host or its proxy. Report it as a host limit. Do not retry it in a
+loop, and do not report it as a Joey outage.

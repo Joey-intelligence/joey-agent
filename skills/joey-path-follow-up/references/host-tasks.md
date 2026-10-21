@@ -34,6 +34,9 @@ each operation that needs it.
    and the selected message or calendar tools. Tools in this chat alone do
    not prove access in a scheduled run. If access cannot be verified, state
    that limit before task creation. Do not claim that progress checks can run.
+   Joey applies the same rules to scheduled and interactive calls. A denial in
+   a scheduled run with a code that Joey does not document, such as
+   `read_only_preparation`, comes from the host. Report it as a host limit.
 2. Use the host's task list or a known task reference to find an existing task.
    Match the member, workspace, activation or report path, account and purpose.
    For a step reminder, also match the selected step. A repeated full-path

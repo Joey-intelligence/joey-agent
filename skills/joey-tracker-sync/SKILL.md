@@ -79,6 +79,10 @@ associated host checks under their agreed stop condition. An intermediate step
 does not end the full path. If no scheduler or required run-time tool exists,
 report the limit; do not claim that future checks will occur.
 
+Joey gives the same results and errors to a scheduled run and to this chat.
+A denial with a code that Joey does not document comes from the host. Report
+it as a host limit in the run's notice. Do not retry it in a loop.
+
 ## Confirmed outcomes
 
 A stage update creates no graph edge. A past event proves neither attendance
