@@ -69,7 +69,9 @@ hook. A server prompt alone does not create a schedule.
 
 ### joey_whoami
 
-- Input: none.
+- Input:
+  - `pluginVersion` (optional): the installed release of the Joey skill, from
+    [the update check](updates.md), for example `1.6.0`.
 - Result: `user` (`id`, `name`, `email`), `workspace` (`id`, `name`), `role`
   (`ADMIN` or `MEMBER`), `scopes`, `client`, `capabilities` and `graphIdentity`.
   Identity has status, revision, confirmed entity reference/profile URL and a
@@ -86,6 +88,10 @@ hook. A server prompt alone does not create a schedule.
   Only `CONFIRM_PROFILE` blocks a default path search. A member who cannot set
   the ICP gets `NOT_AVAILABLE`; a workspace admin sets it. Give `text` and
   `url` to the member once. Do not do the step for the member.
+- Also, with `pluginVersion`: `agentPlugin` (`state`, `installedVersion`,
+  `latestVersion`, `updateAvailable`, `releaseUrl`). `state` is `CURRENT`,
+  `UPDATE_AVAILABLE`, `NOT_REPORTED` or `UNKNOWN`. Follow
+  [the update check](updates.md).
 - Read `pathRequests.capacity` before `joey_request_path`.
 - Call it first when the task needs workspace context and `workspace:read` is
   present. A known-statement or known-session withdrawal needs only
@@ -319,6 +325,28 @@ hook. A server prompt alone does not create a schedule.
 - Only an admin with the `icp:write` scope can call it. Read the ICP first and
   send its version as `expectedVersion`. If another person changed the ICP
   after your read, the call fails with `ICP_CHANGED`.
+
+### joey_report_bug
+
+- Input:
+  - `trigger`: `automatic` for a mechanical failure, or `member` for a
+    problem that the member reports.
+  - `severity`: `blocking`, `wrong` or `minor`.
+  - `title`: one line, at most 200 characters.
+  - `description`: what happened, at most 4000 characters.
+  - `steps` (optional): the calls or steps before the problem.
+  - `expected` (optional): what should have happened.
+  - `toolName` (optional): the Joey tool that failed.
+  - `errorCode` (optional): the error code of the failure.
+  - `pluginVersion` (optional): the installed release of the Joey skill.
+  - `host` (optional): the assistant product, for example `Claude Code`.
+  - `idempotencyKey`: a new UUID for each report.
+- Result: `{reported, reportId, status}`. `status` is `SENT`, or `DUPLICATE`
+  for an automatic report of the same tool and code within one hour.
+- Scope `workspace:read`. Follow [the bug report rules](bug-reports.md).
+- Refusals: `REPORT_LIMIT` (ten reports for each member each hour),
+  `IDEMPOTENCY_CONFLICT` and `SLACK_UNAVAILABLE` (Joey saved the report; the
+  same key sends it again).
 
 ## Values
 

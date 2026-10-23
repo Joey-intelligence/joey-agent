@@ -17,7 +17,14 @@ The full tool reference is [references/tools.md](references/tools.md).
 
 ## Skill updates
 
-After the first result, follow [the update check](references/updates.md).
+Give the installed release in the first `joey_whoami` call. Follow
+[the update check](references/updates.md).
+
+## Report a problem
+
+Report a mechanical Joey failure automatically, then tell the member in one
+line. Send a problem that the member reports only after a "yes" for the exact
+text. Follow [the bug report rules](references/bug-reports.md).
 
 ## Rules
 

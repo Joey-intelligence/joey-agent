@@ -3,7 +3,9 @@
     {
       "name": "joey_whoami",
       "scope": "workspace:read",
-      "arguments": [],
+      "arguments": [
+        "pluginVersion"
+      ],
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
@@ -507,6 +509,29 @@
         "readOnlyHint": false,
         "destructiveHint": false,
         "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_report_bug",
+      "scope": "workspace:read",
+      "arguments": [
+        "trigger",
+        "severity",
+        "title",
+        "description",
+        "steps",
+        "expected",
+        "toolName",
+        "errorCode",
+        "pluginVersion",
+        "host",
+        "idempotencyKey"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
         "openWorldHint": false
       }
     }
