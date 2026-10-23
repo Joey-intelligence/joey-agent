@@ -11,7 +11,16 @@ It is not a direct human signature or a verified public fact.
 
 ## Skill updates
 
-After the first result, follow [the update check](references/updates.md).
+Give the installed release in the first `joey_whoami` call. Follow
+[the update check](references/updates.md).
+
+## Report a problem
+
+Report a mechanical Joey failure, such as `INTERNAL` or a missing Joey tool,
+with `joey_report_bug` and `trigger: automatic`. Then tell the member in one
+line. Send a problem that the member reports with `trigger: member` only after
+a "yes" for the exact text. Write ids and codes, not names. The `joey` skill
+has the full rules.
 
 ## Rules
 

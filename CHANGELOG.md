@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.6.0 — 2026-10-23
+
+- Give the installed release to `joey_whoami` as `pluginVersion`. The Joey
+  server gives `agentPlugin` and tells the agent about a new release. The
+  skills no longer read the release page.
+- After a yes, update the plugin with the steps of the host. In Claude Code,
+  also turn on marketplace auto-update, so later releases need no reminder.
+- Report a mechanical Joey failure with the new `joey_report_bug` and tell the
+  member in one line. Send a problem that the member reports only after a yes.
+- Copy the tool snapshot of server version 1.2.0.
+
 ## 1.5.0 — 2026-10-22
 
 - Continue a new connection into a first run: one identity line, the
