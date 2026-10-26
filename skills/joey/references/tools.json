@@ -308,6 +308,7 @@
       "scope": "intros:write",
       "arguments": [
         "linkedinUrl",
+        "icpScope",
         "idempotencyKey"
       ],
       "annotations": {
@@ -508,6 +509,37 @@
       "annotations": {
         "readOnlyHint": false,
         "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_update_my_icp",
+      "scope": "personal-icp:write",
+      "arguments": [
+        "expectedVersion",
+        "description",
+        "roles",
+        "industries",
+        "countries",
+        "employeeRanges"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_clear_my_icp",
+      "scope": "personal-icp:write",
+      "arguments": [
+        "expectedVersion"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
         "idempotentHint": false,
         "openWorldHint": false
       }

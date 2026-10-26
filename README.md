@@ -304,7 +304,9 @@ the matching Joey OS and Pouch release first. Version `1.3.2` requires explicit
 strength for each new or corrected positive member relationship. Version
 `1.4.0` needs Pouch customer MCP server version `1.1.0` (`server.version` in
 `joey_whoami`) for outcomes, next actions, company search and delivery states.
-Version `1.5.0` uses the onboarding steps and web links of the same server. Test host send
+Version `1.5.0` uses the onboarding steps and web links of the same server.
+Version `1.7.0` needs server version `1.3.0` for the member's own ICP and
+`icpScope`. Test host send
 receipts and approved task execution separately;
 local tests do not prove live availability.
 

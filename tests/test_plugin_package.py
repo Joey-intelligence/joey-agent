@@ -360,7 +360,7 @@ class ToolCatalogTests(unittest.TestCase):
             self.assertRegex(name, r"^joey_[a-z0-9_]+$")
         for entry in catalog["tools"]:
             with self.subTest(tool=entry["name"]):
-                self.assertIn(entry["scope"], {"workspace:read", "intros:write", "icp:write", "trust:read", "trust:write"})
+                self.assertIn(entry["scope"], {"workspace:read", "intros:write", "icp:write", "personal-icp:write", "trust:read", "trust:write"})
                 self.assertIsInstance(entry["annotations"]["readOnlyHint"], bool)
 
     def test_the_server_prompts(self):

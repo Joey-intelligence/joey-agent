@@ -204,6 +204,11 @@ do not replace a live graph tier or an unknown value with a report word.
   confirmed LinkedIn URL and a new UUID `idempotencyKey`. Company requests are
   available in company workspaces; personal requests need a person URL. Do not
   guess a URL or say that a new request is a delivered path.
+- Before a company request, read `joey_get_icp`. If the workspace ICP and the
+  member's own ICP are both usable, ask the member which ICP to use. If only
+  one is usable, use it and tell the member which one. Send `icpScope`
+  `PERSONAL` for the member's own ICP. Each ICP of one company has its own
+  request. Do not send `icpScope` for a person.
 - Before a request, read `pathRequests.capacity` in `joey_whoami`. With
   `limited: false`, the workspace has no request or weekly delivery limit. With
   `weekRemaining: 0`, tell the member that a found path waits for a later week.
@@ -219,8 +224,12 @@ do not replace a live graph tier or an unknown value with a report word.
   before `joey_delete_path_preference`.
 - Use `joey_save_target` for a requested save; `saved: false` removes it.
   Company workspaces also have `joey_list_prospects` and `joey_get_icp`.
-  For an ICP change, verify admin access, read its version, show the exact
-  change, get a "yes", then use `joey_update_icp` with `expectedVersion`.
+  For a workspace ICP change, verify admin access, read its version, show the
+  exact change, get a "yes", then use `joey_update_icp` with `expectedVersion`.
+- A member can change the member's own ICP with no admin. Read the `version`
+  of `personal` (use `0` when it is null), show the exact change, get a "yes",
+  then use `joey_update_my_icp` with `expectedVersion`. To remove it, get a
+  "yes", then use `joey_clear_my_icp`. Only the member sees this ICP.
 
 ## Member relationship answers
 
