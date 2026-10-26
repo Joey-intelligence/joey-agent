@@ -14,9 +14,10 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `1.1.0`. An earlier server gives no `outcome`,
+server version `1.3.0`. An earlier server gives no `outcome`,
 `recommendedNextAction`, `delivery`, `joey_search_graph_companies` or
-`joey_get_path_request`.
+`joey_get_path_request`. A server before `1.3.0` gives no personal ICP: its
+`joey_get_icp` gives the workspace ICP alone, and it has no `icpScope`.
 
 ## Scopes
 
@@ -25,6 +26,7 @@ server version `1.1.0`. An earlier server gives no `outcome`,
 | `workspace:read` | All members | Workspace read tools |
 | `intros:write` | All members | Introduction and target write tools |
 | `icp:write` | Workspace admins only | `joey_update_icp` |
+| `personal-icp:write` | All members | `joey_update_my_icp`, `joey_clear_my_icp` |
 | `trust:read` | Members with this permission | Trust subject lookup, own statements and trust context |
 | `trust:write` | Members with this permission | Capture sessions, subjects, statements and withdrawal |
 
@@ -85,9 +87,10 @@ hook. A server prompt alone does not create a schedule.
   `TODO` or `NOT_AVAILABLE`), `required`, `url` and `text`. `nextStep` is the
   first required step that is `TODO`, or null. `url` is the page of the Joey
   web app where the member does the step; it is null in a personal workspace.
-  Only `CONFIRM_PROFILE` blocks a default path search. A member who cannot set
-  the ICP gets `NOT_AVAILABLE`; a workspace admin sets it. Give `text` and
-  `url` to the member once. Do not do the step for the member.
+  Only `CONFIRM_PROFILE` blocks a default path search. `SET_ICP` is `DONE`
+  when the workspace ICP or the member's own ICP is usable. A member with no
+  usable ICP gets `TODO`. A personal workspace gets `NOT_AVAILABLE`. Give
+  `text` and `url` to the member once. Do not do the step for the member.
 - Also, with `pluginVersion`: `agentPlugin` (`state`, `installedVersion`,
   `latestVersion`, `updateAvailable`, `releaseUrl`). `state` is `CURRENT`,
   `UPDATE_AVAILABLE`, `NOT_REPORTED` or `UNKNOWN`. Follow
@@ -203,8 +206,12 @@ hook. A server prompt alone does not create a schedule.
 ### joey_get_icp
 
 - Input: none.
-- Result: the ICP of the workspace: `description` (free text), `roles`,
-  `industries`, `countries`, `employeeRanges`, `usable` and `version`.
+- Result: `{workspace, personal}`. `workspace` is the ICP of the workspace.
+  `personal` is the member's own ICP, or null. Only the member can read the
+  personal ICP. Each ICP has `scope` (`WORKSPACE` or `PERSONAL`),
+  `description` (free text), `roles`, `industries`, `countries`,
+  `employeeRanges`, `usable` and `version`.
+- `usable: true` means that Joey can vet a company request with this ICP.
 
 ## Write tools
 
@@ -214,11 +221,20 @@ hook. A server prompt alone does not create a schedule.
   - `linkedinUrl`: the LinkedIn URL of a person
     (`https://www.linkedin.com/in/...`) or of a company
     (`https://www.linkedin.com/company/...`).
+  - `icpScope` (optional): only for a company. `WORKSPACE` (the default) vets
+    the company against the workspace ICP. `PERSONAL` vets it against the
+    member's own ICP.
   - `idempotencyKey`: see [Idempotency keys](#idempotency-keys).
-- Result: `{requestId, status, targetUrl, targetKind, deliveredPaths,
-  capacity, delivery}`. Joey researches the path. The path shows in
-  `joey_list_paths` when Joey delivers it. See [Capacity](#capacity) and
-  [Delivery state](#delivery-state). A personal workspace also gives `created`.
+- Result: `{requestId, status, targetUrl, targetKind, icpScope,
+  deliveredPaths, capacity, delivery}`. Joey researches the path. The path
+  shows in `joey_list_paths` when Joey delivers it. See [Capacity](#capacity)
+  and [Delivery state](#delivery-state). A personal workspace also gives
+  `created`. `icpScope` is the ICP of a company request, and null for a person.
+- Each ICP of one company has its own request. Before a company request, read
+  `joey_get_icp`. If both ICPs are usable, ask the member which ICP to use. If
+  only one is usable, use it and tell the member which one.
+- `PERSONAL` without a personal ICP fails with `PERSONAL_ICP_REQUIRED`.
+  `PERSONAL` for a person URL fails with `INVALID_ICP_SCOPE`.
 - `status: "SEARCHING"` means that Joey researches the target. It does not
   promise a delivery date. Read `delivery.state` for that.
 - If the workspace asked for this target before, the member joins that request.
@@ -323,8 +339,37 @@ hook. A server prompt alone does not create a schedule.
 - Result: the new ICP and its new version.
 - A field that you do not give keeps its value.
 - Only an admin with the `icp:write` scope can call it. Read the ICP first and
-  send its version as `expectedVersion`. If another person changed the ICP
-  after your read, the call fails with `ICP_CHANGED`.
+  send the `version` of `workspace` as `expectedVersion`. If another person
+  changed the ICP after your read, the call fails with `ICP_CHANGED`.
+
+### joey_update_my_icp
+
+- Input:
+  - `expectedVersion`: the `version` of `personal` from `joey_get_icp`, or `0`
+    when `personal` is null. `0` creates the personal ICP.
+  - `description` (optional): free text, at most 2000 characters.
+  - `roles` (optional): job titles, at most 20.
+  - `industries` (optional): at most 20.
+  - `countries` (optional): two-letter country codes, at most 50.
+  - `employeeRanges` (optional): for example `51-200` or `5001+`.
+- Result: the new personal ICP and its new version, as `joey_get_icp` gives
+  `personal`.
+- A field that you do not give keeps its value.
+- Every member with the `personal-icp:write` scope can call it. It changes only
+  the member's own ICP, so it needs no admin. Read the ICP first. Show the exact
+  change and get a "yes" before the call. A stale version fails with
+  `ICP_CHANGED`.
+- Joey vets again only the open requests of the member with `icpScope`
+  `PERSONAL`.
+
+### joey_clear_my_icp
+
+- Input:
+  - `expectedVersion`: the `version` of `personal` from `joey_get_icp`.
+- Result: `{personal: null}`.
+- This call removes the member's own ICP. Get a "yes" before the call. The open
+  requests of the member with `icpScope` `PERSONAL` then wait in
+  `WAITING_FOR_ICP`. A stale version fails with `ICP_CHANGED`.
 
 ### joey_report_bug
 
@@ -415,14 +460,15 @@ delivery limit; `openLimit` and `weekLimit` then give only the nominal values.
 
 `delivery` has `state`, `reason`, `queuePosition`, `pathFound`,
 `estimatedDelivery` and `message`. For `WAITING_FOR_ICP`, `url` gives the
-ICP page of the Joey web app, and `message` says who can set the ICP.
+ICP page of the Joey web app. `message` names the ICP of the request and says
+who can set it.
 
 | `state` | Meaning |
 | --- | --- |
 | `RESEARCHING` | Joey researches the target, and the week has capacity. |
 | `QUEUED_FOR_WEEKLY_CAPACITY` | The weekly limit is full. A found path waits for a later week. `queuePosition` and `estimatedDelivery` (`notBefore`, `notAfter`, `basis: "ESTIMATE"`) are set. |
 | `DELIVERED` | The member can read a delivered path. |
-| `WAITING_FOR_ICP` | A company request waits for the workspace ICP. |
+| `WAITING_FOR_ICP` | A company request waits for its ICP: the workspace ICP, or the personal ICP of the member who asked (`icpScope` `PERSONAL`). |
 | `READY_NO_PATH` | The research ended without a delivered path. |
 | `UNAVAILABLE` | Joey cannot research this target. |
 
@@ -472,7 +518,9 @@ asks for research, and only with a confirmed URL.
 | `FORBIDDEN` or `NOT_FOUND` | The path is not in this workspace, or the member has no access. Do not retry. |
 | `RATE_LIMITED` or `DRAFT_LIMIT` | Stop. Tell the member to try again later. Do not loop. |
 | `DRAFT_UNAVAILABLE` or `DRAFT_FAILED` | Joey cannot write the draft now. Write the email with the member from the report. |
-| `ICP_CHANGED` | Read the ICP again. Show the new version to the member before a new change. |
+| `ICP_CHANGED` | Read the ICP again: the workspace ICP or the personal ICP. Show the new version to the member before a new change. |
+| `PERSONAL_ICP_REQUIRED` | The member has no personal ICP. Offer to set it with `joey_update_my_icp`, or ask again with `icpScope` `WORKSPACE`. |
+| `INVALID_ICP_SCOPE` | `icpScope` is only for a company URL. Ask again without `icpScope` for a person. |
 | `INTRO_STOPPED` | The intro is stopped. Tell the member. Do not change it. |
 | `INTRO_NOT_STARTED` | The intro is not requested yet, so it cannot stop. |
 | `BETTER_PATH_OPEN` | Joey already looks for a better path to this target. Tell the member to wait for it. |
