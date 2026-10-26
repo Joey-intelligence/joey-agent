@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.7.0 — 2026-10-26
+
+- Let each member keep a personal ICP beside the workspace ICP. Read both
+  with `joey_get_icp`. Change the member's own ICP with `joey_update_my_icp`
+  or remove it with `joey_clear_my_icp`, after a yes. No admin is necessary.
+- Before a company request, ask the member which ICP to use when both are
+  usable. When only one is usable, use it and name it. Send `icpScope`
+  `PERSONAL` for the member's own ICP.
+- Document the `personal-icp:write` scope, the errors
+  `PERSONAL_ICP_REQUIRED` and `INVALID_ICP_SCOPE`, and the new `SET_ICP` rule.
+- Copy the tool snapshot of server version 1.3.0.
+
 ## 1.6.0 — 2026-10-23
 
 - Give the installed release to `joey_whoami` as `pluginVersion`. The Joey
