@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""Run local checks before a branch push."""
+
+import os
+import re
+import signal
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+LIMIT_SECONDS = 60
+
+
+def git(*args, deadline):
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise subprocess.TimeoutExpired("git", LIMIT_SECONDS)
+    return subprocess.run(
+        ["git", *args],
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=remaining,
+    ).stdout.strip()
+
+
+def run_checks(root, deadline):
+    print("Run the package checks before the push.", flush=True)
+    return execute(
+        [sys.executable, "-I", "-m", "unittest", "discover", "-s", "tests", "-v"],
+        root,
+        deadline,
+    )
+
+
+def main(stream):
+    deadline = time.monotonic() + LIMIT_SECONDS
+    targets = []
+    for line in stream:
+        fields = line.split()
+        if len(fields) != 4:
+            print("Cannot read the push refs.", file=sys.stderr)
+            return 1
+        local_ref, local_sha, remote_ref, remote_sha = fields
+        valid = r"(?:[0-9a-f]{40}|[0-9a-f]{64})"
+        if not re.fullmatch(valid, local_sha) or not re.fullmatch(valid, remote_sha):
+            print("Cannot read the push commit IDs.", file=sys.stderr)
+            return 1
+        if remote_ref.startswith("refs/heads/") and local_ref != "(delete)" and set(local_sha) != {"0"}:
+            targets.append(local_sha)
+    if not targets:
+        return 0
+    try:
+        root = Path(git("rev-parse", "--show-toplevel", deadline=deadline))
+        head = git("rev-parse", "--verify", "HEAD", deadline=deadline)
+        if any(sha != head for sha in targets):
+            print("Check out each branch and push it separately.", file=sys.stderr)
+            return 1
+        if git("status", "--porcelain=v1", "--untracked-files=normal", deadline=deadline):
+            print("Commit or stash all changes before you push.", file=sys.stderr)
+            return 1
+        return run_checks(root, deadline)
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+        print(f"The pre-push check could not run: {type(error).__name__}.", file=sys.stderr)
+        return 1
+
+
+def execute(command, root, deadline, environment=None):
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        print("The 60-second pre-push limit expired.", file=sys.stderr)
+        return 1
+    process = subprocess.Popen(
+        command, cwd=root, env=environment, start_new_session=True
+    )
+    try:
+        result = process.wait(timeout=remaining)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        process.wait()
+        print("The 60-second pre-push limit expired.", file=sys.stderr)
+        return 1
+    if result:
+        print(f"The pre-push check failed with exit code {result}.", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.stdin))
