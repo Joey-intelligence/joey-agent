@@ -10,7 +10,7 @@
       "name": "joey-agent",
       "source": "./",
       "description": "Find paths and prepare the next action. Check progress and set approved reminders through connected tools. Send after exact approval. Share outcomes and trust statements only with separate consent.",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "category": "productivity"
     }
   ]

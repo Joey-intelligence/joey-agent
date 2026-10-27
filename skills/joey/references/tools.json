@@ -416,6 +416,37 @@
       }
     },
     {
+      "name": "joey_set_intro_progress",
+      "scope": "intros:write",
+      "arguments": [
+        "requestId",
+        "step",
+        "pathKey",
+        "approval",
+        "sendReceipt"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_set_intro_owner",
+      "scope": "intros:write",
+      "arguments": [
+        "requestId",
+        "userId"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
       "name": "joey_stop_intro",
       "scope": "intros:write",
       "arguments": [

@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.8.0 — 2026-10-27
+
+- Document the `TRACKING` stage of a company workspace intro. A member starts
+  to track a path before the first request and becomes its owner.
+- Read the intro `owner` and the `progress` steps that the web shows, such as
+  "Asked David" and "Introduced to Sarah", in `joey_get_path_report` and
+  `joey_get_intro_tracker`. The tracker also gives `members`.
+- Move a company report intro to a step with the new `joey_set_intro_progress`.
+  Give `pathKey` to track or move to a specific path of `progress.paths`. Only
+  the `ASKED` step needs the approval and send receipt of `INTRO_REQUESTED`.
+  A failed send gives `SEND_FAILED`. A later step needs the member's
+  confirmation and no receipt. Give the intro to another member with the new
+  `joey_set_intro_owner`, after a yes.
+- Use the progress steps in the tracker sync and follow-up flows. Activations
+  and personal workspaces keep `joey_set_intro_stage`.
+- Copy the two new tool entries of server version 1.4.0.
+
 ## 1.7.0 — 2026-10-26
 
 - Let each member keep a personal ICP beside the workspace ICP. Read both

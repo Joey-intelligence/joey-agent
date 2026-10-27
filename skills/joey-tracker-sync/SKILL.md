@@ -39,8 +39,9 @@ has the full rules.
    workspace before other reads. Stop and report a mismatch. Read
    `joey_get_intro_tracker`. Read report `rows` and
    private `activations`, including per-step stages and completeness limits.
-   Select active, unstopped steps at `INTRO_REQUESTED`, `INTRODUCED` or
-   `MEETING_SET`.
+   A company report row also has `owner` and `progress` steps. Select active,
+   unstopped steps at `INTRO_REQUESTED`, `INTRODUCED` or `MEETING_SET`. A
+   report at `TRACKING` has no send yet; check it only for a first request.
 2. Inspect the available host message and calendar tools and their account
    permissions. Check only the scope of the current path task or approved
    scheduled check. A simple reminder supplies no permission for these reads.
@@ -53,21 +54,29 @@ has the full rules.
 
    | Evidence | Proposal |
    | --- | --- |
-   | An introduction that includes the member and this step's target | `INTRODUCED` for this step |
-   | A future meeting with this step's target | `MEETING_SET` |
+   | An introduction that includes the member and this step's target | `INTRODUCED` for this step; the "Introduced to" step of that person for a company report |
+   | A future meeting with this step's target | `MEETING_SET`; the `meeting` step for a company report |
    | A past calendar event | Ask whether the meeting occurred; no automatic `MET` |
-   | A confirmed completed meeting with this step's target | `MET` |
+   | A confirmed completed meeting with this step's target | `MET`; the `met` step for a company report |
    | A reply with no introduction | Give its date; do not assume an introduction |
    | No evidence | No change |
 
-4. Show one batch with the recipient, step target, proposed stage, exact source
-   reference, date and reason. Ask which changes the member confirms. Keep an
-   intermediate introduction separate from final-target progress.
-5. Call `joey_set_intro_stage` only for confirmed changes. Use one `requestId`
-   or `activationId`. An activation also needs its current `expectedRevision`,
-   `stepIndex`, a new UUID `idempotencyKey` and the member's actual `confirmation`.
-   Ask before a stage moves back. Do not stop an intro in this skill.
+4. Show one batch with the recipient, step target, proposed stage or step
+   label, exact source reference, date and reason. Ask which changes the
+   member confirms. Keep an intermediate introduction separate from
+   final-target progress.
+5. Write only the confirmed changes. For a company report, call
+   `joey_set_intro_progress` with the `requestId` and the step `key`. For an
+   activation, call `joey_set_intro_stage` with its current
+   `expectedRevision`, `stepIndex`, a new UUID `idempotencyKey` and the
+   member's actual `confirmation`. Reply or calendar evidence can move a
+   company report to a later step, such as "Introduced to Sarah", `meeting` or
+   `met`, after the member confirms. Such a step needs no send receipt, also
+   when no send is recorded. Do not record a send in this skill: the `ASKED`
+   step needs the `joey-activate-path` skill. Ask before a stage moves back.
+   Do not change the owner or stop an intro in this skill.
 6. Read the tracker after a write and verify the selected step and revision.
+   For a company report, read the new `progress.current` in the result.
    Report successful and failed changes. After a confirmed introduction, use
    `joey-activate-path` to prepare the next step's request in this turn. For a
    due follow-up, use `joey-path-follow-up` to prepare the next action and offer

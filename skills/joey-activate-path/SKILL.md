@@ -58,8 +58,10 @@ has the full rules.
    `pathKey`, the known brief and a new UUID `idempotencyKey`. A report
    activation keeps its `DELIVERED_REPORT` source. Keep the returned
    `activationId`, `revision` and `steps`. This creates no research request or
-   delivered report. A report request ID alone controls final-target progress
-   and refuses `stepIndex`; prepare an activation for intermediate progress.
+   delivered report. A report request ID alone refuses `stepIndex`. In a
+   company workspace, the report's `progress` steps record each introduction
+   on the path. In a personal workspace, a report request ID controls only
+   final-target progress; prepare an activation for intermediate progress.
 4. Call `joey_get_intro_draft` with exactly one `activationId` or `requestId`.
    For an activation, also give `stepIndex`. For a report, give `pathKey` if
    needed. Keep `to.recipientRef` as the draft's recipient reference. `to.entityRef` is
@@ -83,8 +85,19 @@ has the full rules.
    host tool. Once that approval exists, send it without another approval
    question. A reminder approval or a general request to manage paths is not
    send approval. A mailbox draft or compose link is not a send.
-4. For a successful request at `PATH_FOUND` or `INTRO_REQUESTED`, call
-   `joey_set_intro_stage` with `stage: "INTRO_REQUESTED"` and the selected record.
+4. For a successful first request, record the send on the selected record:
+   - A company report (`requestId` with `progress`): call
+     `joey_set_intro_progress` with the `key` of the `ASKED` step, for example
+     "Asked David". For a path that is not the intro path, also give its
+     `pathKey` and use the `ASKED` step of that entry of `progress.paths`.
+     Read that step in `joey_get_path_report`. Its
+     `recipientRef` must be the draft's `to.recipientRef`. If they are not the
+     same, stop and read the report again. This can occur when another member
+     owns the intro.
+   - An activation, or a personal workspace report: call
+     `joey_set_intro_stage` with `stage: "INTRO_REQUESTED"`. Do this at
+     `PATH_FOUND` or `INTRO_REQUESTED` only.
+
    Supply these objects:
    - `approval`: `recipientRef`, actual `recipient`, `channel`, `subject`
      (null for a channel with no subject), exact `text` and the member's
@@ -106,8 +119,15 @@ has the full rules.
    advances step 0, not the final target. Begin the next step only after the
    preceding introduction. A scheduled meeting can set `MEETING_SET`; `MET`
    needs confirmation that the meeting occurred. A stage creates no graph edge.
+   For a company report, call `joey_set_intro_progress` with the `key` of the
+   step that the member confirms, for example "Introduced to Sarah", "Meeting
+   with Sarah booked" or "Met Sarah". These later steps need no send receipt,
+   because the member can send the ask by hand. An "Introduced to" step before
+   the target is not the final target.
 7. Read the tracker after a progress write. Verify the selected step and
-   revision. If the send succeeded but the stage write failed, report both
+   revision. For `joey_set_intro_progress`, the result gives the new
+   `progress.current`. `SEND_FAILED`, `SEND_RECEIPT_REQUIRED` or
+   `SEND_APPROVAL_MISMATCH` means that nothing changed. If the send succeeded but the stage write failed, report both
    results and reconcile the tracker. Do not send the message again.
 8. After a successful request, propose a progress check for this step. The
    default first check is three days after the request. If the member defers
