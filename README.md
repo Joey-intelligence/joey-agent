@@ -310,6 +310,26 @@ Version `1.7.0` needs server version `1.3.0` for the member's own ICP and
 receipts and approved task execution separately;
 local tests do not prove live availability.
 
+## Pre-push check
+
+From the repository root, install the local Git hook:
+
+```bash
+if git config --get core.hooksPath >/dev/null; then
+  echo "A custom core.hooksPath is set. Integrate the check manually."
+else
+  hooks_dir=$(git rev-parse --git-path hooks)
+  test -d "$hooks_dir" && test ! -e "$hooks_dir/pre-push" && test ! -L "$hooks_dir/pre-push" && \
+    ln -s "$(pwd -P)/.githooks/pre-push" "$hooks_dir/pre-push"
+fi
+```
+
+The command does not replace an existing hook. If one exists, integrate the
+checks with that hook. The hook runs the package tests for branch pushes with a
+60-second limit. It requires a clean worktree and checks only the current commit.
+Push each other branch from its own checkout. Use `git push --no-verify` for an
+exception. The local check does not replace CI.
+
 ## License
 
 Proprietary. See [LICENSE](LICENSE).
