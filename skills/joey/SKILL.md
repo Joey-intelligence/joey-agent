@@ -141,11 +141,15 @@ For a goal to reach someone, activate a path or manage path progress, continue
 through these steps in the same turn. Do not end with an offer to prepare text
 when the selected path and required facts already permit that work.
 
-1. Read `joey_get_intro_tracker`. Include `PATH_FOUND` records in a first
-   review; a stale-only filter can omit paths that still need their first ask.
-   Match the selected path to an existing activation before a new private save.
+1. Read `joey_get_intro_tracker`. Include `PATH_FOUND` and `TRACKING` records
+   in a first review; a stale-only filter can omit paths that still need their
+   first ask. Match the selected path to an existing activation before a new private save.
    Use `joey_list_paths` and `joey_get_path_report` for delivered paths as needed.
    Respect the member's selected target and the returned completeness limits.
+   A company report row gives its `owner` and `progress` steps, as the web shows
+   them. Use the step labels, such as "Asked David", when you talk to the
+   member. If another member owns the intro, say so. Change the owner with
+   `joey_set_intro_owner` only when the member asks.
 2. Propose the most useful next action for that goal. Prefer a confirmed next
    hop or a due follow-up to a duplicate request. If two paths need a material
    choice, explain it and ask. A missing reply is not proof of refusal.
@@ -153,6 +157,7 @@ when the selected path and required facts already permit that work.
    | Current state | Next action |
    | --- | --- |
    | `PATH_FOUND` | Prepare the first request for approval. Offer an activation reminder if the member defers it. |
+   | `TRACKING` | The owner tracks the path but did not ask yet. Prepare the first request for approval, as for `PATH_FOUND`. |
    | `INTRO_REQUESTED` | Check relevant progress through connected tools. Prepare a follow-up when due. |
    | Confirmed intermediate introduction | Prepare the request to the next person on the path. |
    | `MEETING_SET` | Check the agreed date. Ask whether a past meeting occurred. |
@@ -162,9 +167,13 @@ when the selected path and required facts already permit that work.
    recipient and show the channel, subject if applicable and full exact text.
    Ask only for missing facts, a material choice and required approval. A broad
    request to manage the network permits preparation, not a send.
-4. Use `joey-tracker-sync` for relevant message or calendar checks within the
-   member's task. Use `joey-path-follow-up` to propose a reminder or repeated
-   progress check. Create it only after approval of its scope and schedule.
+4. To start to track a company report path, call `joey_set_intro_progress`
+   with `step: "tracking"` after the member asks. For a path that is not the
+   intro path, also give its `pathKey` from `progress.paths`. The member
+   becomes the owner.
+   Use `joey-activate-path` to record a send. Use `joey-tracker-sync` for
+   relevant message or calendar checks within the member's task. Use
+   `joey-path-follow-up` to propose a reminder or repeated progress check. Create it only after approval of its scope and schedule.
 
 The host must load a skill or run an approved scheduled task. These skills add
 no connection hook or background listener. Propose a host task when the member

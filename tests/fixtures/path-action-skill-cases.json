@@ -130,6 +130,18 @@
       "member": "Run the approved full-path progress check.",
       "state": "The task covers the full selected activation through the final target. Its initial step was 0. Member-confirmed step 0 is now INTRODUCED. Step 1 is PATH_FOUND. The activation draft revalidates its saved path. The actual Dana recipient is resolved. A matching active full-path task exists.",
       "checks": ["Select step 1 of the same activation.", "Prepare the request to Dana for an introduction to Target.", "Ask for exact approval without a send or final-target stage change.", "Do not create another task merely because the current step changed."]
+    },
+    {
+      "id": "report-progress-send",
+      "member": "Yes, send that exact email to Alex.",
+      "state": "A company workspace report is at TRACKING and the member owns it. Its progress steps are tracking, reach:1 (ASKED, \"Asked Alex\"), reach:2 (\"Introduced to Dana\"), reach:3 (\"Introduced to Target\"), meeting and met. The ASKED step recipientRef equals the draft to.recipientRef. The prior assistant message has the exact Alex recipient, channel, subject and text. The host send returns SENT with a real message reference and time.",
+      "checks": ["Send the approved version without another approval question.", "Call joey_set_intro_progress with step reach:1 and matching approval and sendReceipt.", "Verify that progress.current is reach:1.", "Do not use joey_set_intro_stage for this report step."]
+    },
+    {
+      "id": "report-owner-change",
+      "member": "Noa from my team takes over the Target intro.",
+      "state": "A company workspace report is at INTRO_REQUESTED and the member owns it. The tracker members list has Noa with a userId. No other change has confirmation.",
+      "checks": ["Confirm the new owner with the member before the call.", "Call joey_set_intro_owner with the userId of Noa from members.", "Read the new progress steps, because they start at the new owner.", "Do not move the intro to another step or send a message."]
     }
   ]
 }

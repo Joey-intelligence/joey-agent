@@ -43,11 +43,13 @@ is due displays its approved text. It performs no live data read or path action.
    `joey_get_intro_tracker`. Read report `rows` and private `activations`, with
    per-step progress, outcomes and completeness limits. Include `PATH_FOUND`
    in a first review. Use a filter only when it preserves the task's scope.
+   A company report row also gives its `owner` and `progress` steps. Show the
+   step labels, such as "Asked David", and the owner's name.
 2. As a default, consider `INTRO_REQUESTED` after 3 days with no answer,
    `INTRODUCED` after 7 days, and `MEETING_SET` after 7 days. The member can choose
-   other periods. Keep `PATH_FOUND` in a separate group for first requests,
-   not stale requests. A final target at `MET` or a stopped path needs no
-   further contact. An intermediate step is not the final target.
+   other periods. Keep `PATH_FOUND` and `TRACKING` in a separate group for
+   first requests, not stale requests. A final target at `MET` or a stopped
+   path needs no further contact. An intermediate step is not the final target.
 3. Use `joey-tracker-sync` to check relevant messages or calendar events when
    the member's task permits those reads. Check before another follow-up draft.
    If the tools cannot supply proof, ask what happened. State incomplete search
@@ -55,10 +57,14 @@ is due displays its approved text. It performs no live data read or path action.
    recipient, step target, stage, last change and proposed action. Use the
    latest confirmed outgoing message time for the response wait. A recent
    follow-up starts a new wait period, even if the tracker has an older date.
-4. Apply only the member's confirmed progress with `joey_set_intro_stage`.
-   Use one `requestId` or `activationId`. For an activation, give `stepIndex`,
-   `expectedRevision`, a new UUID `idempotencyKey` and the actual `confirmation`.
-   A meeting date can support `MEETING_SET`; confirm attendance before `MET`.
+4. Apply only the member's confirmed progress. For a company report, call
+   `joey_set_intro_progress` with the `requestId` and the confirmed step `key`.
+   Only the `ASKED` step needs the send proof that the `joey-activate-path`
+   skill describes. A later step needs the member's confirmation and no
+   receipt. For an activation, call
+   `joey_set_intro_stage` with `stepIndex`, `expectedRevision`, a new UUID
+   `idempotencyKey` and the actual `confirmation`. A meeting date can support
+   `MEETING_SET`; confirm attendance before `MET`.
 5. Ask before a move to an earlier stage. If the member wants a stop, explain
    that it is final. After their yes, call `joey_stop_intro` for that record.
    An activation stop needs its revision and a new action key.

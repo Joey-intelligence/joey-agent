@@ -14,10 +14,12 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `1.3.0`. An earlier server gives no `outcome`,
+server version `1.4.0`. An earlier server gives no `outcome`,
 `recommendedNextAction`, `delivery`, `joey_search_graph_companies` or
 `joey_get_path_request`. A server before `1.3.0` gives no personal ICP: its
-`joey_get_icp` gives the workspace ICP alone, and it has no `icpScope`.
+`joey_get_icp` gives the workspace ICP alone, and it has no `icpScope`. A server
+before `1.4.0` has no `TRACKING` stage, no intro `owner` or `progress`, and no
+`joey_set_intro_progress` or `joey_set_intro_owner`.
 
 ## Scopes
 
@@ -150,6 +152,10 @@ hook. A server prompt alone does not create a schedule.
       (`name`, `rating`), or `null`.
   - `intro` (with the `pathKey` of the path that the intro uses),
     `savedTarget` and `betterPath` (`open`, `lastPreference`).
+  - `owner` and `progress` (see [Intro progress and owner](#intro-progress-and-owner)).
+    Here each `ASKED` step, in `progress.steps` and in `progress.paths`, also
+    gives the `recipientRef` that its send proof must name. Before tracking,
+    `progress` shows path 1.
 
 ### joey_get_intro_draft
 
@@ -186,6 +192,11 @@ hook. A server prompt alone does not create a schedule.
     `intro`, `daysSinceChange`, `requestedAt` and `stageTimes` (the date of each
     stage). `connector` gives the names of the people between the member and the
     target. The first name is the person that the member asks.
+  - Each row also has `owner` and `progress` (see
+    [Intro progress and owner](#intro-progress-and-owner)). A tracker step has
+    no `recipientRef`; read it from `joey_get_path_report`.
+  - `members`: the workspace members who can own an intro, each with
+    `userId`, `name` and `you`. The member comes first.
 
 ### joey_list_path_preferences
 
@@ -297,6 +308,58 @@ hook. A server prompt alone does not create a schedule.
   step requires the preceding introduction. Other stage changes need actual
   member confirmation. A calendar date alone does not prove a completed meeting.
   A changed revision needs a fresh tracker read. A stopped record takes no change.
+- For a delivered report in a company workspace, use `joey_set_intro_progress`
+  for the steps that the web shows, and to track a specific path. Use this
+  tool for such a report only to move the intro back to `PATH_FOUND`.
+  `PATH_FOUND` removes the owner. An activation has no `TRACKING` stage.
+
+### joey_set_intro_progress
+
+- Input:
+  - `requestId`: a delivered report in a company workspace.
+  - `step`: the `key` of one step: `tracking`, `reach:<place>`, `meeting` or
+    `met`. Read the keys from `joey_get_path_report` or
+    `joey_get_intro_tracker`.
+  - `pathKey` (optional): the `pathKey` of one entry of `progress.paths`. The
+    intro moves onto that delivered path at `step`, a key of that path's
+    steps. Leave it out to keep the intro path and use `progress.steps`.
+  - `approval` (optional): the same object as for `joey_set_intro_stage`.
+    Required for the `ASKED` step only.
+  - `sendReceipt` (optional): the same object as for `joey_set_intro_stage`.
+    Required for the `ASKED` step only.
+- Result: `{requestId, intro, owner, progress}`. The tool moves the intro to
+  the step: its stage and the place of the person that the intro reached.
+- `tracking` starts to track the intro path, or the path of `pathKey`, and
+  makes the member the owner. A member who moves an intro without an owner
+  becomes its owner.
+- The `ASKED` step ("Asked David", or "Reached out to Sarah" on a direct path)
+  means that a message was sent. It needs `approval` and a successful
+  `sendReceipt`. Their `recipientRef` is the `recipientRef` of that `ASKED`
+  step in `joey_get_path_report`. The actual recipient, channel, subject and
+  exact text of the two objects must be the same.
+- The refusals of the `ASKED` step change nothing:
+  - `SEND_FAILED`: the receipt has `status: "FAILED"`. Tell the member. Send
+    again only after a new explicit yes.
+  - `SEND_RECEIPT_REQUIRED`: no `sendReceipt`.
+  - `SEND_APPROVAL_MISMATCH`: the approval and the receipt do not agree, or
+    they name another recipient.
+- A later step (an `INTRODUCED` step, `meeting` or `met`) needs no receipt,
+  also when no send is recorded, because the member can send the ask by hand.
+  Ask the member to confirm the step before the call. A calendar date alone
+  does not prove a completed meeting.
+- A stopped intro takes no change. A step creates no graph edge.
+
+### joey_set_intro_owner
+
+- Input:
+  - `requestId`: a tracked report in a company workspace.
+  - `userId`: the `userId` of one entry of `members` from
+    `joey_get_intro_tracker`.
+- Result: `{requestId, intro, owner, progress}`.
+- Ask the member before the call. Only a tracked intro has an owner: an intro
+  at `PATH_FOUND` refuses the change. The steps change, because they start at
+  the place of the new owner on the path. Read the new step keys before the
+  next progress write.
 
 ### joey_stop_intro
 
@@ -399,13 +462,44 @@ hook. A server prompt alone does not create a schedule.
 
 | Stage | Meaning |
 | --- | --- |
-| `PATH_FOUND` | Joey delivered the path. Nobody asked for the intro yet. |
+| `PATH_FOUND` | Joey delivered the path. Nobody tracks the intro yet. |
+| `TRACKING` | A member tracks the intro and owns it. Nobody asked for the intro yet. Company workspace reports only. |
 | `INTRO_REQUESTED` | The member asked the introducer for the intro (or wrote to the target for a REACH_OUT). |
 | `INTRODUCED` | The introducer made the introduction. |
 | `MEETING_SET` | The member and the target set a meeting. |
 | `MET` | The member and the target met. |
 
 A stop (`joey_stop_intro`) ends the intro at any stage after `PATH_FOUND`.
+
+### Intro progress and owner
+
+A delivered report in a company workspace has the same progress steps and
+owner that the web shows. Personal workspaces and activations do not have
+them.
+
+- `owner` is `{userId, name, you}`, or null before a member tracks the intro.
+- `progress` is `{pathKey, people, ownerAt, current, stopped, steps, paths}`.
+  `people` gives the names of the intro path from its start to the target.
+  `ownerAt` is the place of the owner in `people`; null when a teammate starts
+  the path. `current` is the key of the current step, or null before tracking.
+- `paths` gives each delivered path that the intro can follow:
+  `{pathKey, number, people, ownerAt, steps}`. To track or move to a specific
+  path, give its `pathKey` to `joey_set_intro_progress`.
+- Each step has `key`, `kind`, `stage`, `label` and `person` (its place in
+  `people`). The steps start at the place of the owner:
+
+| Key | Kind | Stage | Label example |
+| --- | --- | --- | --- |
+| `tracking` | `TRACKING` | `TRACKING` | "Tracking" |
+| `reach:<place>` of the first contact | `ASKED` | `INTRO_REQUESTED` | "Asked David", or "Reached out to Sarah" on a direct path |
+| `reach:<place>` of each next person | `INTRODUCED` | `INTRO_REQUESTED`; `INTRODUCED` for the target | "Introduced to Sarah" |
+| `meeting` | `MEETING_SET` | `MEETING_SET` | "Meeting with Sarah booked" |
+| `met` | `MET` | `MET` | "Met Sarah" |
+
+The first contact is the person after the owner, or the teammate who starts
+the path. A direct path has no `INTRODUCED` step. Each entry of
+`progress.paths` has its own steps of the same form. Show the `label` to the
+member, and send the `key` to `joey_set_intro_progress`.
 
 ### Intro state
 
@@ -801,7 +895,7 @@ and a service outage are different results. Do not report all of them as no path
 For an old reference or changed graph revision, search and read context again.
 For `ACTIVATION_CHANGED`, inspect the current tracker revision. For
 `SEND_APPROVAL_MISMATCH`, get the exact approved send details; do not invent a
-receipt. For `OUTCOME_CONSENT_REQUIRED`, obtain the separate explicit consent
+receipt. For `SEND_FAILED`, tell the member; a new send needs a new yes. For `OUTCOME_CONSENT_REQUIRED`, obtain the separate explicit consent
 before shared capture. `GRAPH_MEMBER_SYNC_PENDING` means the shared layer has
 undelivered changes; do not reuse an old shared answer.
 
