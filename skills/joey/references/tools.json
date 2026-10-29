@@ -43,6 +43,19 @@
       }
     },
     {
+      "name": "joey_get_person_context",
+      "scope": "workspace:read",
+      "arguments": [
+        "entityRef"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
       "name": "joey_get_graph_connections",
       "scope": "workspace:read",
       "arguments": [

@@ -789,6 +789,32 @@ Joey to select them. Use the server input schema for nested statement fields.
   a role at a company with this name or a close spelling.
 
 
+### joey_get_person_context
+
+- Input:
+  - `entityRef`: canonical graph person UUID.
+- Result: `schemaVersion`, `projection`, `entityRef`, `label`, `status`,
+  `context`, `roles`, `profiles` and `sources`. Joey writes one context record
+  for each person, in advance, from the public sources about that person alone.
+  The record has no connections.
+- `status` is `ready` (the record is current), `stale` (the person's sources
+  changed, and Joey writes the record again) or `absent` (no record yet).
+  `context` is null when the status is `absent`. Each status gives `roles`,
+  `profiles` (up to 16 public profile links, each with a `kind`) and
+  `sources`.
+- `context.text` gives `headline`, `location`, `lead`, `facts`,
+  `currentRoles`, `career` (newest first), `education`, `sections`,
+  `positions`, `quotes` and `identityNotes`. Each role gives `organization`,
+  `title`, `start`, `end` and `current`. Each education entry gives
+  `institution`, `degree`, `field`, `start` and `end`. A date is `YYYY`,
+  `YYYY-MM` or `YYYY-MM-DD`, or null.
+- Each text item cites `claimIds`. Each source gives `claimId`, `url`,
+  `title`, `publisher`, `sourceDate` and the exact `excerpt`. Quotes stay in
+  the source language. Do not translate a quote.
+- The text is a summary that an AI wrote from the cited sources. It is not
+  proof of a relationship. A shared employer or school is a lead, not a link.
+
+
 ### joey_get_graph_connections
 
 - Input:
