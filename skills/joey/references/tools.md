@@ -795,8 +795,8 @@ Joey to select them. Use the server input schema for nested statement fields.
   - `entityRef`: canonical graph person UUID.
   - `offset` (optional): start position.
   - `limit` (optional): 1 to 100 connections.
-- Result: current connections with exact source evidence, strength, review state,
-  revisions and completeness. Public reads need `workspace:read`; shared member
+- Result: current connections with exact source evidence, strength (null when the
+  connection has no score), revisions and completeness. Public reads need `workspace:read`; shared member
   evidence also needs `trust:read`. Unknown familiarity stays unknown.
 
 

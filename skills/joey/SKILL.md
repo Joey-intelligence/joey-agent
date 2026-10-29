@@ -191,8 +191,8 @@ Keep three source types separate:
 
 Unknown familiarity stays unknown. An outcome proves no friendship, familiarity
 level or general trust. Shared employment, a roster or an event alone proves no
-human link. Give source excerpts and exact URLs from Joey; mark partial sources,
-review requirements and incomplete searches. Do not turn a weak source into a
+human link. Give source excerpts and exact URLs from Joey; mark partial sources
+and incomplete searches. Do not turn a weak source into a
 strong claim. A strong relationship does not show recipient interest or predict
 an introduction.
 
