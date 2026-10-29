@@ -94,21 +94,29 @@ do not install a plugin or change an account grant as a side effect.
    path search. Ask if more than one candidate fits. For people at a company,
    use `joey_search_graph_companies`. It compares close spellings, such as
    "AcmeWorks" and "Acme Works Ventures", and lists the known people.
-2. To inspect a person's current links, use `joey_get_graph_connections` with
+2. To learn about a person, read `joey_get_person_context` with the returned
+   `entityRef` before the connections. It gives the dated current roles,
+   career, education, profile links and cited sources. A `stale` or `absent`
+   status still gives the roles, profiles and sources.
+3. To inspect a person's current links, use `joey_get_graph_connections` with
    the returned `entityRef`. Respect pagination and completeness limits.
-3. Call `joey_find_graph_paths` with a `target`:
+   Use the career and education of the person as leads: a connection at the
+   same organization or school in the same period is a good lead.
+   A shared employer or school alone proves no human link. Check the period
+   and the source of each connection.
+4. Call `joey_find_graph_paths` with a `target`:
    - Known people: `entityRefs` or a confirmed `profileUrl`.
    - A company and preferred roles: `company` and `roles`. The server resolves
      the company first. Read `company.resolved`, or show `company.candidates`
      and ask the member to select one exact name.
    Omit `originRefs` to use the member's confirmed profile. Use `maxHops` and
    `maxPaths` only when the task needs other search limits.
-4. Select a path. Call `joey_read_path_context` with its `pathRef` before you
+5. Select a path. Call `joey_read_path_context` with its `pathRef` before you
    describe it. Add a private `brief` with `goal`, `target`, `proposedValue`
    and `timing` when those facts are known. Ask for all material gaps in one
    question, once. Do not invent the recipient's interest or disclose the brief
    without approval.
-5. Explain each hop with its exact source, evidence type, date, strength and
+6. Explain each hop with its exact source, evidence type, date, strength and
    review status. State the returned completeness limits and unknown facts.
    A scoped `pathRef` is not a delivered report or a permanent identity.
 
@@ -191,7 +199,8 @@ Keep three source types separate:
 
 Unknown familiarity stays unknown. An outcome proves no friendship, familiarity
 level or general trust. Shared employment, a roster or an event alone proves no
-human link. Give source excerpts and exact URLs from Joey; mark partial sources
+human link. A person context is a summary: cite its sources, not its text.
+Give source excerpts and exact URLs from Joey; mark partial sources
 and incomplete searches. Do not turn a weak source into a
 strong claim. A strong relationship does not show recipient interest or predict
 an introduction.

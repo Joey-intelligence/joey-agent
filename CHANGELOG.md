@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.9.0 — 2026-10-29
+
+- Read one person with the new `joey_get_person_context` (`entityRef`,
+  `workspace:read`). It gives the status (`ready`, `stale` or `absent`), the
+  dated current roles, career and education, up to 16 profile links and the
+  cited sources. Quotes stay in the source language.
+- The `joey` skill reads the person context before the connections. It uses
+  career and education overlaps as leads, not as proof of a link.
+- Copy the new tool entry of the Pouch customer MCP.
+
 ## 1.8.0 — 2026-10-27
 
 - Document the `TRACKING` stage of a company workspace intro. A member starts

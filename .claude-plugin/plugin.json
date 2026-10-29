@@ -1,7 +1,7 @@
 {
   "name": "joey-agent",
   "displayName": "Joey",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Find paths and prepare the next action. Check progress and set approved reminders through connected tools. Send after exact approval. Share outcomes and trust statements only with separate consent.",
   "author": {
     "name": "Joey",

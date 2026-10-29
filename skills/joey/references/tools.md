@@ -14,12 +14,13 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `1.4.0`. An earlier server gives no `outcome`,
+server version `1.5.0`. An earlier server gives no `outcome`,
 `recommendedNextAction`, `delivery`, `joey_search_graph_companies` or
 `joey_get_path_request`. A server before `1.3.0` gives no personal ICP: its
 `joey_get_icp` gives the workspace ICP alone, and it has no `icpScope`. A server
 before `1.4.0` has no `TRACKING` stage, no intro `owner` or `progress`, and no
-`joey_set_intro_progress` or `joey_set_intro_owner`.
+`joey_set_intro_progress` or `joey_set_intro_owner`. A server before `1.5.0` has
+no `joey_get_person_context`.
 
 ## Scopes
 
@@ -787,6 +788,34 @@ Joey to select them. Use the server input schema for nested statement fields.
 - `MATCHED` means that one company has exactly the name. Otherwise ask the
   member to select one company. `NOT_IN_GRAPH` means that no graph person has
   a role at a company with this name or a close spelling.
+
+
+### joey_get_person_context
+
+- Input:
+  - `entityRef`: canonical graph person UUID.
+- Result: `schemaVersion`, `projection`, `entityRef`, `label`, `status`,
+  `context`, `roles`, `profiles` and `sources`. Joey writes one context record
+  for each person, in advance, from the public sources about that person alone.
+  The record has no connections.
+- `status` is `ready` (the record is current), `stale` (the person's sources
+  changed, and Joey writes the record again) or `absent` (no record yet).
+  `context` is null when the status is `absent`. It can also be null when the
+  status is `stale`, because a cited claim is not visible to the member. Then
+  use only `roles`, `profiles` and `sources`. Each status gives `roles`,
+  `profiles` (up to 16 public profile links, each with a `kind`) and
+  `sources`.
+- `context.text` gives `headline`, `location`, `lead`, `facts`,
+  `currentRoles`, `career` (newest first), `education`, `sections`,
+  `positions`, `quotes` and `identityNotes`. Each role gives `organization`,
+  `title`, `start`, `end` and `current`. Each education entry gives
+  `institution`, `degree`, `field`, `start` and `end`. A date is `YYYY`,
+  `YYYY-MM` or `YYYY-MM-DD`, or null.
+- Each text item cites `claimIds`. Each source gives `claimId`, `url`,
+  `title`, `publisher`, `sourceDate` and the exact `excerpt`. Quotes stay in
+  the source language. Do not translate a quote.
+- The text is a summary that an AI wrote from the cited sources. It is not
+  proof of a relationship. A shared employer or school is a lead, not a link.
 
 
 ### joey_get_graph_connections
