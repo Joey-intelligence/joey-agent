@@ -14,12 +14,13 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `1.4.0`. An earlier server gives no `outcome`,
+server version `1.5.0`. An earlier server gives no `outcome`,
 `recommendedNextAction`, `delivery`, `joey_search_graph_companies` or
 `joey_get_path_request`. A server before `1.3.0` gives no personal ICP: its
 `joey_get_icp` gives the workspace ICP alone, and it has no `icpScope`. A server
 before `1.4.0` has no `TRACKING` stage, no intro `owner` or `progress`, and no
-`joey_set_intro_progress` or `joey_set_intro_owner`.
+`joey_set_intro_progress` or `joey_set_intro_owner`. A server before `1.5.0` has
+no `joey_get_person_context`.
 
 ## Scopes
 

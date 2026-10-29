@@ -43,10 +43,12 @@
       }
     },
     {
-      "name": "joey_get_person_context",
+      "name": "joey_get_graph_connections",
       "scope": "workspace:read",
       "arguments": [
-        "entityRef"
+        "entityRef",
+        "offset",
+        "limit"
       ],
       "annotations": {
         "readOnlyHint": true,
@@ -56,12 +58,10 @@
       }
     },
     {
-      "name": "joey_get_graph_connections",
+      "name": "joey_get_person_context",
       "scope": "workspace:read",
       "arguments": [
-        "entityRef",
-        "offset",
-        "limit"
+        "entityRef"
       ],
       "annotations": {
         "readOnlyHint": true,
