@@ -799,7 +799,9 @@ Joey to select them. Use the server input schema for nested statement fields.
   The record has no connections.
 - `status` is `ready` (the record is current), `stale` (the person's sources
   changed, and Joey writes the record again) or `absent` (no record yet).
-  `context` is null when the status is `absent`. Each status gives `roles`,
+  `context` is null when the status is `absent`. It can also be null when the
+  status is `stale`, because a cited claim is not visible to the member. Then
+  use only `roles`, `profiles` and `sources`. Each status gives `roles`,
   `profiles` (up to 16 public profile links, each with a `kind`) and
   `sources`.
 - `context.text` gives `headline`, `location`, `lead`, `facts`,
