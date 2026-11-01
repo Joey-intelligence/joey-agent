@@ -514,7 +514,8 @@ Each `intro` has `stage`, `stopped`, `stoppedAt`, `updatedAt`, `source`,
 ### Strength words
 
 Each hop has one strength word. The word comes from the Joey graph. The strength
-of a path is the word of its weakest hop.
+of a path is the word nearest the mean strength of its hops. A path with an
+unscored hop has no strength word.
 
 | Word | What to tell the member |
 | --- | --- |
