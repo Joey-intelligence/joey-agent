@@ -214,8 +214,8 @@ do not replace a live graph tier or an unknown value with a report word.
   server's schema. Personal accounts have fewer report filters than company
   workspaces. Follow `nextCursor` when more results are needed.
 - Call `joey_get_path_report` before you describe a report path. Quote each
-  hop's `explanation`, `basis` and `sources`. For `suspected: true`, state the
-  gap and use its `check`; do not state the relationship as proved.
+  hop's `explanation`, `basis` and `sources`. Do not state a relationship that
+  they do not show: a hop of shared context shows only what the two people share.
 - Keep `requestId` and `pathKey` for report operations. The report's `askTo`
   names the next recipient; `rate` names the person whom the member can rate.
 - If the member asks for research, use `joey_request_path` with a supplied or
