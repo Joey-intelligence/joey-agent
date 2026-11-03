@@ -144,9 +144,7 @@ hook. A server prompt alone does not create a schedule.
       and `you`.
     - `hops`: each hop with `from`, `to`, `title` (for example "You and David
       Cohen"), `explanation`, `strength`, `basis` ("Public source", "Inferred"
-      or "User-confirmed"), `suspected`, `check` and `sources` (`label`, `url`).
-      `check` is set for a suspected hop: it says what to ask to find out if the
-      two people know each other.
+      or "User-confirmed") and `sources` (`label`, `url`).
     - `askTo`: the person to write to: `name`, `mode` (`ASK_INTRO` or
       `REACH_OUT`), `viaTeammate` and `email` (it can be `null`).
     - `rate`: the person that `joey_rate_familiarity` rates on this path

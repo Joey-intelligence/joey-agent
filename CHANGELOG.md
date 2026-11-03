@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.10.0 — 2026-11-03
+
+- A report hop has no `suspected` and no `check` field. Each hop is a real
+  connection or shared context. Do not state a relationship that the hop's
+  `explanation` and `sources` do not show.
+- This text needs the Pouch customer MCP release that removes the two fields.
+
 ## 1.9.0 — 2026-10-29
 
 - Read one person with the new `joey_get_person_context` (`entityRef`,
