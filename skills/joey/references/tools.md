@@ -592,7 +592,8 @@ Feedback of the member on one delivered path of a target frees the slot of
 that target:
 
 - `joey_set_intro_stage` with a stage after `PATH_FOUND`, also the same stage
-  again.
+  again. `joey_set_intro_progress` on a step after `PATH_FOUND` sets the stage
+  too, so it also frees the slot.
 - `joey_stop_intro`.
 - A path verdict on a request report.
 - `joey_find_better_path` feedback. The round holds the slot again, so the

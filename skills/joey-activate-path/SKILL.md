@@ -56,7 +56,10 @@ has the full rules.
    `target`, `proposedValue` and `timing`. Ask for material gaps only. Call
    `joey_prepare_activation` with one `pathRef` or `requestId`, optional
    `pathKey`, the known brief and a new UUID `idempotencyKey`. A report
-   activation keeps its `DELIVERED_REPORT` source. Keep the returned
+   activation keeps its `DELIVERED_REPORT` source. With a `pathRef`, a full
+   path quota refuses the call with `MEMBER_FEEDBACK_REQUIRED`. Then follow the
+   path quota rules of the `joey` skill: ask the member how an open path went,
+   and record only the outcome that the member states. Keep the returned
    `activationId`, `revision` and `steps`. This creates no research request or
    delivered report. A report request ID alone refuses `stepIndex`. In a
    company workspace, the report's `progress` steps record each introduction
