@@ -14,13 +14,15 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `1.5.0`. An earlier server gives no `outcome`,
+server version `2.1.0`. An earlier server gives no `outcome`,
 `recommendedNextAction`, `delivery`, `joey_search_graph_companies` or
 `joey_get_path_request`. A server before `1.3.0` gives no personal ICP: its
 `joey_get_icp` gives the workspace ICP alone, and it has no `icpScope`. A server
 before `1.4.0` has no `TRACKING` stage, no intro `owner` or `progress`, and no
 `joey_set_intro_progress` or `joey_set_intro_owner`. A server before `1.5.0` has
-no `joey_get_person_context`.
+no `joey_get_person_context`. A server before `2.0.0` gives the old workspace
+capacity and no member path quota. A server before `2.1.0` has no
+`joey_list_feedback_queue`.
 
 ## Scopes
 
@@ -82,8 +84,8 @@ hook. A server prompt alone does not create a schedule.
   Identity has status, revision, confirmed entity reference/profile URL and a
   hidden-edge reason. `CLAIMED` is the confirmed profile state; a missing
   profile must not become a synthetic account node.
-- Also: `server` (`name`, `version`, `changes`), `pathRequests.capacity` (see
-  [Capacity](#capacity)) and `contextPolicy` (see
+- Also: `server` (`name`, `version`, `changes`), `pathRequests.capacity`, the
+  path quota of the member (see [Path quota](#path-quota)), and `contextPolicy` (see
   [Scheduled and interactive calls](#scheduled-and-interactive-calls)).
 - Also: `onboarding` (`complete`, `steps`, `nextStep`). Each step has `step`
   (`CONFIRM_PROFILE`, `SET_ICP` or `CONNECT_ACCOUNTS`), `status` (`DONE`,
@@ -98,7 +100,9 @@ hook. A server prompt alone does not create a schedule.
   `latestVersion`, `updateAvailable`, `releaseUrl`). `state` is `CURRENT`,
   `UPDATE_AVAILABLE`, `NOT_REPORTED` or `UNKNOWN`. Follow
   [the update check](updates.md).
-- Read `pathRequests.capacity` before `joey_request_path`.
+- Read `pathRequests.capacity` before `joey_request_path`. When
+  `needsFeedback` is not empty, ask the member how those paths went. See
+  [Path quota](#path-quota).
 - Call it first when the task needs workspace context and `workspace:read` is
   present. A known-statement or known-session withdrawal needs only
   `trust:write` and can proceed without this read.
@@ -237,7 +241,7 @@ hook. A server prompt alone does not create a schedule.
   - `idempotencyKey`: see [Idempotency keys](#idempotency-keys).
 - Result: `{requestId, status, targetUrl, targetKind, icpScope,
   deliveredPaths, capacity, delivery}`. Joey researches the path. The path
-  shows in `joey_list_paths` when Joey delivers it. See [Capacity](#capacity)
+  shows in `joey_list_paths` when Joey delivers it. See [Path quota](#path-quota)
   and [Delivery state](#delivery-state). A personal workspace also gives
   `created`. `icpScope` is the ICP of a company request, and null for a person.
 - Each ICP of one company has its own request. Before a company request, read
@@ -248,8 +252,11 @@ hook. A server prompt alone does not create a schedule.
 - `status: "SEARCHING"` means that Joey researches the target. It does not
   promise a delivery date. Read `delivery.state` for that.
 - If the workspace asked for this target before, the member joins that request.
-- A full open request limit refuses the request with `OPEN_CAPACITY_REACHED`
-  or `QUOTA_OPEN_REACHED`. Joey saves no request then.
+  A new target of the member holds one slot. A target that the member already
+  follows takes no new slot.
+- A full quota (`used` equal to or more than `limit`) refuses the request with
+  `MEMBER_FEEDBACK_REQUIRED`. Joey saves no request then. See
+  [Path quota](#path-quota).
 
 ### joey_get_path_request
 
@@ -258,6 +265,23 @@ hook. A server prompt alone does not create a schedule.
 - Result: the same shape as `joey_request_path`, read again. Use it to report
   the current research and delivery state of a request. Company and personal
   workspaces have it.
+
+### joey_list_feedback_queue
+
+- Input: none.
+- Result: `{capacity, items}`. `capacity` is the
+  [path quota](#path-quota) of the member. `items` has each open slot of the
+  member, oldest slot first, also a slot with no delivered path.
+- Each item has the fields of a `needsFeedback` target (`requestId`,
+  `targetName`, `targetUrl`, `targetKind`, `status`, `deliveredPaths`,
+  `slotHeldAt`), and also:
+  - `paths`: the delivered paths. Each path has `pathId`, `people` (the
+    display names, first to last) and `deliveredAt`.
+  - `introStage`: `TRACKING`, `INTRO_REQUESTED`, `INTRODUCED`, `MEETING_SET`,
+    `MET`, or null before the first change.
+  - `reportUrl`: the page of the request in the Joey web app.
+- Read it before you ask the member for feedback, and after the refusal
+  `MEMBER_FEEDBACK_REQUIRED`. It is read only. It records no feedback.
 
 ### joey_save_target
 
@@ -279,6 +303,9 @@ hook. A server prompt alone does not create a schedule.
     `false` uses it only for this search.
   - `idempotencyKey`: see [Idempotency keys](#idempotency-keys).
 - Result: `{open, preference, saved}`. A target has at most one open search.
+- A better path for a target where the member holds the slot keeps the same
+  count, also at the limit. For a target with no slot of the member, the round
+  is a new ask: a full quota refuses it with `MEMBER_FEEDBACK_REQUIRED`.
 
 ### joey_set_intro_stage
 
@@ -542,31 +569,67 @@ unscored hop has no strength word.
 | `strong` | Strong |
 | `very_strong` | Very strong |
 
-### Capacity
+### Path quota
 
-`capacity` has `openUsed`, `openLimit`, `weekDelivered`, `weekLimit`,
-`limited`, `openRemaining`, `weekRemaining`, `weekStart` and `weekResetsAt`.
-`null` in `openRemaining` or `weekRemaining` means no limit. With
-`limited: false`, the workspace has no open request limit and no weekly
-delivery limit; `openLimit` and `weekLimit` then give only the nominal values.
+`capacity` is the path quota of the signed-in member, not of the workspace.
+Each target that the member asked for holds one slot. All paths of one target
+share the slot.
+
+| Field | Meaning |
+| --- | --- |
+| `used` | The open slots of the member. |
+| `limit` | The most open slots of the member. A Joey admin sets it. |
+| `limitSource` | `WORKSPACE_DEFAULT` or `MEMBER_OVERRIDE`. |
+| `needsFeedback` | The open slots with one or more delivered paths, oldest slot first. |
+
+Each `needsFeedback` target has `requestId`, `targetName` (`""` when Joey has
+no name yet), `targetUrl` (`""` for a free-text personal search), `targetKind`
+(`PERSON`, `ORGANIZATION` or `UNKNOWN`), `status`, `deliveredPaths` and
+`slotHeldAt`. An open slot with no delivered path is in `used` only. It
+becomes free when the request closes with no path.
+
+Feedback of the member on one delivered path of a target frees the slot of
+that target:
+
+- `joey_set_intro_stage` with a stage after `PATH_FOUND`, also the same stage
+  again.
+- `joey_stop_intro`.
+- A path verdict on a request report.
+- `joey_find_better_path` feedback. The round holds the slot again, so the
+  count does not change.
+- `joey_record_path_outcome` with a new or corrected outcome of an activation
+  of a delivered report path.
+
+These changes free no slot: `joey_rate_familiarity`, an intro stage that Joey
+detected from Gmail or Calendar, a change by the Joey team and an outcome
+withdrawal.
+
+A full quota refuses `joey_request_path`, `joey_find_better_path` for a target
+with no slot of the member, `joey_find_graph_paths` and
+`joey_prepare_activation` with a `pathRef`. A live path search takes no slot.
+The MCP server cannot send a message to the member, so the agent reads
+`needsFeedback` and asks the member.
+
+The refusal gives `error.code` `MEMBER_FEEDBACK_REQUIRED`, `error.message`,
+`error.capacity` and `recommendedNextAction` with `action` `GIVE_FEEDBACK`.
+`recommendedNextAction.tool` is `joey_list_feedback_queue`. A server before
+`2.1.0` names `joey_whoami` there.
 
 ### Delivery state
 
-`delivery` has `state`, `reason`, `queuePosition`, `pathFound`,
-`estimatedDelivery` and `message`. For `WAITING_FOR_ICP`, `url` gives the
-ICP page of the Joey web app. `message` names the ICP of the request and says
-who can set it.
+`delivery` has `state` and `url`. For `WAITING_FOR_ICP`, `url` gives the ICP
+page of the Joey web app, and `message` names the ICP of the request and says
+who can set it. For the other states, `url` is null.
 
 | `state` | Meaning |
 | --- | --- |
-| `RESEARCHING` | Joey researches the target, and the week has capacity. |
-| `QUEUED_FOR_WEEKLY_CAPACITY` | The weekly limit is full. A found path waits for a later week. `queuePosition` and `estimatedDelivery` (`notBefore`, `notAfter`, `basis: "ESTIMATE"`) are set. |
+| `RESEARCHING` | Joey researches the target. |
 | `DELIVERED` | The member can read a delivered path. |
 | `WAITING_FOR_ICP` | A company request waits for its ICP: the workspace ICP, or the personal ICP of the member who asked (`icpScope` `PERSONAL`). |
 | `READY_NO_PATH` | The research ended without a delivered path. |
 | `UNAVAILABLE` | Joey cannot research this target. |
 
-An estimate can change. Do not promise a date to the member.
+Joey gives no delivery date. Do not promise a date to the member.
 
 ## Outcomes and next actions
 
@@ -618,7 +681,7 @@ asks for research, and only with a confirmed URL.
 | `INTRO_STOPPED` | The intro is stopped. Tell the member. Do not change it. |
 | `INTRO_NOT_STARTED` | The intro is not requested yet, so it cannot stop. |
 | `BETTER_PATH_OPEN` | Joey already looks for a better path to this target. Tell the member to wait for it. |
-| `OPEN_CAPACITY_REACHED` or `QUOTA_OPEN_REACHED` | The workspace has the most open searches that it can have. Joey saved no request. Tell the member. |
+| `MEMBER_FEEDBACK_REQUIRED` | All path slots of the member are full. Joey saved no request and ran no search. `error.capacity` gives the [path quota](#path-quota). Read `joey_list_feedback_queue`, show the open targets and ask the member how one path went. Record only an outcome that the member states. Then ask the member before you try again. |
 | `GRAPH_IDENTITY_UNRESOLVED` | The member's public profile is not confirmed. Ask the member to confirm it in Joey, or select explicit `originRefs`. |
 | `GRAPH_UNAVAILABLE`, `GRAPH_BUSY` or `GRAPH_MEMBER_SYNC_PENDING` | Try again later. Do not loop. |
 | `ORIGIN_NOT_ALLOWED` (HTTP 403) | A browser page called the MCP. Call it from the MCP client. |

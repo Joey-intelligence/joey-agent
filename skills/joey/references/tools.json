@@ -376,6 +376,17 @@
       }
     },
     {
+      "name": "joey_list_feedback_queue",
+      "scope": "workspace:read",
+      "arguments": [],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
       "name": "joey_get_intro_draft",
       "scope": "workspace:read",
       "arguments": [
