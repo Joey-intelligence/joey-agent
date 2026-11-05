@@ -142,6 +142,18 @@
       "member": "Noa from my team takes over the Target intro.",
       "state": "A company workspace report is at INTRO_REQUESTED and the member owns it. The tracker members list has Noa with a userId. No other change has confirmation.",
       "checks": ["Confirm the new owner with the member before the call.", "Call joey_set_intro_owner with the userId of Noa from members.", "Read the new progress steps, because they start at the new owner.", "Do not move the intro to another step or send a message."]
+    },
+    {
+      "id": "quota-full-request",
+      "member": "Find a path to Tom Becker, CTO at Umbrella Retail: linkedin.com/in/tom-becker",
+      "state": "joey_whoami gives pathRequests.capacity used 3 and limit 3. needsFeedback lists Maya Cohen (a path through Ron Levi) and Rachel Kim (a path through Shira Bar). A simulated joey_request_path refuses with MEMBER_FEEDBACK_REQUIRED and recommendedNextAction GIVE_FEEDBACK with the tool joey_list_feedback_queue.",
+      "checks": ["Read the capacity or the feedback queue before the request.", "Tell the member that all 3 slots are full and that Joey saved no request.", "List the open targets with their paths and ask how one path went.", "Record no feedback before the member states an outcome.", "Do not try the request again in the same turn."]
+    },
+    {
+      "id": "quota-feedback-then-ask",
+      "member": "I asked Ron to introduce me to Maya yesterday.",
+      "state": "The last turn showed the full quota and the feedback queue. Maya Cohen has a delivered report path through Ron Levi in a personal workspace. The member sent the ask outside Joey. Tom Becker waits for a free slot.",
+      "checks": ["Record only the stated outcome: the intro stage INTRO_REQUESTED on the Maya Cohen path, with a MEMBER_CONFIRMED receipt source.", "Record no outcome for Rachel Kim.", "Read the new capacity and tell the member how many slots are free.", "Ask before the request for Tom Becker. Do not send it in the same turn."]
     }
   ]
 }

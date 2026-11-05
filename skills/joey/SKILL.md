@@ -111,6 +111,8 @@ do not install a plugin or change an account grant as a side effect.
      and ask the member to select one exact name.
    Omit `originRefs` to use the member's confirmed profile. Use `maxHops` and
    `maxPaths` only when the task needs other search limits.
+   A full path quota refuses the search with `MEMBER_FEEDBACK_REQUIRED`. Follow
+   [Path quota and feedback](#path-quota-and-feedback).
 5. Select a path. Call `joey_read_path_context` with its `pathRef` before you
    describe it. Add a private `brief` with `goal`, `target`, `proposedValue`
    and `timing` when those facts are known. Ask for all material gaps in one
@@ -227,13 +229,11 @@ do not replace a live graph tier or an unknown value with a report word.
   one is usable, use it and tell the member which one. Send `icpScope`
   `PERSONAL` for the member's own ICP. Each ICP of one company has its own
   request. Do not send `icpScope` for a person.
-- Before a request, read `pathRequests.capacity` in `joey_whoami`. With
-  `limited: false`, the workspace has no request or weekly delivery limit. With
-  `weekRemaining: 0`, tell the member that a found path waits for a later week.
-- After a request, report `status` and `delivery.state`. `SEARCHING` means that
-  Joey researches the target. `QUEUED_FOR_WEEKLY_CAPACITY` means that a found
-  path waits; give `queuePosition` and `estimatedDelivery` as an estimate. Read
-  the request again with `joey_get_path_request`. Do not promise a date.
+- Before a request, follow [Path quota and feedback](#path-quota-and-feedback).
+- After a request, report `status`, `delivery.state` and the new `capacity`
+  (for example "3 of 3 targets open"). `SEARCHING` means that Joey researches
+  the target. Read the request again with `joey_get_path_request`. Do not
+  promise a date.
 - For a better report path, use `joey_find_better_path`. Get the member's
   `preference` (`chip`, `text`, or both) and ask whether to save it. Use the
   returned schema for available chips. Do not convert a shared employer into
@@ -258,6 +258,43 @@ Use `joey_rate_familiarity` only for the member's exact answer about the report'
 `rate` person: `weak`, `medium`, `strong` or `very_strong`. Never choose a level.
 Weak is positive. `rating: null` removes a rating. For an explicit No or a
 statement with context, use the `joey-attest` skill. Do not turn No into weak.
+
+## Path quota and feedback
+
+Each target that the member asks for holds one path slot. All paths of one
+target share the slot. `capacity` gives `used`, `limit` and `needsFeedback`:
+the open targets with delivered paths, oldest first. Feedback on one delivered
+path of a target frees its slot. The Joey server cannot send a message to the
+member, so you must read `needsFeedback` and ask.
+
+1. Before `joey_request_path`, read `pathRequests.capacity` in `joey_whoami`,
+   or read `joey_list_feedback_queue`. If `needsFeedback` is not empty, ask the
+   member how those paths went. Name each target and the people of its path.
+   Ask in one question, then continue the member's task.
+2. If `used` is equal to or more than `limit`, Joey refuses a new target. Ask
+   for feedback first. Do not send the request to see the refusal.
+3. On the refusal `MEMBER_FEEDBACK_REQUIRED`, Joey saved no request and ran no
+   search. Read `joey_list_feedback_queue`. Tell the member that all slots are
+   full. List the open targets and their paths, and ask how one path went.
+   `joey_find_graph_paths`, `joey_find_better_path` for a target with no slot,
+   and `joey_prepare_activation` with a `pathRef` give the same refusal.
+4. Record feedback only for an outcome that the member states. Never guess an
+   outcome, and never record one from silence, a delay or a detected email.
+   Use the tool of that outcome:
+
+   | The member says | Tool |
+   | --- | --- |
+   | "I asked for the intro" or a later step | `joey_set_intro_stage` with that stage and the fields that the tool requires, or `joey_set_intro_progress` for a step of a company report. For a message that the member sent outside Joey, the receipt `source` is `MEMBER_CONFIRMED`. |
+   | "Stop this intro" | `joey_stop_intro`, after a "yes" |
+   | "Find a better path" | `joey_find_better_path` with the member's preference |
+   | An outcome of an activation of a delivered report path | `joey_record_path_outcome` |
+
+   A familiarity rating (`joey_rate_familiarity`) frees no slot. Do not use it
+   as feedback.
+5. After the feedback, read the new `capacity`. Tell the member how many slots
+   are free. Do not start the held request in the same turn. Ask first, for
+   example "Do you want me to ask for Tom Becker now?". Send the request only
+   after a "yes".
 
 ## Continue or report an error
 

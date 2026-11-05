@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.11.0 — 2026-11-05
+
+- Each member has a path quota. Each target that the member asks for holds
+  one slot. `pathRequests.capacity` in `joey_whoami`, and `capacity` in
+  `joey_request_path` and `joey_get_path_request`, give `used`, `limit`,
+  `limitSource` and `needsFeedback`. The workspace capacity, the weekly limit
+  and `QUEUED_FOR_WEEKLY_CAPACITY` are gone.
+- Read the new `joey_list_feedback_queue` (`workspace:read`, no input) for the
+  open slots of the member and their delivered paths.
+- A full quota refuses a new target, a live path search and an activation
+  from a `pathRef` with `MEMBER_FEEDBACK_REQUIRED`. The next action is
+  `GIVE_FEEDBACK`. `OPEN_CAPACITY_REACHED` and `QUOTA_OPEN_REACHED` are gone.
+- The `joey` skill asks the member how open paths went before a new request.
+  It records feedback only for an outcome that the member states, and it asks
+  before it sends the held request.
+- This text needs the Pouch customer MCP release `2.1.0`. Copy its
+  `tools.json` snapshot when it has `joey_list_feedback_queue`.
+
 ## 1.10.0 — 2026-11-03
 
 - A report hop has no `suspected` and no `check` field. Each hop is a real
