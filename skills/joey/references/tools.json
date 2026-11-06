@@ -600,6 +600,19 @@
       }
     },
     {
+      "name": "joey_list_opportunities",
+      "scope": "workspace:read",
+      "arguments": [
+        "level"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
       "name": "joey_report_bug",
       "scope": "workspace:read",
       "arguments": [
