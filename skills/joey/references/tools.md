@@ -14,7 +14,7 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `2.1.0`. An earlier server gives no `outcome`,
+server version `2.2.0`. An earlier server gives no `outcome`,
 `recommendedNextAction`, `delivery`, `joey_search_graph_companies` or
 `joey_get_path_request`. A server before `1.3.0` gives no personal ICP: its
 `joey_get_icp` gives the workspace ICP alone, and it has no `icpScope`. A server
@@ -22,7 +22,8 @@ before `1.4.0` has no `TRACKING` stage, no intro `owner` or `progress`, and no
 `joey_set_intro_progress` or `joey_set_intro_owner`. A server before `1.5.0` has
 no `joey_get_person_context`. A server before `2.0.0` gives the old workspace
 capacity and no member path quota. A server before `2.1.0` has no
-`joey_list_feedback_queue`.
+`joey_list_feedback_queue`. A server before `2.2.0` has no
+`joey_list_opportunities`.
 
 ## Scopes
 
@@ -226,6 +227,34 @@ hook. A server prompt alone does not create a schedule.
   `description` (free text), `roles`, `industries`, `countries`,
   `employeeRanges`, `usable` and `version`.
 - `usable: true` means that Joey can vet a company request with this ICP.
+
+### joey_list_opportunities
+
+- Input:
+  - `level` (optional): `HIGH`, `MEDIUM` or `LOW`. Without it, the result has
+    all levels.
+- Result: `{companies, counts, lastScanAt, nextScanAt, scanOpen}`. Each
+  company is an intent company of the workspace. Joey found dated public
+  evidence that the company matches one or more signals of the workspace.
+  `counts` gives the number of companies for `ALL` and for each level.
+- Each company has `id`, `company` (`id`, `name`, `linkedinUrl`, `websiteUrl`,
+  `industry`, `employeeRange`, `logoUrl`), `origin` (`LEAD_LIST` or
+  `DISCOVERY`), `leadList` (null for `DISCOVERY`), `level`, `decayed`,
+  `newestEvidenceAt`, `summary`, `hits`, `requestId` and `path`.
+- Each hit has `signalId`, `signalName`, `tier` (`GOLDEN` or `STANDARD`),
+  `reason` and `evidence`. Each evidence item has `url`, `quote`, `publishedAt`
+  and `provider`. A quote has at most 200 characters.
+- `path.kind` is the path state: `FOUND` (with `paths`; the first path is the
+  golden path), `SEARCHING`, `RESEARCHING`, `VETTING`, `NONE` or `BELOW_LEVEL`.
+  `requestId` is null for `BELOW_LEVEL`.
+- The list is in level order, then newest evidence first. `decayed: true`
+  means that the newest evidence is more than 60 days old, so the company
+  dropped one level.
+- The evidence is about the company. It is not a statement about a person.
+- To activate a path, use the `requestId` with the intro tools, as the
+  `joey-activate-path` skill does: `joey_get_path_report`,
+  `joey_get_intro_draft` and `joey_set_intro_stage`. Do not activate a path
+  without an explicit request from the member.
 
 ## Write tools
 

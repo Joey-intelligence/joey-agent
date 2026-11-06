@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.12.0 — 2026-11-06
+
+- Read the new `joey_list_opportunities` (`workspace:read`, optional `level`)
+  for the intent companies of the workspace. Each company has its level,
+  summary, signal hits with dated evidence, and path state. To activate a
+  path, use its `requestId` with the existing intro tools.
+- This text needs the Pouch customer MCP release `2.2.0`. Copy its
+  `tools.json` snapshot when it has `joey_list_opportunities`.
+
 ## 1.11.0 — 2026-11-05
 
 - Each member has a path quota. Each target that the member asks for holds
