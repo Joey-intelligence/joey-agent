@@ -322,6 +322,7 @@
       "arguments": [
         "linkedinUrl",
         "icpScope",
+        "roles",
         "idempotencyKey"
       ],
       "annotations": {

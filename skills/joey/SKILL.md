@@ -224,11 +224,18 @@ do not replace a live graph tier or an unknown value with a report word.
   confirmed LinkedIn URL and a new UUID `idempotencyKey`. Company requests are
   available in company workspaces; personal requests need a person URL. Do not
   guess a URL or say that a new request is a delivered path.
-- Before a company request, read `joey_get_icp`. If the workspace ICP and the
-  member's own ICP are both usable, ask the member which ICP to use. If only
-  one is usable, use it and tell the member which one. Send `icpScope`
-  `PERSONAL` for the member's own ICP. Each ICP of one company has its own
-  request. Do not send `icpScope` for a person.
+- A company request needs no ICP. It never waits for an ICP, and the ICP
+  never rejects the company.
+- When the member names a role or a team at the company, send it as `roles`
+  (1 to 3 items, in the member's words). Do not change the words to ICP roles.
+- When the member names no role or team, send the request without `roles`.
+  Joey then uses the first three roles of the ICP, or anyone at the company.
+  Read `joey_get_icp`. If the workspace ICP and the member's own ICP are both usable, ask the
+  member which ICP gives these roles. Send `icpScope` `PERSONAL` for the
+  member's own ICP. Do not wait for an ICP. After the request, ask the member
+  if they want to narrow it to a role or a team.
+- Each ICP of one company has its own request. Do not send `roles` or
+  `icpScope` for a person.
 - Before a request, follow [Path quota and feedback](#path-quota-and-feedback).
 - After a request, report `status`, `delivery.state` and the new `capacity`
   (for example "3 of 3 targets open"). `SEARCHING` means that Joey researches
