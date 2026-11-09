@@ -11,7 +11,15 @@
   company. `icpScope` only chooses the ICP that gives the default roles. The
   delivery state `WAITING_FOR_ICP` is gone, and `delivery.url` is always null.
 - The `joey` skill sends a named role or team as `roles`. It does not ask for
-  a usable ICP before a company request.
+  a usable ICP before a company request. With no named roles, it uses the one
+  ICP that has `roles`, and asks the member only when both ICPs have roles.
+- To narrow a company request, send `joey_request_path` again with `roles`,
+  the same `icpScope` and a new `idempotencyKey`. An open request of the
+  member that waits for vetting and has no other subscriber changes its roles,
+  takes no new slot and gives `narrowed: true`. Else Joey makes a separate
+  request that holds one slot.
+- For a server before `2.3.0`, the skill sends no `roles`, and a company
+  request can wait for an ICP.
 - This text needs the Pouch customer MCP release `2.3.0`. Copy its
   `tools.json` snapshot when `joey_request_path` has `roles`.
 

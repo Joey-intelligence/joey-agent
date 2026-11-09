@@ -278,7 +278,8 @@ hook. A server prompt alone does not create a schedule.
     item has 2 to 100 characters.
   - `idempotencyKey`: see [Idempotency keys](#idempotency-keys).
 - Result: `{requestId, status, targetUrl, targetKind, icpScope,
-  deliveredPaths, capacity, delivery}`. Joey researches the path. The path
+  deliveredPaths, capacity, delivery}`, and `narrowed: true` when the call
+  changed the roles of an open request. Joey researches the path. The path
   shows in `joey_list_paths` when Joey delivers it. See [Path quota](#path-quota)
   and [Delivery state](#delivery-state). A personal workspace also gives
   `created`. `icpScope` is the ICP of a company request, and null for a person.
@@ -289,9 +290,23 @@ hook. A server prompt alone does not create a schedule.
 - When the member names a role or a team, send it as `roles`. Use the words of
   the member. Do not change them to ICP roles.
 - When the member names no role or team, send the request without `roles`.
-  The default ICP roles then apply. If both ICPs are usable, ask the member
-  which ICP to use, and send it as `icpScope`. After the request, ask the
-  member if they want to narrow it to a role or a team.
+  The first three roles of the selected ICP then apply. Read `joey_get_icp`
+  to select the ICP:
+  - If only one ICP has `roles`, use that ICP. Send `icpScope` `PERSONAL`
+    when it is the member's own ICP.
+  - If both ICPs have `roles`, ask the member which ICP to use.
+  - If no ICP has `roles`, do not send `icpScope`. Joey then looks for anyone
+    at the company.
+- After a request without `roles`, ask the member if they want to narrow it to
+  a role or a team.
+- To narrow a request, call `joey_request_path` again for the same company
+  URL. Send the new `roles`, the same `icpScope` and a new `idempotencyKey`.
+  - If the member's own request still waits for vetting and has no other
+    subscriber, Joey changes its roles. It takes no new slot, and the result
+    has `narrowed: true`.
+  - Else Joey makes a separate request that holds one slot. Tell the member
+    this before you send it.
+- A server before `2.3.0` has no `roles`. Do not send `roles` to it.
 - Each ICP of one company has its own request.
 - `roles` for a person URL fails with `INVALID_ROLES`.
   `PERSONAL` without a personal ICP fails with `PERSONAL_ICP_REQUIRED`.
