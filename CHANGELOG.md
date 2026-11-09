@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.13.1 — 2026-11-10
+
+- Remove the rules for Joey servers before `2.2.0`. The Joey server has version
+  `2.3.0`. The rule for a server before `2.3.0` stays.
+
 ## 1.13.0 — 2026-11-09
 
 - `joey_request_path` takes the new optional `roles` (1 to 3 items, a company
