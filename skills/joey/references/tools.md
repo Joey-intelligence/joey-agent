@@ -14,16 +14,7 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `2.3.0`. An earlier server gives no `outcome`,
-`recommendedNextAction`, `delivery`, `joey_search_graph_companies` or
-`joey_get_path_request`. A server before `1.3.0` gives no personal ICP: its
-`joey_get_icp` gives the workspace ICP alone, and it has no `icpScope`. A server
-before `1.4.0` has no `TRACKING` stage, no intro `owner` or `progress`, and no
-`joey_set_intro_progress` or `joey_set_intro_owner`. A server before `1.5.0` has
-no `joey_get_person_context`. A server before `2.0.0` gives the old workspace
-capacity and no member path quota. A server before `2.1.0` has no
-`joey_list_feedback_queue`. A server before `2.2.0` has no
-`joey_list_opportunities`. A server before `2.3.0` has no `roles` in
+server version `2.3.0`. A server before `2.3.0` has no `roles` in
 `joey_request_path`. It vets a company against the ICP, and a company request
 can wait in the delivery state `WAITING_FOR_ICP`.
 
@@ -675,8 +666,7 @@ The MCP server cannot send a message to the member, so the agent reads
 
 The refusal gives `error.code` `MEMBER_FEEDBACK_REQUIRED`, `error.message`,
 `error.capacity` and `recommendedNextAction` with `action` `GIVE_FEEDBACK`.
-`recommendedNextAction.tool` is `joey_list_feedback_queue`. A server before
-`2.1.0` names `joey_whoami` there.
+`recommendedNextAction.tool` is `joey_list_feedback_queue`.
 
 ### Delivery state
 

@@ -70,9 +70,7 @@ If the member asks only for setup, give the identity line and the onboarding
 step. Offer the first path search in one sentence, and stop there.
 
 `workspace:read` permits public graph reads. Shared member evidence also needs
-`trust:read`. An absent scope is not an empty graph. If `server.version` is
-earlier than `1.1.0`, the server gives no `outcome` or `recommendedNextAction`;
-then use `status` and the error code only.
+`trust:read`. An absent scope is not an empty graph.
 
 Do not create an account node or select a namesake for the member. An explicit
 `originRefs` search is possible, but do not describe its origin as the member
