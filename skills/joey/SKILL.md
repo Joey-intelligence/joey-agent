@@ -224,11 +224,33 @@ do not replace a live graph tier or an unknown value with a report word.
   confirmed LinkedIn URL and a new UUID `idempotencyKey`. Company requests are
   available in company workspaces; personal requests need a person URL. Do not
   guess a URL or say that a new request is a delivered path.
-- Before a company request, read `joey_get_icp`. If the workspace ICP and the
-  member's own ICP are both usable, ask the member which ICP to use. If only
-  one is usable, use it and tell the member which one. Send `icpScope`
-  `PERSONAL` for the member's own ICP. Each ICP of one company has its own
-  request. Do not send `icpScope` for a person.
+- Read `server.version` in `joey_whoami` before a company request. The rules
+  below for `roles` and the ICP need server version `2.3.0` or later. For an
+  earlier server, do not send `roles`. On that server, a company request can
+  wait for an ICP: then report `delivery.state` and `delivery.url`.
+- A company request needs no ICP. It never waits for an ICP, and the ICP
+  never rejects the company.
+- When the member names a role or a team at the company, send it as `roles`
+  (1 to 3 items, in the member's words). Do not change the words to ICP roles.
+- When the member names no role or team, send the request without `roles`.
+  Joey then uses the first three roles of the selected ICP. Read
+  `joey_get_icp` to select the ICP:
+  - If only one ICP has `roles`, use that ICP. Send `icpScope` `PERSONAL`
+    when it is the member's own ICP.
+  - If both ICPs have `roles`, ask the member which ICP to use.
+  - If no ICP has `roles`, do not send `icpScope`. Joey then looks for anyone
+    at the company.
+- Do not wait for an ICP. After the request, ask the member if they want to
+  narrow it to a role or a team.
+- To narrow a request, call `joey_request_path` again for the same company
+  URL. Send the new `roles`, the same `icpScope` and a new `idempotencyKey`.
+  - If the member's own request still waits for vetting and has no other
+    subscriber, Joey changes its roles. It takes no new slot, and the result
+    has `narrowed: true`.
+  - Else Joey makes a separate request that holds one slot. Tell the member
+    this before you send it.
+- Each ICP of one company has its own request. Do not send `roles` or
+  `icpScope` for a person.
 - Before a request, follow [Path quota and feedback](#path-quota-and-feedback).
 - After a request, report `status`, `delivery.state` and the new `capacity`
   (for example "3 of 3 targets open"). `SEARCHING` means that Joey researches

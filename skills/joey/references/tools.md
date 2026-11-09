@@ -14,7 +14,7 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `2.2.0`. An earlier server gives no `outcome`,
+server version `2.3.0`. An earlier server gives no `outcome`,
 `recommendedNextAction`, `delivery`, `joey_search_graph_companies` or
 `joey_get_path_request`. A server before `1.3.0` gives no personal ICP: its
 `joey_get_icp` gives the workspace ICP alone, and it has no `icpScope`. A server
@@ -23,7 +23,9 @@ before `1.4.0` has no `TRACKING` stage, no intro `owner` or `progress`, and no
 no `joey_get_person_context`. A server before `2.0.0` gives the old workspace
 capacity and no member path quota. A server before `2.1.0` has no
 `joey_list_feedback_queue`. A server before `2.2.0` has no
-`joey_list_opportunities`.
+`joey_list_opportunities`. A server before `2.3.0` has no `roles` in
+`joey_request_path`. It vets a company against the ICP, and a company request
+can wait in the delivery state `WAITING_FOR_ICP`.
 
 ## Scopes
 
@@ -226,7 +228,11 @@ hook. A server prompt alone does not create a schedule.
   personal ICP. Each ICP has `scope` (`WORKSPACE` or `PERSONAL`),
   `description` (free text), `roles`, `industries`, `countries`,
   `employeeRanges`, `usable` and `version`.
-- `usable: true` means that Joey can vet a company request with this ICP.
+- `usable: true` means that the ICP has a description, or a role and a company
+  rule (industry, country or employee range).
+- The ICP never rejects a company. Its first three `roles` are the default
+  roles of a company request that names no roles. Its company rules are
+  information for the Joey team. A company request needs no ICP.
 
 ### joey_list_opportunities
 
@@ -264,19 +270,46 @@ hook. A server prompt alone does not create a schedule.
   - `linkedinUrl`: the LinkedIn URL of a person
     (`https://www.linkedin.com/in/...`) or of a company
     (`https://www.linkedin.com/company/...`).
-  - `icpScope` (optional): only for a company. `WORKSPACE` (the default) vets
-    the company against the workspace ICP. `PERSONAL` vets it against the
-    member's own ICP.
+  - `icpScope` (optional): only for a company. It chooses the ICP that gives
+    the default roles. `WORKSPACE` (the default) takes the roles of the
+    workspace ICP. `PERSONAL` takes the roles of the member's own ICP.
+  - `roles` (optional): only for a company. 1 to 3 roles, or the team, that
+    the member named, in the member's words, for example `["Partner"]`. Each
+    item has 2 to 100 characters.
   - `idempotencyKey`: see [Idempotency keys](#idempotency-keys).
 - Result: `{requestId, status, targetUrl, targetKind, icpScope,
-  deliveredPaths, capacity, delivery}`. Joey researches the path. The path
+  deliveredPaths, capacity, delivery}`, and `narrowed: true` when the call
+  changed the roles of an open request. Joey researches the path. The path
   shows in `joey_list_paths` when Joey delivers it. See [Path quota](#path-quota)
   and [Delivery state](#delivery-state). A personal workspace also gives
   `created`. `icpScope` is the ICP of a company request, and null for a person.
-- Each ICP of one company has its own request. Before a company request, read
-  `joey_get_icp`. If both ICPs are usable, ask the member which ICP to use. If
-  only one is usable, use it and tell the member which one.
-- `PERSONAL` without a personal ICP fails with `PERSONAL_ICP_REQUIRED`.
+- A company request never waits for an ICP, and the ICP never rejects the
+  company. Joey looks for people with the `roles` of the request. Without
+  `roles`, Joey uses the first three roles of the ICP. If the ICP has no
+  roles, or no ICP exists, Joey looks for anyone at the company.
+- When the member names a role or a team, send it as `roles`. Use the words of
+  the member. Do not change them to ICP roles.
+- When the member names no role or team, send the request without `roles`.
+  The first three roles of the selected ICP then apply. Read `joey_get_icp`
+  to select the ICP:
+  - If only one ICP has `roles`, use that ICP. Send `icpScope` `PERSONAL`
+    when it is the member's own ICP.
+  - If both ICPs have `roles`, ask the member which ICP to use.
+  - If no ICP has `roles`, do not send `icpScope`. Joey then looks for anyone
+    at the company.
+- After a request without `roles`, ask the member if they want to narrow it to
+  a role or a team.
+- To narrow a request, call `joey_request_path` again for the same company
+  URL. Send the new `roles`, the same `icpScope` and a new `idempotencyKey`.
+  - If the member's own request still waits for vetting and has no other
+    subscriber, Joey changes its roles. It takes no new slot, and the result
+    has `narrowed: true`.
+  - Else Joey makes a separate request that holds one slot. Tell the member
+    this before you send it.
+- A server before `2.3.0` has no `roles`. Do not send `roles` to it.
+- Each ICP of one company has its own request.
+- `roles` for a person URL fails with `INVALID_ROLES`.
+  `PERSONAL` without a personal ICP fails with `PERSONAL_ICP_REQUIRED`.
   `PERSONAL` for a person URL fails with `INVALID_ICP_SCOPE`.
 - `status: "SEARCHING"` means that Joey researches the target. It does not
   promise a delivery date. Read `delivery.state` for that.
@@ -486,8 +519,8 @@ hook. A server prompt alone does not create a schedule.
   - `expectedVersion`: the `version` of `personal` from `joey_get_icp`.
 - Result: `{personal: null}`.
 - This call removes the member's own ICP. Get a "yes" before the call. The open
-  requests of the member with `icpScope` `PERSONAL` then wait in
-  `WAITING_FOR_ICP`. A stale version fails with `ICP_CHANGED`.
+  company requests with this ICP and no `roles` of their own go back to
+  vetting with no ICP roles. A stale version fails with `ICP_CHANGED`.
 
 ### joey_report_bug
 
@@ -647,15 +680,13 @@ The refusal gives `error.code` `MEMBER_FEEDBACK_REQUIRED`, `error.message`,
 
 ### Delivery state
 
-`delivery` has `state` and `url`. For `WAITING_FOR_ICP`, `url` gives the ICP
-page of the Joey web app, and `message` names the ICP of the request and says
-who can set it. For the other states, `url` is null.
+`delivery` has `state` and `url`. `url` is always null. A company request
+never waits for an ICP.
 
 | `state` | Meaning |
 | --- | --- |
 | `RESEARCHING` | Joey researches the target. |
 | `DELIVERED` | The member can read a delivered path. |
-| `WAITING_FOR_ICP` | A company request waits for its ICP: the workspace ICP, or the personal ICP of the member who asked (`icpScope` `PERSONAL`). |
 | `READY_NO_PATH` | The research ended without a delivered path. |
 | `UNAVAILABLE` | Joey cannot research this target. |
 
@@ -708,6 +739,7 @@ asks for research, and only with a confirmed URL.
 | `ICP_CHANGED` | Read the ICP again: the workspace ICP or the personal ICP. Show the new version to the member before a new change. |
 | `PERSONAL_ICP_REQUIRED` | The member has no personal ICP. Offer to set it with `joey_update_my_icp`, or ask again with `icpScope` `WORKSPACE`. |
 | `INVALID_ICP_SCOPE` | `icpScope` is only for a company URL. Ask again without `icpScope` for a person. |
+| `INVALID_ROLES` | `roles` is only for a company URL. Ask again without `roles` for a person. |
 | `INTRO_STOPPED` | The intro is stopped. Tell the member. Do not change it. |
 | `INTRO_NOT_STARTED` | The intro is not requested yet, so it cannot stop. |
 | `BETTER_PATH_OPEN` | Joey already looks for a better path to this target. Tell the member to wait for it. |
