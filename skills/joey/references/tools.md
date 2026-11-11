@@ -14,9 +14,10 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `2.3.0`. A server before `2.3.0` has no `roles` in
-`joey_request_path`. It vets a company against the ICP, and a company request
-can wait in the delivery state `WAITING_FOR_ICP`.
+server version `2.4.0`. A server before `2.4.0` gives no `steps` and no
+`entry` in a path (see [Path length](#path-length)). A server before `2.3.0`
+also has no `roles` in `joey_request_path`. It vets a company against the ICP,
+and a company request can wait in the delivery state `WAITING_FOR_ICP`.
 
 ## Scopes
 
@@ -118,14 +119,16 @@ hook. A server prompt alone does not create a schedule.
     person on a path.
   - `company` (optional): the exact company name of the target.
   - `hops` (optional): 1 to 4. Only the targets whose best path has this number
-    of hops.
+    of hops. The filter counts all hops, not the steps.
   - `limit` (optional): 1 to 50 rows on one page. The default is 20.
   - `cursor` (optional): the `nextCursor` of the last page.
 - Result: `{paths, total, nextCursor}`. One row for each target with a
   delivered path. Open intros come first, then the newest paths. Each row has:
   - `requestId` and `target` (`name`, `role`, `organization`).
-  - `hops`, `strength` (a [strength word](#strength-words)) and `people` of the
-    best path. `people` gives the names in order, with "(you)" after the member.
+  - `hops`, `steps`, `entry`, `strength` (a [strength word](#strength-words))
+    and `people` of the best path. `people` gives the names in order, with
+    "(you)" after the member. See [Path length](#path-length) for `steps` and
+    `entry`.
   - `pathCount`, `lastDeliveredAt`, `intro` (see [Intro state](#intro-state)),
     `savedTarget` and `betterPathOpen`.
 
@@ -136,8 +139,9 @@ hook. A server prompt alone does not create a schedule.
 - Result: the report of one target:
   - `target` (`name`, `role`, `organization`).
   - `paths`: each delivered path, path 1 (the best path) first. Each path has
-    `pathKey`, `number`, `name`, `summary`, `hopCount`, `strength`,
-    `deliveredAt` and `verifiedAt`, and:
+    `pathKey`, `number`, `name`, `summary`, `hopCount`, `steps`, `entry`,
+    `strength`, `deliveredAt` and `verifiedAt` (see
+    [Path length](#path-length)), and:
     - `people`: the people in order, each with `name`, `role`, `organization`
       and `you`.
     - `hops`: each hop with `from`, `to`, `title` (for example "You and David
@@ -243,6 +247,9 @@ hook. A server prompt alone does not create a schedule.
   and `provider`. A quote has at most 200 characters.
 - `path.kind` is the path state: `FOUND` (with `paths`; the first path is the
   golden path), `SEARCHING`, `RESEARCHING`, `VETTING`, `NONE` or `BELOW_LEVEL`.
+  Each path of `FOUND` has its people and `entry` (see
+  [Path length](#path-length)). The golden path is the best path of the
+  report. A hop between two colleagues does not lower its rank.
   `requestId` is null for `BELOW_LEVEL`.
 - The list is in level order, then newest evidence first. `decayed: true`
   means that the newest evidence is more than 60 days old, so the company
@@ -329,7 +336,8 @@ hook. A server prompt alone does not create a schedule.
   `targetName`, `targetUrl`, `targetKind`, `status`, `deliveredPaths`,
   `slotHeldAt`), and also:
   - `paths`: the delivered paths. Each path has `pathId`, `people` (the
-    display names, first to last) and `deliveredAt`.
+    display names, first to last), `entry` (see [Path length](#path-length))
+    and `deliveredAt`.
   - `introStage`: `TRACKING`, `INTRO_REQUESTED`, `INTRODUCED`, `MEETING_SET`,
     `MET`, or null before the first change.
   - `reportUrl`: the page of the request in the Joey web app.
@@ -601,6 +609,39 @@ unscored hop has no strength word.
 | Strong | A clear, direct tie. |
 | Moderate | A real tie with less contact. Give the introducer a clear reason. |
 | Light | The weakest tie. Ask the introducer how well they know the person first. |
+
+### Path length
+
+A delivered path gives the count of its hops and the count of its steps:
+
+- `hops` (in `joey_list_paths`) and `hopCount` (in `joey_get_path_report`)
+  count all hops of the path.
+- `steps` is a number: the hops from the start of the path into the target's
+  company.
+- `entry` is `{company, inside, steps}`. The last `entry.inside` people of the
+  path work at `entry.company`: the target and each colleague before the
+  target. A hop between two of them is not a step. `entry.steps` is the same
+  as `steps`. `entry.company` is null when the target has no company.
+
+`joey_list_paths` and `joey_get_path_report` give `steps` and `entry`.
+`joey_list_feedback_queue` and `joey_list_opportunities` give `entry` for each
+path.
+
+Tell the member the length of a path in steps, from `steps` or `entry.steps`.
+Say "2 steps". When `entry.inside` is 2 or more, also name the company, for
+example "2 steps into Northwind Labs". Do not say "hops" to the member.
+
+For example, Maya Lin knows Omar Haddad, Omar Haddad knows Priya Nair, and
+Priya Nair is a colleague of the target Leo Brandt at Northwind Labs. The path
+has `hopCount` 3, `entry` `{company: "Northwind Labs", inside: 2, steps: 2}`
+and `steps` 2. Say "2 steps into Northwind Labs".
+
+Path steps are a count. They are not the `progress` steps of a report, such
+as "Asked David" (see [Intro progress and owner](#intro-progress-and-owner)).
+Keep the progress step labels as the web shows them.
+
+A server before `2.4.0` gives no `steps` and no `entry`. Then say the count of
+`hops` or `hopCount` as steps, with no company.
 
 ### Preference chips
 
