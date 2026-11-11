@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.14.0 — 2026-11-11
+
+- `joey_list_paths` and `joey_get_path_report` give `steps` (a number) and
+  `entry` (`company`, `inside`, `steps`) for each path.
+  `joey_list_feedback_queue` and `joey_list_opportunities` give `entry` for
+  each path. The last `entry.inside` people of a path work at the target's
+  company, and a hop between two of them is not a step.
+- `hops` and `hopCount` stay the count of all hops. The `hops` filter of
+  `joey_list_paths` keeps that count.
+- The `joey` skill tells the member the length of a path in steps: "2 steps",
+  or "2 steps into" the company when `entry.inside` is 2 or more. It does not
+  say "hops" to the member. The progress step labels of a report, such as
+  "Asked David", stay as they are.
+- For a server before `2.4.0`, the skill says the count of hops as steps,
+  with no company.
+- This text needs the Pouch customer MCP release `2.4.0`. This release adds
+  no tool and no argument, so `tools.json` does not change.
+
 ## 1.13.1 — 2026-11-10
 
 - Remove the rules for Joey servers before `2.2.0`. The Joey server has version
