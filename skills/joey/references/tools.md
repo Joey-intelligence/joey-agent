@@ -317,7 +317,8 @@ hook. A server prompt alone does not create a schedule.
   A new target of the member holds one slot. A target that the member already
   follows takes no new slot.
 - A full quota (`used` equal to or more than `limit`) refuses the request with
-  `MEMBER_FEEDBACK_REQUIRED`. Joey saves no request then. See
+  `MEMBER_FEEDBACK_REQUIRED`. Joey saves no request then. A member with
+  `exempt: true` has no slot limit, and Joey does not refuse the request. See
   [Path quota](#path-quota).
 
 ### joey_get_path_request
@@ -677,6 +678,7 @@ share the slot.
 | `limit` | The most open slots of the member. A Joey admin sets it. |
 | `limitSource` | `WORKSPACE_DEFAULT` or `MEMBER_OVERRIDE`. |
 | `needsFeedback` | The open slots with one or more delivered paths, oldest slot first. |
+| `exempt` | `true` only for a Joey support identity. Joey sets no slot limit for this member. The field is not there for other members. |
 
 Each `needsFeedback` target has `requestId`, `targetName` (`""` when Joey has
 no name yet), `targetUrl` (`""` for a free-text personal search), `targetKind`
