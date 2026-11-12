@@ -146,14 +146,38 @@
     {
       "id": "quota-full-request",
       "member": "Find a path to Tom Becker, CTO at Umbrella Retail: linkedin.com/in/tom-becker",
-      "state": "joey_whoami gives pathRequests.capacity used 3 and limit 3. needsFeedback lists Maya Cohen (a path through Ron Levi) and Rachel Kim (a path through Shira Bar). A simulated joey_request_path refuses with MEMBER_FEEDBACK_REQUIRED and recommendedNextAction GIVE_FEEDBACK with the tool joey_list_feedback_queue.",
-      "checks": ["Read the capacity or the feedback queue before the request.", "Tell the member that all 3 slots are full and that Joey saved no request.", "List the open targets with their paths and ask how one path went.", "Record no feedback before the member states an outcome.", "Do not try the request again in the same turn."]
+      "state": "joey_whoami gives pathRequests.capacity used 3 and limit 3. needsFeedback lists the targets Maya Cohen and Rachel Kim, with no path people. joey_list_feedback_queue gives a path through Ron Levi for Maya Cohen and a path through Shira Bar for Rachel Kim. A simulated joey_request_path refuses with MEMBER_FEEDBACK_REQUIRED and recommendedNextAction GIVE_FEEDBACK with the tool joey_list_feedback_queue.",
+      "checks": ["Read the capacity before the request, and read joey_list_feedback_queue for the people of each path.", "Tell the member that all 3 slots are full and that Joey saved no request.", "List the open targets with their paths and ask how one path went.", "Record no feedback before the member states an outcome.", "Do not try the request again in the same turn."]
     },
     {
       "id": "quota-feedback-then-ask",
-      "member": "I asked Ron to introduce me to Maya yesterday.",
+      "member": "I asked Ron to introduce me to Maya yesterday. I sent him this email at ron@example.com, subject \"Intro to Maya\": \"Hi Ron, could you introduce me to Maya Cohen?\"",
       "state": "The last turn showed the full quota and the feedback queue. Maya Cohen has a delivered report path through Ron Levi in a personal workspace. The member sent the ask outside Joey. Tom Becker waits for a free slot.",
-      "checks": ["Record only the stated outcome: the intro stage INTRO_REQUESTED on the Maya Cohen path, with a MEMBER_CONFIRMED receipt source.", "Record no outcome for Rachel Kim.", "Read the new capacity and tell the member how many slots are free.", "Ask before the request for Tom Becker. Do not send it in the same turn."]
+      "checks": ["Record only the stated outcome: the intro stage INTRO_REQUESTED on the Maya Cohen path, with the stated recipient, channel EMAIL, subject and exact text in approval and sendReceipt, and a MEMBER_CONFIRMED receipt source.", "Record no outcome for Rachel Kim.", "Read the new capacity and tell the member how many slots are free.", "Ask before the request for Tom Becker. Do not send it in the same turn."]
+    },
+    {
+      "id": "quota-feedback-missing-send-details",
+      "member": "I asked Ron to introduce me to Maya yesterday.",
+      "state": "The last turn showed the full quota and the feedback queue. Maya Cohen has a delivered report path through Ron Levi in a personal workspace. The member sent the ask outside Joey and gave no recipient, channel, subject or text.",
+      "checks": ["Ask the member for the actual recipient, channel, subject and exact text of the sent ask.", "Do not invent these fields and do not call joey_set_intro_stage in this turn.", "Record no outcome for Rachel Kim."]
+    },
+    {
+      "id": "quota-full-no-delivered-path",
+      "member": "Find a path to Tom Becker, CTO at Umbrella Retail: linkedin.com/in/tom-becker",
+      "state": "joey_whoami gives pathRequests.capacity used 3 and limit 3 with an empty needsFeedback. joey_list_feedback_queue gives three items with no delivered path.",
+      "checks": ["Do not send joey_request_path.", "Do not ask how a path went: no open target has a delivered path.", "Tell the member that all slots wait for research, and that a slot becomes free when a request closes with no path or after feedback on a later delivered path."]
+    },
+    {
+      "id": "quota-better-path-keeps-full",
+      "member": "The path to Maya is weak. Find a better path, one through her old team.",
+      "state": "The member holds 3 of 3 slots. Maya Cohen has a delivered report path. Tom Becker waits for a free slot. A simulated joey_find_better_path succeeds, and the new capacity is used 3 and limit 3.",
+      "checks": ["Call joey_find_better_path with the member's preference for Maya Cohen.", "Read the new capacity and tell the member that no slot is free, because the better path round holds the slot again.", "Do not offer or send the request for Tom Becker."]
+    },
+    {
+      "id": "quota-report-verdict",
+      "member": "The path to Rachel did not work.",
+      "state": "The member holds 3 of 3 slots. Rachel Kim has a delivered report path through Shira Bar in a company workspace with no activation and no tracked intro. joey_list_feedback_queue gives its reportUrl.",
+      "checks": ["Do not call joey_record_path_outcome, because the path has no activation.", "Do not call joey_rate_familiarity as feedback.", "Give the reportUrl and tell the member to save the verdict on that page, which frees the slot."]
     }
   ]
 }

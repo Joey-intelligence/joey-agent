@@ -96,7 +96,8 @@ hook. A server prompt alone does not create a schedule.
   `UPDATE_AVAILABLE`, `NOT_REPORTED` or `UNKNOWN`. Follow
   [the update check](updates.md).
 - Read `pathRequests.capacity` before `joey_request_path`. When
-  `needsFeedback` is not empty, ask the member how those paths went. See
+  `needsFeedback` is not empty, read `joey_list_feedback_queue` for the people
+  of each path, then ask the member how those paths went. See
   [Path quota](#path-quota).
 - Call it first when the task needs workspace context and `workspace:read` is
   present. A known-statement or known-session withdrawal needs only
@@ -689,7 +690,9 @@ that target:
   again. `joey_set_intro_progress` on a step after `PATH_FOUND` sets the stage
   too, so it also frees the slot.
 - `joey_stop_intro`.
-- A path verdict on a request report.
+- A path verdict on a request report. No MCP tool writes it. The member saves
+  it on the report page in the Joey web app: the `reportUrl` of the item in
+  `joey_list_feedback_queue`.
 - `joey_find_better_path` feedback. The round holds the slot again, so the
   count does not change.
 - `joey_record_path_outcome` with a new or corrected outcome of an activation
