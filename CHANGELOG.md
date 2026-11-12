@@ -16,6 +16,8 @@
   text. It does not invent them.
 - The tools reference activates only a `FOUND` intent company, with the steps
   of the `joey-activate-path` skill.
+- Remove the rules for Joey servers before `2.4.0`. The hosted server now
+  serves `2.4.0`.
 - This release adds no tool and no argument, so `tools.json` does not change.
 
 ## 1.14.0 — 2026-11-11

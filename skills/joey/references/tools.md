@@ -14,10 +14,7 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `2.4.0`. A server before `2.4.0` gives no `steps` and no
-`entry` in a path (see [Path length](#path-length)). A server before `2.3.0`
-also has no `roles` in `joey_request_path`. It vets a company against the ICP,
-and a company request can wait in the delivery state `WAITING_FOR_ICP`.
+server version `2.4.0`.
 
 ## Scopes
 
@@ -308,7 +305,6 @@ hook. A server prompt alone does not create a schedule.
     has `narrowed: true`.
   - Else Joey makes a separate request that holds one slot. Tell the member
     this before you send it.
-- A server before `2.3.0` has no `roles`. Do not send `roles` to it.
 - Each ICP of one company has its own request.
 - `roles` for a person URL fails with `INVALID_ROLES`.
   `PERSONAL` without a personal ICP fails with `PERSONAL_ICP_REQUIRED`.
@@ -643,9 +639,6 @@ and `steps` 2. Say "2 steps into Northwind Labs".
 Path steps are a count. They are not the `progress` steps of a report, such
 as "Asked David" (see [Intro progress and owner](#intro-progress-and-owner)).
 Keep the progress step labels as the web shows them.
-
-A server before `2.4.0` gives no `steps` and no `entry`. Then say the count of
-`hops` or `hopCount` as steps, with no company.
 
 ### Preference chips
 

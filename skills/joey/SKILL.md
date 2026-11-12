@@ -229,18 +229,12 @@ do not replace a live graph tier or an unknown value with a report word.
     of `joey_list_paths`.
   - Path steps are not the `progress` steps of a report. Keep the progress
     step labels, such as "Asked David", as the web shows them.
-  - A server before `2.4.0` gives no `steps` and no `entry`. Then say the
-    count of `hops` or `hopCount` as steps, with no company.
 - Keep `requestId` and `pathKey` for report operations. The report's `askTo`
   names the next recipient; `rate` names the person whom the member can rate.
 - If the member asks for research, use `joey_request_path` with a supplied or
   confirmed LinkedIn URL and a new UUID `idempotencyKey`. Company requests are
   available in company workspaces; personal requests need a person URL. Do not
   guess a URL or say that a new request is a delivered path.
-- Read `server.version` in `joey_whoami` before a company request. The rules
-  below for `roles` and the ICP need server version `2.3.0` or later. For an
-  earlier server, do not send `roles`. On that server, a company request can
-  wait for an ICP: then report `delivery.state` and `delivery.url`.
 - A company request needs no ICP. It never waits for an ICP, and the ICP
   never rejects the company.
 - When the member names a role or a team at the company, send it as `roles`
