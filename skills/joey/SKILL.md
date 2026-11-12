@@ -320,7 +320,7 @@ member, so you must read `needsFeedback` and ask.
 
    | The member says | Tool |
    | --- | --- |
-   | "I asked for the intro" or a later step | `joey_set_intro_stage` with that stage and the fields that the tool requires, or `joey_set_intro_progress` for a step of a company report. The ask (`INTRO_REQUESTED`, or the `ASKED` step) needs the actual recipient, channel, subject and exact text of the sent message. If the member did not give them, ask for them first. Do not invent them. For a message that the member sent outside Joey, the receipt `source` is `MEMBER_CONFIRMED`. |
+   | "I asked for the intro" or a later step | `joey_set_intro_stage` with that stage and the fields that the tool requires, or `joey_set_intro_progress` for a step of a company report. The ask (`INTRO_REQUESTED`, or the `ASKED` step) needs the actual recipient, channel, subject, exact text and send time (`sentAt`) of the sent message. If the member did not give them, ask for them first. Do not invent them, and do not guess a time from a word such as "yesterday". For a message that the member sent outside Joey, the receipt `source` is `MEMBER_CONFIRMED`. |
    | "Stop this intro" | `joey_stop_intro`, after a "yes" |
    | "Find a better path" | `joey_find_better_path` with the member's preference |
    | An outcome of an activation of a delivered report path | `joey_record_path_outcome` |

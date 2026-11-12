@@ -151,15 +151,15 @@
     },
     {
       "id": "quota-feedback-then-ask",
-      "member": "I asked Ron to introduce me to Maya yesterday. I sent him this email at ron@example.com, subject \"Intro to Maya\": \"Hi Ron, could you introduce me to Maya Cohen?\"",
+      "member": "I asked Ron to introduce me to Maya yesterday at 10:00. I sent him this email at ron@example.com, subject \"Intro to Maya\": \"Hi Ron, could you introduce me to Maya Cohen?\"",
       "state": "The last turn showed the full quota and the feedback queue. Maya Cohen has a delivered report path through Ron Levi in a personal workspace. The member sent the ask outside Joey. Tom Becker waits for a free slot.",
-      "checks": ["Record only the stated outcome: the intro stage INTRO_REQUESTED on the Maya Cohen path, with the stated recipient, channel EMAIL, subject and exact text in approval and sendReceipt, and a MEMBER_CONFIRMED receipt source.", "Record no outcome for Rachel Kim.", "Read the new capacity and tell the member how many slots are free.", "Ask before the request for Tom Becker. Do not send it in the same turn."]
+      "checks": ["Record only the stated outcome: the intro stage INTRO_REQUESTED on the Maya Cohen path, with the stated recipient, channel EMAIL, subject and exact text in approval and sendReceipt, sentAt 2026-10-19T10:00:00+03:00, and a MEMBER_CONFIRMED receipt source.", "Record no outcome for Rachel Kim.", "Read the new capacity and tell the member how many slots are free.", "Ask before the request for Tom Becker. Do not send it in the same turn."]
     },
     {
       "id": "quota-feedback-missing-send-details",
       "member": "I asked Ron to introduce me to Maya yesterday.",
-      "state": "The last turn showed the full quota and the feedback queue. Maya Cohen has a delivered report path through Ron Levi in a personal workspace. The member sent the ask outside Joey and gave no recipient, channel, subject or text.",
-      "checks": ["Ask the member for the actual recipient, channel, subject and exact text of the sent ask.", "Do not invent these fields and do not call joey_set_intro_stage in this turn.", "Record no outcome for Rachel Kim."]
+      "state": "The last turn showed the full quota and the feedback queue. Maya Cohen has a delivered report path through Ron Levi in a personal workspace. The member sent the ask outside Joey and gave no recipient, channel, subject, text or exact send time.",
+      "checks": ["Ask the member for the actual recipient, channel, subject, exact text and send time of the sent ask.", "Do not invent these fields or a sentAt from the word yesterday and do not call joey_set_intro_stage in this turn.", "Record no outcome for Rachel Kim."]
     },
     {
       "id": "quota-full-no-delivered-path",

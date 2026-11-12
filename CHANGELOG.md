@@ -12,8 +12,8 @@
 - A verdict on a report path with no activation has no MCP tool. The skill
   gives the `reportUrl`, where the member saves the verdict.
 - Before an `INTRO_REQUESTED` write for an ask that the member sent outside
-  Joey, the skill asks for the actual recipient, channel, subject and exact
-  text. It does not invent them.
+  Joey, the skill asks for the actual recipient, channel, subject, exact text
+  and send time. It does not invent them.
 - The tools reference activates only a `FOUND` intent company, with the steps
   of the `joey-activate-path` skill.
 - Remove the rules for Joey servers before `2.4.0`. The hosted server now
