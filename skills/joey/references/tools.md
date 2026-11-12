@@ -14,10 +14,7 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `2.4.0`. A server before `2.4.0` gives no `steps` and no
-`entry` in a path (see [Path length](#path-length)). A server before `2.3.0`
-also has no `roles` in `joey_request_path`. It vets a company against the ICP,
-and a company request can wait in the delivery state `WAITING_FOR_ICP`.
+server version `2.4.0`.
 
 ## Scopes
 
@@ -96,7 +93,8 @@ hook. A server prompt alone does not create a schedule.
   `UPDATE_AVAILABLE`, `NOT_REPORTED` or `UNKNOWN`. Follow
   [the update check](updates.md).
 - Read `pathRequests.capacity` before `joey_request_path`. When
-  `needsFeedback` is not empty, ask the member how those paths went. See
+  `needsFeedback` is not empty, read `joey_list_feedback_queue` for the people
+  of each path, then ask the member how those paths went. See
   [Path quota](#path-quota).
 - Call it first when the task needs workspace context and `workspace:read` is
   present. A known-statement or known-session withdrawal needs only
@@ -255,10 +253,15 @@ hook. A server prompt alone does not create a schedule.
   means that the newest evidence is more than 60 days old, so the company
   dropped one level.
 - The evidence is about the company. It is not a statement about a person.
-- To activate a path, use the `requestId` with the intro tools, as the
-  `joey-activate-path` skill does: `joey_get_path_report`,
-  `joey_get_intro_draft` and `joey_set_intro_stage`. Do not activate a path
-  without an explicit request from the member.
+- Only a company with `path.kind` `FOUND` has a delivered report. To activate
+  its path, follow the `joey-activate-path` skill with the `requestId`:
+  `joey_get_path_report`, then `joey_get_intro_tracker`. Reuse a saved
+  activation of that report path. Only when none exists, call
+  `joey_prepare_activation` with the `requestId`. Then call
+  `joey_get_intro_draft`. Record the send as that skill says. For
+  `SEARCHING`, `RESEARCHING` or `VETTING`, Joey has no report yet: report the
+  state, and do not call the intro tools. Do not activate a path without an
+  explicit request from the member.
 
 ## Write tools
 
@@ -304,7 +307,6 @@ hook. A server prompt alone does not create a schedule.
     has `narrowed: true`.
   - Else Joey makes a separate request that holds one slot. Tell the member
     this before you send it.
-- A server before `2.3.0` has no `roles`. Do not send `roles` to it.
 - Each ICP of one company has its own request.
 - `roles` for a person URL fails with `INVALID_ROLES`.
   `PERSONAL` without a personal ICP fails with `PERSONAL_ICP_REQUIRED`.
@@ -380,10 +382,13 @@ hook. A server prompt alone does not create a schedule.
   - `confirmation` (optional): the member's actual progress confirmation; required for later activation stages.
   - `approval` (optional): required for `INTRO_REQUESTED`. Exact `recipientRef`,
     actual `recipient`, `channel`, `subject`, `text` and affirmative `response`.
+    The `response` is the member's words, and it must start with "yes".
   - `sendReceipt` (optional): required for `INTRO_REQUESTED`. Required fields
     are `recipientRef`, actual `recipient`, `channel`, `subject`, exact `text`,
     `status`, `source`, `messageReference` and `sentAt`. The first five fields
-    must equal the corresponding approval fields.
+    must equal the corresponding approval fields. `sentAt` is a UTC time that
+    ends in `Z`, for example `2026-10-19T07:00:00Z`. A time with an offset,
+    such as `+03:00`, fails.
   - `stage`: one of the [intro stages](#intro-stages).
   - `pathKey` (optional): selected report path; omit for an activation.
 - Result: current report intro or activation with its revision and steps.
@@ -640,9 +645,6 @@ Path steps are a count. They are not the `progress` steps of a report, such
 as "Asked David" (see [Intro progress and owner](#intro-progress-and-owner)).
 Keep the progress step labels as the web shows them.
 
-A server before `2.4.0` gives no `steps` and no `entry`. Then say the count of
-`hops` or `hopCount` as steps, with no company.
-
 ### Preference chips
 
 | Chip | Words in the Joey app |
@@ -689,7 +691,9 @@ that target:
   again. `joey_set_intro_progress` on a step after `PATH_FOUND` sets the stage
   too, so it also frees the slot.
 - `joey_stop_intro`.
-- A path verdict on a request report.
+- A path verdict on a request report. No MCP tool writes it. The member saves
+  it on the report page in the Joey web app: the `reportUrl` of the item in
+  `joey_list_feedback_queue`.
 - `joey_find_better_path` feedback. The round holds the slot again, so the
   count does not change.
 - `joey_record_path_outcome` with a new or corrected outcome of an activation

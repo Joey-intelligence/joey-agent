@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.14.1 — 2026-11-12
+
+- The `joey` skill reads `joey_list_feedback_queue` for the people of each
+  path before it asks for feedback. The capacity in `joey_whoami` gives no
+  path people.
+- At a full quota with no delivered path, the skill asks for no feedback. It
+  tells the member that all slots wait for research.
+- After feedback, the skill offers a held request only when a slot is free.
+  `joey_find_better_path` feedback holds the slot again.
+- A verdict on a report path with no activation has no MCP tool. The skill
+  gives the `reportUrl`, where the member saves the verdict.
+- Before an `INTRO_REQUESTED` write for an ask that the member sent outside
+  Joey, the skill asks for the actual recipient, channel, subject, exact text
+  and send time, and for a confirmation that starts with "yes". It does not
+  invent them. `sentAt` is a UTC time that ends in `Z`.
+- The tools reference activates only a `FOUND` intent company, with the steps
+  of the `joey-activate-path` skill. It reuses a saved activation of the report
+  path before it prepares a new one.
+- Remove the rules for Joey servers before `2.4.0`. The hosted server now
+  serves `2.4.0`.
+- This release adds no tool and no argument, so `tools.json` does not change.
+
 ## 1.14.0 — 2026-11-11
 
 - `joey_list_paths` and `joey_get_path_report` give `steps` (a number) and

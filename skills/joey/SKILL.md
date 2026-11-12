@@ -229,18 +229,12 @@ do not replace a live graph tier or an unknown value with a report word.
     of `joey_list_paths`.
   - Path steps are not the `progress` steps of a report. Keep the progress
     step labels, such as "Asked David", as the web shows them.
-  - A server before `2.4.0` gives no `steps` and no `entry`. Then say the
-    count of `hops` or `hopCount` as steps, with no company.
 - Keep `requestId` and `pathKey` for report operations. The report's `askTo`
   names the next recipient; `rate` names the person whom the member can rate.
 - If the member asks for research, use `joey_request_path` with a supplied or
   confirmed LinkedIn URL and a new UUID `idempotencyKey`. Company requests are
   available in company workspaces; personal requests need a person URL. Do not
   guess a URL or say that a new request is a delivered path.
-- Read `server.version` in `joey_whoami` before a company request. The rules
-  below for `roles` and the ICP need server version `2.3.0` or later. For an
-  earlier server, do not send `roles`. On that server, a company request can
-  wait for an ICP: then report `delivery.state` and `delivery.url`.
 - A company request needs no ICP. It never waits for an ICP, and the ICP
   never rejects the company.
 - When the member names a role or a team at the company, send it as `roles`
@@ -302,15 +296,22 @@ the open targets with delivered paths, oldest first. Feedback on one delivered
 path of a target frees its slot. The Joey server cannot send a message to the
 member, so you must read `needsFeedback` and ask.
 
-1. Before `joey_request_path`, read `pathRequests.capacity` in `joey_whoami`,
-   or read `joey_list_feedback_queue`. If `needsFeedback` is not empty, ask the
-   member how those paths went. Name each target and the people of its path.
-   Ask in one question, then continue the member's task.
-2. If `used` is equal to or more than `limit`, Joey refuses a new target. Ask
-   for feedback first. Do not send the request to see the refusal.
+1. Before `joey_request_path`, read `pathRequests.capacity` in `joey_whoami`.
+   If `needsFeedback` is not empty, read `joey_list_feedback_queue`, because
+   only its `paths` give the people of each path. Ask the member how those
+   paths went. Name each target and the people of its path. Ask in one
+   question, then continue the member's task.
+2. If `used` is equal to or more than `limit`, Joey refuses a new target. Do
+   not send the request to see the refusal. If `needsFeedback` is not empty,
+   ask for feedback first. If `needsFeedback` is empty, no open target has a
+   delivered path, so no feedback can free a slot now. Tell the member that
+   all slots wait for research. A slot becomes free when its request closes
+   with no path, or after feedback on a path that Joey delivers later.
 3. On the refusal `MEMBER_FEEDBACK_REQUIRED`, Joey saved no request and ran no
    search. Read `joey_list_feedback_queue`. Tell the member that all slots are
-   full. List the open targets and their paths, and ask how one path went.
+   full. List the open targets and their paths, and ask how one path went. If
+   no item has a delivered path, do not ask for feedback. Tell the member that
+   all slots wait for research, as in step 2.
    `joey_find_graph_paths`, `joey_find_better_path` for a target with no slot,
    and `joey_prepare_activation` with a `pathRef` give the same refusal.
 4. Record feedback only for an outcome that the member states. Never guess an
@@ -319,17 +320,20 @@ member, so you must read `needsFeedback` and ask.
 
    | The member says | Tool |
    | --- | --- |
-   | "I asked for the intro" or a later step | `joey_set_intro_stage` with that stage and the fields that the tool requires, or `joey_set_intro_progress` for a step of a company report. For a message that the member sent outside Joey, the receipt `source` is `MEMBER_CONFIRMED`. |
+   | "I asked for the intro" or a later step | `joey_set_intro_stage` with that stage and the fields that the tool requires, or `joey_set_intro_progress` for a step of a company report. The ask (`INTRO_REQUESTED`, or the `ASKED` step) needs the actual recipient, channel, subject, exact text and send time (`sentAt`) of the sent message. If the member did not give them, ask for them first. Do not invent them, and do not guess a time from a word such as "yesterday". Give `sentAt` in UTC with `Z`. Show these details and get the member's confirmation, which starts with "yes". That answer is `approval.response`. For a message that the member sent outside Joey, the receipt `source` is `MEMBER_CONFIRMED`. |
    | "Stop this intro" | `joey_stop_intro`, after a "yes" |
    | "Find a better path" | `joey_find_better_path` with the member's preference |
    | An outcome of an activation of a delivered report path | `joey_record_path_outcome` |
+   | A verdict on a report path with no activation, for example "it worked" or "it did not work" | No tool writes it. Give the `reportUrl` of the item in `joey_list_feedback_queue`. The member saves the verdict on that page, and the verdict frees the slot. |
 
    A familiarity rating (`joey_rate_familiarity`) frees no slot. Do not use it
    as feedback.
 5. After the feedback, read the new `capacity`. Tell the member how many slots
-   are free. Do not start the held request in the same turn. Ask first, for
-   example "Do you want me to ask for Tom Becker now?". Send the request only
-   after a "yes".
+   are free. If `used` is still equal to or more than `limit`, no slot is free.
+   Then do not offer the held request. For example, `joey_find_better_path`
+   feedback holds the slot again, so it frees no slot. If a slot is free, do
+   not start the held request in the same turn. Ask first, for example "Do you
+   want me to ask for Tom Becker now?". Send the request only after a "yes".
 
 ## Continue or report an error
 
