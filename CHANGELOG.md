@@ -13,7 +13,8 @@
   gives the `reportUrl`, where the member saves the verdict.
 - Before an `INTRO_REQUESTED` write for an ask that the member sent outside
   Joey, the skill asks for the actual recipient, channel, subject, exact text
-  and send time. It does not invent them.
+  and send time, and for a confirmation that starts with "yes". It does not
+  invent them. `sentAt` is a UTC time that ends in `Z`.
 - The tools reference activates only a `FOUND` intent company, with the steps
   of the `joey-activate-path` skill. It reuses a saved activation of the report
   path before it prepares a new one.

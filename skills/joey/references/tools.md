@@ -382,10 +382,13 @@ hook. A server prompt alone does not create a schedule.
   - `confirmation` (optional): the member's actual progress confirmation; required for later activation stages.
   - `approval` (optional): required for `INTRO_REQUESTED`. Exact `recipientRef`,
     actual `recipient`, `channel`, `subject`, `text` and affirmative `response`.
+    The `response` is the member's words, and it must start with "yes".
   - `sendReceipt` (optional): required for `INTRO_REQUESTED`. Required fields
     are `recipientRef`, actual `recipient`, `channel`, `subject`, exact `text`,
     `status`, `source`, `messageReference` and `sentAt`. The first five fields
-    must equal the corresponding approval fields.
+    must equal the corresponding approval fields. `sentAt` is a UTC time that
+    ends in `Z`, for example `2026-10-19T07:00:00Z`. A time with an offset,
+    such as `+03:00`, fails.
   - `stage`: one of the [intro stages](#intro-stages).
   - `pathKey` (optional): selected report path; omit for an activation.
 - Result: current report intro or activation with its revision and steps.

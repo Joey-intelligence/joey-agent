@@ -104,10 +104,11 @@ has the full rules.
    Supply these objects:
    - `approval`: `recipientRef`, actual `recipient`, `channel`, `subject`
      (null for a channel with no subject), exact `text` and the member's
-     affirmative `response`.
+     affirmative `response`. The `response` must start with "yes".
    - `sendReceipt`: required fields are `recipientRef`, actual `recipient`,
      `channel`, `subject`, exact `text`, `status: "SENT"`, `source`,
-     `messageReference` and `sentAt`. Its recipient reference, actual recipient,
+     `messageReference` and `sentAt` (a UTC time that ends in `Z`). Its
+     recipient reference, actual recipient,
      channel, subject and text must equal the corresponding approval fields.
      Use `source: "HOST_TOOL_REPORTED"` only for the host's successful result.
      Use `MEMBER_CONFIRMED` for the member's actual confirmation of a manual
