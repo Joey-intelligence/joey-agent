@@ -183,7 +183,13 @@
       "id": "opportunity-activation",
       "member": "Activate the paths for my two top intent companies.",
       "state": "A company workspace. joey_list_opportunities gives Northwind Labs with path.kind FOUND and a requestId, and Umbrella Retail with path.kind SEARCHING and a requestId. No activation exists.",
-      "checks": ["For Northwind Labs, call joey_get_path_report, then joey_prepare_activation with the requestId, then joey_get_intro_draft.", "For Umbrella Retail, report the SEARCHING state and call no intro tool.", "Send no message without an explicit yes for the exact text."]
+      "checks": ["For Northwind Labs, call joey_get_path_report and joey_get_intro_tracker, then joey_prepare_activation with the requestId, then joey_get_intro_draft.", "For Umbrella Retail, report the SEARCHING state and call no intro tool.", "Send no message without an explicit yes for the exact text."]
+    },
+    {
+      "id": "opportunity-activation-resume",
+      "member": "Continue the intro for Northwind Labs.",
+      "state": "A company workspace. joey_list_opportunities gives Northwind Labs with path.kind FOUND and a requestId. joey_get_intro_tracker has a saved activation of that report path at step 0 with its revision.",
+      "checks": ["Reuse the saved activation and its revision.", "Do not call joey_prepare_activation or create a second activation.", "Call joey_get_intro_draft with the activationId and stepIndex 0."]
     }
   ]
 }

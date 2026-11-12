@@ -255,8 +255,10 @@ hook. A server prompt alone does not create a schedule.
 - The evidence is about the company. It is not a statement about a person.
 - Only a company with `path.kind` `FOUND` has a delivered report. To activate
   its path, follow the `joey-activate-path` skill with the `requestId`:
-  `joey_get_path_report`, then `joey_prepare_activation` with the `requestId`,
-  then `joey_get_intro_draft`. Record the send as that skill says. For
+  `joey_get_path_report`, then `joey_get_intro_tracker`. Reuse a saved
+  activation of that report path. Only when none exists, call
+  `joey_prepare_activation` with the `requestId`. Then call
+  `joey_get_intro_draft`. Record the send as that skill says. For
   `SEARCHING`, `RESEARCHING` or `VETTING`, Joey has no report yet: report the
   state, and do not call the intro tools. Do not activate a path without an
   explicit request from the member.

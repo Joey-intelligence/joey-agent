@@ -15,7 +15,8 @@
   Joey, the skill asks for the actual recipient, channel, subject, exact text
   and send time. It does not invent them.
 - The tools reference activates only a `FOUND` intent company, with the steps
-  of the `joey-activate-path` skill.
+  of the `joey-activate-path` skill. It reuses a saved activation of the report
+  path before it prepares a new one.
 - Remove the rules for Joey servers before `2.4.0`. The hosted server now
   serves `2.4.0`.
 - This release adds no tool and no argument, so `tools.json` does not change.
