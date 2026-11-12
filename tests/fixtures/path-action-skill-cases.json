@@ -178,6 +178,12 @@
       "member": "The path to Rachel did not work.",
       "state": "The member holds 3 of 3 slots. Rachel Kim has a delivered report path through Shira Bar in a company workspace with no activation and no tracked intro. joey_list_feedback_queue gives its reportUrl.",
       "checks": ["Do not call joey_record_path_outcome, because the path has no activation.", "Do not call joey_rate_familiarity as feedback.", "Give the reportUrl and tell the member to save the verdict on that page, which frees the slot."]
+    },
+    {
+      "id": "opportunity-activation",
+      "member": "Activate the paths for my two top intent companies.",
+      "state": "A company workspace. joey_list_opportunities gives Northwind Labs with path.kind FOUND and a requestId, and Umbrella Retail with path.kind SEARCHING and a requestId. No activation exists.",
+      "checks": ["For Northwind Labs, call joey_get_path_report, then joey_prepare_activation with the requestId, then joey_get_intro_draft.", "For Umbrella Retail, report the SEARCHING state and call no intro tool.", "Send no message without an explicit yes for the exact text."]
     }
   ]
 }

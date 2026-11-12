@@ -256,10 +256,13 @@ hook. A server prompt alone does not create a schedule.
   means that the newest evidence is more than 60 days old, so the company
   dropped one level.
 - The evidence is about the company. It is not a statement about a person.
-- To activate a path, use the `requestId` with the intro tools, as the
-  `joey-activate-path` skill does: `joey_get_path_report`,
-  `joey_get_intro_draft` and `joey_set_intro_stage`. Do not activate a path
-  without an explicit request from the member.
+- Only a company with `path.kind` `FOUND` has a delivered report. To activate
+  its path, follow the `joey-activate-path` skill with the `requestId`:
+  `joey_get_path_report`, then `joey_prepare_activation` with the `requestId`,
+  then `joey_get_intro_draft`. Record the send as that skill says. For
+  `SEARCHING`, `RESEARCHING` or `VETTING`, Joey has no report yet: report the
+  state, and do not call the intro tools. Do not activate a path without an
+  explicit request from the member.
 
 ## Write tools
 
