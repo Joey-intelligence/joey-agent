@@ -150,6 +150,12 @@
       "checks": ["Read the capacity before the request, and read joey_list_feedback_queue for the people of each path.", "Tell the member that all 3 slots are full and that Joey saved no request.", "List the open targets with their paths and ask how one path went.", "Record no feedback before the member states an outcome.", "Do not try the request again in the same turn."]
     },
     {
+      "id": "quota-exempt-support",
+      "member": "Find a path to Tom Becker, CTO at Umbrella Retail: linkedin.com/in/tom-becker",
+      "state": "joey_whoami gives pathRequests.capacity used 4, limit 3 and exempt true. needsFeedback lists the target Maya Cohen. A simulated joey_request_path gives status SEARCHING.",
+      "checks": ["Read the capacity before the request.", "Send joey_request_path for Tom Becker, because exempt is true.", "Do not tell the member that the slots are full, and do not ask for feedback before the request."]
+    },
+    {
       "id": "quota-feedback-then-ask",
       "member": "Yes, I asked Ron to introduce me to Maya yesterday at 10:00. I sent him this exact email at ron@example.com, subject \"Intro to Maya\": \"Hi Ron, could you introduce me to Maya Cohen?\"",
       "state": "The last turn showed the full quota and the feedback queue. Maya Cohen has a delivered report path through Ron Levi in a personal workspace. The member sent the ask outside Joey. Tom Becker waits for a free slot.",

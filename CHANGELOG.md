@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.14.2 — 2026-11-12
+
+- A Joey support identity has `capacity.exempt: true` in `joey_whoami`. Joey
+  sets no slot limit for it, so the `joey` skill sends its path request also
+  at a full quota, and asks for no feedback first. The tools reference
+  documents the `exempt` field.
+
 ## 1.14.1 — 2026-11-12
 
 - The `joey` skill reads `joey_list_feedback_queue` for the people of each

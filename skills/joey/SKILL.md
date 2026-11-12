@@ -301,20 +301,23 @@ member, so you must read `needsFeedback` and ask.
    only its `paths` give the people of each path. Ask the member how those
    paths went. Name each target and the people of its path. Ask in one
    question, then continue the member's task.
-2. If `used` is equal to or more than `limit`, Joey refuses a new target. Do
-   not send the request to see the refusal. If `needsFeedback` is not empty,
-   ask for feedback first. If `needsFeedback` is empty, no open target has a
+2. If `capacity.exempt` is `true`, the member is a Joey support identity.
+   Joey sets no slot limit for this member, so send the request also when
+   `used` is equal to or more than `limit`. Do not ask for feedback first.
+3. If `exempt` is not there and `used` is equal to or more than `limit`, Joey
+   refuses a new target. Do not send the request to see the refusal. If
+   `needsFeedback` is not empty, ask for feedback first. If `needsFeedback` is empty, no open target has a
    delivered path, so no feedback can free a slot now. Tell the member that
    all slots wait for research. A slot becomes free when its request closes
    with no path, or after feedback on a path that Joey delivers later.
-3. On the refusal `MEMBER_FEEDBACK_REQUIRED`, Joey saved no request and ran no
+4. On the refusal `MEMBER_FEEDBACK_REQUIRED`, Joey saved no request and ran no
    search. Read `joey_list_feedback_queue`. Tell the member that all slots are
    full. List the open targets and their paths, and ask how one path went. If
    no item has a delivered path, do not ask for feedback. Tell the member that
-   all slots wait for research, as in step 2.
+   all slots wait for research, as in step 3.
    `joey_find_graph_paths`, `joey_find_better_path` for a target with no slot,
    and `joey_prepare_activation` with a `pathRef` give the same refusal.
-4. Record feedback only for an outcome that the member states. Never guess an
+5. Record feedback only for an outcome that the member states. Never guess an
    outcome, and never record one from silence, a delay or a detected email.
    Use the tool of that outcome:
 
@@ -328,7 +331,7 @@ member, so you must read `needsFeedback` and ask.
 
    A familiarity rating (`joey_rate_familiarity`) frees no slot. Do not use it
    as feedback.
-5. After the feedback, read the new `capacity`. Tell the member how many slots
+6. After the feedback, read the new `capacity`. Tell the member how many slots
    are free. If `used` is still equal to or more than `limit`, no slot is free.
    Then do not offer the held request. For example, `joey_find_better_path`
    feedback holds the slot again, so it frees no slot. If a slot is free, do
