@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.15.0 — 2026-11-15
+
+- `joey_find_better_path` takes the member's feedback on one delivered path:
+  `pathNumber`, `reasons`, `note` and the optional `problemConnection`. A
+  reason or a note is required. The tools reference documents the inputs, the
+  reason codes and the errors `PATH_REQUIRED`, `PATH_NOT_DELIVERED` and
+  `INVALID_HOP`. The tools reference describes server version 2.5.0.
+- The `joey` skill asks which path and which connection on it is the problem
+  before it asks for a better path.
+- `tools.json` is a new snapshot of the Joey customer MCP. It also lists the
+  four private relationship tools, and the tools reference documents them.
+
 ## 1.14.2 — 2026-11-12
 
 - A Joey support identity has `capacity.exempt: true` in `joey_whoami`. Joey
