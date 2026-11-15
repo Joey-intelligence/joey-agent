@@ -14,7 +14,7 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `2.4.0`.
+server version `2.6.0`.
 
 ## Scopes
 
@@ -360,12 +360,33 @@ hook. A server prompt alone does not create a schedule.
 
 - Input:
   - `requestId`: from `joey_list_paths`.
+  - `pathNumber` (optional): the number of the delivered path in
+    `joey_get_path_report` that the member wants to replace, from 1. A company
+    workspace path gives it as `number`. A personal path gives `index`, and
+    `pathNumber` is that number (the numeric value of `pathKey`, not the
+    string). The paths of `joey_list_feedback_queue` have no number. Leave it
+    out only when the target has one delivered path. Else Joey refuses with
+    `PATH_REQUIRED`.
+  - `reasons`: what is wrong with that path, as
+    [better path reasons](#better-path-reasons). Give `[]` when the member
+    gave no reason.
+  - `note`: the member's own words about that path, at most 1000 characters,
+    or `""`. A reason or a note is required.
+  - `problemConnection` (optional): `{from, to}`, the names of two people next
+    to each other on that path, as `joey_get_path_report` gives them. Give it
+    only when the member names the connection that is the problem. A pair that
+    is not on the path gets `INVALID_HOP`. The member's own first connection of
+    a personal path is private: Joey cannot mark it, so put it in `note`.
   - `preference`: a `chip`, a `text`, or both.
     - `chip` is one of the [preference chips](#preference-chips).
     - `text` is the member's own words, at most 280 characters.
   - `savePreference`: `true` saves the preference for future searches.
     `false` uses it only for this search.
   - `idempotencyKey`: see [Idempotency keys](#idempotency-keys).
+- Before the call, get the feedback from the member. When the target has more
+  than one delivered path and the member did not say which one, show the paths
+  and ask which one. Ask which connection on it is the problem; the member can
+  name none. Do not choose a reason or a connection for the member.
 - Result: `{open, preference, saved}`. A target has at most one open search.
 - A better path for a target where the member holds the slot keeps the same
   count, also at the limit. For a target with no slot of the member, the round
@@ -657,6 +678,18 @@ Keep the progress step labels as the web shows them.
 | `FRIENDS` | Friends |
 | `SAME_COMPANY` | Same company (people at the target company) |
 
+### Better path reasons
+
+| Reason | The member says, for example |
+| --- | --- |
+| `NO_REAL_RELATIONSHIP` | "They don't really know each other" |
+| `CONNECTION_TOO_WEAK` | "The connection is too weak" |
+| `CONNECTOR_TOO_HIGH_PROFILE` | "Too senior to ask" |
+| `CANNOT_ASK_CONNECTOR` | "I can't ask this person" |
+| `PATH_TOO_LONG` | "Too many steps" |
+| `OUTDATED_INFORMATION` | "Out of date": a job or a company changed |
+| `OTHER` | "Something else". Put the member's words in `note`. |
+
 ### Familiarity ratings
 
 | Rating | Words in the Joey app |
@@ -780,6 +813,9 @@ asks for research, and only with a confirmed URL.
 | `INTRO_STOPPED` | The intro is stopped. Tell the member. Do not change it. |
 | `INTRO_NOT_STARTED` | The intro is not requested yet, so it cannot stop. |
 | `BETTER_PATH_OPEN` | Joey already looks for a better path to this target. Tell the member to wait for it. |
+| `PATH_REQUIRED` | The target has more than one delivered path. Show the paths of `joey_get_path_report`, ask which one to replace and which connection on it is the problem, then call again with `pathNumber`. |
+| `PATH_NOT_DELIVERED` | No delivered path has this `pathNumber`. Read `joey_get_path_report` again and use one of its paths. |
+| `INVALID_HOP` | `problemConnection` does not name two people next to each other on that path. Use the names of the path report, or leave the connection out. |
 | `MEMBER_FEEDBACK_REQUIRED` | All path slots of the member are full. Joey saved no request and ran no search. `error.capacity` gives the [path quota](#path-quota). Read `joey_list_feedback_queue`, show the open targets and ask the member how one path went. Record only an outcome that the member states. Then ask the member before you try again. |
 | `GRAPH_IDENTITY_UNRESOLVED` | The member's public profile is not confirmed. Ask the member to confirm it in Joey, or select explicit `originRefs`. |
 | `GRAPH_UNAVAILABLE`, `GRAPH_BUSY` or `GRAPH_MEMBER_SYNC_PENDING` | Try again later. Do not loop. |
@@ -917,6 +953,57 @@ Joey to select them. Use the server input schema for nested statement fields.
   and the result has at most five paths. Support is `HIGH`, `MEDIUM`, `LOW` or
   `UNKNOWN`, from the weakest link. It gives no action permission or outcome
   prediction. The result has source attribution, but no private source fields.
+
+### joey_save_private_relationship
+
+- Input:
+  - `idempotencyKey`: a new UUID for this save; reuse only for the same retry.
+  - `fromRef`: the graph ID of one person.
+  - `toRef`: the graph ID of the other person.
+  - `strength` (optional): the member's level, `weak`, `medium`, `strong` or
+    `very_strong`, or null. A missing level stays unknown. Do not choose one.
+  - `statement`: the member's own statement about the two people, at most
+    2000 characters.
+- Result: `{workspace, attestation}`. `attestation` has `id`, `issuer`,
+  `fromRef`, `toRef`, `strength`, `statement`, `state` and `createdAt`.
+- Get an explicit "yes" from the member before the save. The signed-in member
+  is the issuer. The statement stays private in this workspace and makes no
+  graph edge. `NOT_FOUND` means that the graph does not have one of the two
+  people.
+
+### joey_list_private_relationships
+
+- Input:
+  - `cursor` (optional): the previous `nextCursor`.
+  - `limit` (optional): 1 to 100.
+- Result: `{workspace, attestations, nextCursor}`, the newest first. A member
+  sees the member's own statements. A workspace admin sees all statements of
+  the workspace. `state` is `PRIVATE`, `PENDING`, `PUBLISHED`, `REFUSED`,
+  `UNPUBLISH_PENDING`, `UNPUBLISH_REFUSED`, `WITHDRAWAL_PENDING` or
+  `WITHDRAWAL_REFUSED`. The statement text stays in Joey: do not copy it into
+  another tool.
+
+### joey_publish_private_relationship
+
+- Input:
+  - `id`: the `id` of one statement from `joey_list_private_relationships`.
+- Result: `{workspace, attestation}`. Only a workspace admin can approve one
+  statement for anonymous graph publication. Get an explicit "yes" for this
+  statement first. The graph gets no issuer and no statement text. `PENDING`
+  does not prove delivery: read the list again for the result.
+  `SHARING_DISABLED` means that the workspace does not share relationships.
+
+### joey_withdraw_private_relationship
+
+- Input:
+  - `id`: the `id` of one statement.
+- Result: `{workspace, removed, state}`. The issuer or a workspace admin can
+  remove a statement and its anonymous graph copy. Get an explicit "yes" for
+  this statement first. `REMOVED` confirms the graph removal. `PENDING`
+  means that a worker must finish it. `REFUSED` (with `removed: false`) means
+  that the graph refused the removal now: do not report a removal, and do not
+  say that a worker still does it. Read the list for the current state, and
+  tell the member that the removal did not go through.
 
 ### joey_search_graph_people
 

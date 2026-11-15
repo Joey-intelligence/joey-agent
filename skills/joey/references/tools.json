@@ -139,6 +139,63 @@
       }
     },
     {
+      "name": "joey_save_private_relationship",
+      "scope": "trust:write",
+      "arguments": [
+        "idempotencyKey",
+        "fromRef",
+        "toRef",
+        "strength",
+        "statement"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_list_private_relationships",
+      "scope": "trust:read",
+      "arguments": [
+        "cursor",
+        "limit"
+      ],
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_publish_private_relationship",
+      "scope": "trust:write",
+      "arguments": [
+        "id"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "joey_withdraw_private_relationship",
+      "scope": "trust:write",
+      "arguments": [
+        "id"
+      ],
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
       "name": "joey_resolve_trust_subject",
       "scope": "trust:read",
       "arguments": [
@@ -339,7 +396,11 @@
         "requestId",
         "preference",
         "savePreference",
-        "idempotencyKey"
+        "idempotencyKey",
+        "pathNumber",
+        "reasons",
+        "note",
+        "problemConnection"
       ],
       "annotations": {
         "readOnlyHint": false,

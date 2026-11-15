@@ -263,7 +263,17 @@ do not replace a live graph tier or an unknown value with a report word.
   (for example "3 of 3 targets open"). `SEARCHING` means that Joey researches
   the target. Read the request again with `joey_get_path_request`. Do not
   promise a date.
-- For a better report path, use `joey_find_better_path`. Get the member's
+- For a better report path, use `joey_find_better_path`. First get the
+  member's feedback on one delivered path: which path (`pathNumber`), what is
+  wrong with it (`reasons`, a `note`, or both) and, when the member names it,
+  the connection that is the problem (`problemConnection`). Read
+  `joey_get_path_report` for the request first, and take `pathNumber` from the
+  path there that the member chose: a company workspace path has `number`, and
+  a personal path has `index` (the numeric value of its `pathKey`). The paths
+  of `joey_list_feedback_queue` have no number, so never take it from the
+  queue order. With more than one delivered path, show the report paths and ask
+  which one before the call. The member's own first connection of a personal
+  path is private, so put it in `note`, not in `problemConnection`. Then get the member's
   `preference` (`chip`, `text`, or both) and ask whether to save it. Use the
   returned schema for available chips. Do not convert a shared employer into
   relationship proof.
@@ -325,7 +335,7 @@ member, so you must read `needsFeedback` and ask.
    | --- | --- |
    | "I asked for the intro" or a later step | `joey_set_intro_stage` with that stage and the fields that the tool requires, or `joey_set_intro_progress` for a step of a company report. The ask (`INTRO_REQUESTED`, or the `ASKED` step) needs the actual recipient, channel, subject, exact text and send time (`sentAt`) of the sent message. If the member did not give them, ask for them first. Do not invent them, and do not guess a time from a word such as "yesterday". Give `sentAt` in UTC with `Z`. Show these details and get the member's confirmation, which starts with "yes". That answer is `approval.response`. For a message that the member sent outside Joey, the receipt `source` is `MEMBER_CONFIRMED`. |
    | "Stop this intro" | `joey_stop_intro`, after a "yes" |
-   | "Find a better path" | `joey_find_better_path` with the member's preference |
+   | "Find a better path" | `joey_find_better_path` with the member's feedback on the path and the preference |
    | An outcome of an activation of a delivered report path | `joey_record_path_outcome` |
    | A verdict on a report path with no activation, for example "it worked" or "it did not work" | No tool writes it. Give the `reportUrl` of the item in `joey_list_feedback_queue`. The member saves the verdict on that page, and the verdict frees the slot. |
 

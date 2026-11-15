@@ -1,6 +1,6 @@
 # Check for a skill update
 
-Installed release: `1.14.2`.
+Installed release: `1.15.0`.
 
 The Joey server finds the latest release. Do not read the release page for
 this check.
