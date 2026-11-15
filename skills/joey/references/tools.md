@@ -14,7 +14,7 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `2.5.0`.
+server version `2.6.0`.
 
 ## Scopes
 
@@ -360,8 +360,11 @@ hook. A server prompt alone does not create a schedule.
 
 - Input:
   - `requestId`: from `joey_list_paths`.
-  - `pathNumber` (optional): the `number` of the delivered path in
-    `joey_get_path_report` that the member wants to replace, from 1. Leave it
+  - `pathNumber` (optional): the number of the delivered path in
+    `joey_get_path_report` that the member wants to replace, from 1. A company
+    workspace path gives it as `number`. A personal path gives `index`, and
+    `pathNumber` is that number (the numeric value of `pathKey`, not the
+    string). The paths of `joey_list_feedback_queue` have no number. Leave it
     out only when the target has one delivered path. Else Joey refuses with
     `PATH_REQUIRED`.
   - `reasons`: what is wrong with that path, as
@@ -372,7 +375,8 @@ hook. A server prompt alone does not create a schedule.
   - `problemConnection` (optional): `{from, to}`, the names of two people next
     to each other on that path, as `joey_get_path_report` gives them. Give it
     only when the member names the connection that is the problem. A pair that
-    is not on the path gets `INVALID_HOP`.
+    is not on the path gets `INVALID_HOP`. The member's own first connection of
+    a personal path is private: Joey cannot mark it, so put it in `note`.
   - `preference`: a `chip`, a `text`, or both.
     - `chip` is one of the [preference chips](#preference-chips).
     - `text` is the member's own words, at most 280 characters.
@@ -996,7 +1000,10 @@ Joey to select them. Use the server input schema for nested statement fields.
 - Result: `{workspace, removed, state}`. The issuer or a workspace admin can
   remove a statement and its anonymous graph copy. Get an explicit "yes" for
   this statement first. `REMOVED` confirms the graph removal. `PENDING`
-  means that a worker must finish it. Read the list for the current state.
+  means that a worker must finish it. `REFUSED` (with `removed: false`) means
+  that the graph refused the removal now: do not report a removal, and do not
+  say that a worker still does it. Read the list for the current state, and
+  tell the member that the removal did not go through.
 
 ### joey_search_graph_people
 

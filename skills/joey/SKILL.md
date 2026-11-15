@@ -266,8 +266,14 @@ do not replace a live graph tier or an unknown value with a report word.
 - For a better report path, use `joey_find_better_path`. First get the
   member's feedback on one delivered path: which path (`pathNumber`), what is
   wrong with it (`reasons`, a `note`, or both) and, when the member names it,
-  the connection that is the problem (`problemConnection`). With more than one
-  delivered path, ask which one before the call. Then get the member's
+  the connection that is the problem (`problemConnection`). Read
+  `joey_get_path_report` for the request first, and take `pathNumber` from the
+  path there that the member chose: a company workspace path has `number`, and
+  a personal path has `index` (the numeric value of its `pathKey`). The paths
+  of `joey_list_feedback_queue` have no number, so never take it from the
+  queue order. With more than one delivered path, show the report paths and ask
+  which one before the call. The member's own first connection of a personal
+  path is private, so put it in `note`, not in `problemConnection`. Then get the member's
   `preference` (`chip`, `text`, or both) and ask whether to save it. Use the
   returned schema for available chips. Do not convert a shared employer into
   relationship proof.

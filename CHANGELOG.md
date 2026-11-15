@@ -6,7 +6,7 @@
   `pathNumber`, `reasons`, `note` and the optional `problemConnection`. A
   reason or a note is required. The tools reference documents the inputs, the
   reason codes and the errors `PATH_REQUIRED`, `PATH_NOT_DELIVERED` and
-  `INVALID_HOP`. The tools reference describes server version 2.5.0.
+  `INVALID_HOP`. The tools reference describes server version 2.6.0.
 - The `joey` skill asks which path and which connection on it is the problem
   before it asks for a better path.
 - `tools.json` is a new snapshot of the Joey customer MCP. It also lists the
