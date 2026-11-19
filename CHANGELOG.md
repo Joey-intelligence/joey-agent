@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.16.0 — 2026-11-19
+
+- `joey_save_private_relationship` takes `people`, the graph IDs of the two
+  people in any order, in place of `fromRef` and `toRef`. A relationship has no
+  direction. The saved and listed statements give `people` in text order.
+  `tools.json` is a new snapshot of the Joey customer MCP (server version
+  2.9.0).
+
 ## 1.15.0 — 2026-11-15
 
 - `joey_find_better_path` takes the member's feedback on one delivered path:

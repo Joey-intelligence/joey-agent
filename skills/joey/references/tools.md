@@ -958,14 +958,15 @@ Joey to select them. Use the server input schema for nested statement fields.
 
 - Input:
   - `idempotencyKey`: a new UUID for this save; reuse only for the same retry.
-  - `fromRef`: the graph ID of one person.
-  - `toRef`: the graph ID of the other person.
+  - `people`: the graph IDs of the two people, in any order. A relationship has
+    no direction.
   - `strength` (optional): the member's level, `weak`, `medium`, `strong` or
     `very_strong`, or null. A missing level stays unknown. Do not choose one.
   - `statement`: the member's own statement about the two people, at most
     2000 characters.
 - Result: `{workspace, attestation}`. `attestation` has `id`, `issuer`,
-  `fromRef`, `toRef`, `strength`, `statement`, `state` and `createdAt`.
+  `people` (the two graph IDs in text order), `strength`, `statement`, `state`
+  and `createdAt`.
 - Get an explicit "yes" from the member before the save. The signed-in member
   is the issuer. The statement stays private in this workspace and makes no
   graph edge. `NOT_FOUND` means that the graph does not have one of the two
