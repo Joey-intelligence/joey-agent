@@ -434,15 +434,15 @@ hook. A server prompt alone does not create a schedule.
   - `step`: the `key` of one step: `tracking`, `reach:<place>`, `meeting` or
     `met`. Read the keys from `joey_get_path_report` or
     `joey_get_intro_tracker`.
-  - `pathKey` (optional): the `pathKey` of one entry of `progress.paths`. The
-    intro moves onto that delivered path at `step`, a key of that path's
-    steps. Leave it out to keep the intro path and use `progress.steps`.
+  - `pathKey`: the `pathKey` of the selected entry in `progress.paths`.
+    Use a step key from that path. You can omit this field for a report with
+    one delivered path.
   - `approval` (optional): the same object as for `joey_set_intro_stage`.
     Required for the `ASKED` step only.
   - `sendReceipt` (optional): the same object as for `joey_set_intro_stage`.
     Required for the `ASKED` step only.
 - Result: `{requestId, intro, owner, progress}`. The tool moves the intro to
-  the step: its stage and the place of the person that the intro reached.
+  the selected path to the step. Each other path keeps its progress.
 - `tracking` starts to track the intro path, or the path of `pathKey`, and
   makes the member the owner. A member who moves an intro without an owner
   becomes its owner.
@@ -480,6 +480,11 @@ hook. A server prompt alone does not create a schedule.
 - Input:
   - `requestId` (optional): delivered report. Select this or `activationId`.
   - `activationId` (optional): saved activation. Select this or `requestId`.
+  - `pathKey`: the selected entry in `progress.paths` of a company report.
+    You can omit it when the report has one delivered path.
+  - `note`: the member's reason for a company report stop. Use their words.
+  - `choice`: for a company report stop, `DIFFERENT_PATH` puts that path last.
+    `NEW_PATH` asks Joey to find a new route to the same target.
   - `expectedRevision` (optional): required for an activation stop.
   - `idempotencyKey` (optional): required new UUID for an activation action.
 - Result: stopped report intro or private activation. A stop is final.
@@ -583,7 +588,8 @@ hook. A server prompt alone does not create a schedule.
 | `MEETING_SET` | The member and the target set a meeting. |
 | `MET` | The member and the target met. |
 
-A stop (`joey_stop_intro`) ends the intro at any stage after `PATH_FOUND`.
+A stop (`joey_stop_intro`) is final for the selected path. For a company
+report, the path must have active progress. Other paths keep their own status.
 
 ### Intro progress and owner
 
@@ -596,9 +602,9 @@ them.
   `people` gives the names of the intro path from its start to the target.
   `ownerAt` is the place of the owner in `people`; null when a teammate starts
   the path. `current` is the key of the current step, or null before tracking.
-- `paths` gives each delivered path that the intro can follow:
-  `{pathKey, number, people, ownerAt, steps}`. To track or move to a specific
-  path, give its `pathKey` to `joey_set_intro_progress`.
+- `paths` gives each delivered path and its own progress:
+  `{pathKey, number, people, ownerAt, current, stopped, steps}`. Use the
+  selected `pathKey` to change only that path with `joey_set_intro_progress`.
 - Each step has `key`, `kind`, `stage`, `label` and `person` (its place in
   `people`). The steps start at the place of the owner:
 

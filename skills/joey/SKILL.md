@@ -176,8 +176,8 @@ when the selected path and required facts already permit that work.
    Ask only for missing facts, a material choice and required approval. A broad
    request to manage the network permits preparation, not a send.
 4. To start to track a company report path, call `joey_set_intro_progress`
-   with `step: "tracking"` after the member asks. For a path that is not the
-   intro path, also give its `pathKey` from `progress.paths`. The member
+   with `requestId`, `step: "tracking"` and the selected `pathKey` from
+   `progress.paths` after the member asks. The member
    becomes the owner.
    Use `joey-activate-path` to record a send. Use `joey-tracker-sync` for
    relevant message or calendar checks within the member's task. Use
@@ -333,8 +333,8 @@ member, so you must read `needsFeedback` and ask.
 
    | The member says | Tool |
    | --- | --- |
-   | "I asked for the intro" or a later step | `joey_set_intro_stage` with that stage and the fields that the tool requires, or `joey_set_intro_progress` for a step of a company report. The ask (`INTRO_REQUESTED`, or the `ASKED` step) needs the actual recipient, channel, subject, exact text and send time (`sentAt`) of the sent message. If the member did not give them, ask for them first. Do not invent them, and do not guess a time from a word such as "yesterday". Give `sentAt` in UTC with `Z`. Show these details and get the member's confirmation, which starts with "yes". That answer is `approval.response`. For a message that the member sent outside Joey, the receipt `source` is `MEMBER_CONFIRMED`. |
-   | "Stop this intro" | `joey_stop_intro`, after a "yes" |
+   | "I asked for the intro" or a later step | `joey_set_intro_stage` with that stage and the fields that the tool requires, or `joey_set_intro_progress` with the chosen `pathKey` and step of a company report. The ask (`INTRO_REQUESTED`, or the `ASKED` step) needs the actual recipient, channel, subject, exact text and send time (`sentAt`) of the sent message. If the member did not give them, ask for them first. Do not invent them, and do not guess a time from a word such as "yesterday". Give `sentAt` in UTC with `Z`. Show these details and get the member's confirmation, which starts with "yes". That answer is `approval.response`. For a message that the member sent outside Joey, the receipt `source` is `MEMBER_CONFIRMED`. |
+   | "Stop this intro" | Confirm the stop. For a company report, ask which path, why they want to stop and if they want a different delivered hop or a new path. Call `joey_stop_intro` with `requestId`, `pathKey`, `note` and `choice`. Use the procedure in `joey-path-follow-up`. |
    | "Find a better path" | `joey_find_better_path` with the member's feedback on the path and the preference |
    | An outcome of an activation of a delivered report path | `joey_record_path_outcome` |
    | A verdict on a report path with no activation, for example "it worked" or "it did not work" | No tool writes it. Give the `reportUrl` of the item in `joey_list_feedback_queue`. The member saves the verdict on that page, and the verdict frees the slot. |

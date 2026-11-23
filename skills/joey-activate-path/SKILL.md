@@ -45,6 +45,9 @@ has the full rules.
    in step 2. For a new live path, use `joey_read_path_context`; for a delivered
    report, use `joey_get_path_report`. If no selection exists, use the `joey`
    skill to find a path.
+   For a company report, find the selected `pathKey` in `progress.paths`.
+   If `stopped` is true for that path, prepare no draft or outreach for it.
+   If the member wants to continue, ask them to select another path.
 2. Read `joey_get_intro_tracker`. Reuse a saved activation for the selected
    source and path. Select its current step and revision. Do not create a
    second activation on a resumed turn or scheduled check. Ask if the source
@@ -66,8 +69,8 @@ has the full rules.
    on the path. In a personal workspace, a report request ID controls only
    final-target progress; prepare an activation for intermediate progress.
 4. Call `joey_get_intro_draft` with exactly one `activationId` or `requestId`.
-   For an activation, also give `stepIndex`. For a report, give `pathKey` if
-   needed. Keep `to.recipientRef` as the draft's recipient reference. `to.entityRef` is
+   For an activation, also give `stepIndex`. For a report, give the selected
+   `pathKey`. Keep `to.recipientRef` as the draft's recipient reference. `to.entityRef` is
    the canonical graph reference when known; it can be null for a report person.
 5. Explain who receives this request and who this step must reach. For
    Member → Alex → Dana → Target, step 0 asks Alex for an introduction to Dana.
@@ -90,9 +93,8 @@ has the full rules.
    send approval. A mailbox draft or compose link is not a send.
 4. For a successful first request, record the send on the selected record:
    - A company report (`requestId` with `progress`): call
-     `joey_set_intro_progress` with the `key` of the `ASKED` step, for example
-     "Asked David". For a path that is not the intro path, also give its
-     `pathKey` and use the `ASKED` step of that entry of `progress.paths`.
+     `joey_set_intro_progress` with `requestId`, the selected `pathKey` and
+     the `key` of its `ASKED` step in `progress.paths`, for example "Asked David".
      Read that step in `joey_get_path_report`. Its
      `recipientRef` must be the draft's `to.recipientRef`. If they are not the
      same, stop and read the report again. This can occur when another member
@@ -123,14 +125,15 @@ has the full rules.
    advances step 0, not the final target. Begin the next step only after the
    preceding introduction. A scheduled meeting can set `MEETING_SET`; `MET`
    needs confirmation that the meeting occurred. A stage creates no graph edge.
-   For a company report, call `joey_set_intro_progress` with the `key` of the
-   step that the member confirms, for example "Introduced to Sarah", "Meeting
-   with Sarah booked" or "Met Sarah". These later steps need no send receipt,
+   For a company report, call `joey_set_intro_progress` with `requestId`, the
+   selected `pathKey` and the `key` of the step the member confirms. Example
+   steps are "Introduced to Sarah", "Meeting with Sarah booked" and "Met Sarah".
+   These later steps need no send receipt,
    because the member can send the ask by hand. An "Introduced to" step before
    the target is not the final target.
 7. Read the tracker after a progress write. Verify the selected step and
    revision. For `joey_set_intro_progress`, the result gives the new
-   `progress.current`. `SEND_FAILED`, `SEND_RECEIPT_REQUIRED` or
+   `current` for the same `pathKey` in `progress.paths`. `SEND_FAILED`, `SEND_RECEIPT_REQUIRED` or
    `SEND_APPROVAL_MISMATCH` means that nothing changed. If the send succeeded but the stage write failed, report both
    results and reconcile the tracker. Do not send the message again.
 8. After a successful request, propose a progress check for this step. The
@@ -141,8 +144,9 @@ has the full rules.
 9. After the member confirms an intermediate introduction, record only that
    step. Read the current tracker and prepare the next step's draft in this
    turn. Show it for a new send approval. Never skip the next person.
-10. Ask before a final stop. Use `joey_stop_intro` for the selected record only
-    after the member agrees. A stop is final. End its associated host checks.
+10. Use the stop procedure in `joey-path-follow-up` for the selected record.
+    For a company report, confirm the path and collect the member's reason
+    and choice before `joey_stop_intro`. End the host checks for that path.
 
 ## Resolve an uncertain send
 
