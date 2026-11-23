@@ -43,8 +43,9 @@ is due displays its approved text. It performs no live data read or path action.
    `joey_get_intro_tracker`. Read report `rows` and private `activations`, with
    per-step progress, outcomes and completeness limits. Include `PATH_FOUND`
    in a first review. Use a filter only when it preserves the task's scope.
-   A company report row also gives its `owner` and `progress` steps. Show the
-   step labels, such as "Asked David", and the owner's name.
+   A company report row gives its routes in `progress.paths`. Use each path's
+   `current`, `stopped` and `steps` to show its status. Ask which route the
+   member wants to review if more than one matches.
 2. As a default, consider `INTRO_REQUESTED` after 3 days with no answer,
    `INTRODUCED` after 7 days, and `MEETING_SET` after 7 days. The member can choose
    other periods. Keep `PATH_FOUND` and `TRACKING` in a separate group for
@@ -58,7 +59,8 @@ is due displays its approved text. It performs no live data read or path action.
    latest confirmed outgoing message time for the response wait. A recent
    follow-up starts a new wait period, even if the tracker has an older date.
 4. Apply only the member's confirmed progress. For a company report, call
-   `joey_set_intro_progress` with the `requestId` and the confirmed step `key`.
+   `joey_set_intro_progress` with the `requestId`, `pathKey` and the confirmed
+   step `key` from that path in `progress.paths`. Ask which path if unclear.
    Only the `ASKED` step needs the send proof that the `joey-activate-path`
    skill describes. A later step needs the member's confirmation and no
    receipt. For an activation, call
@@ -66,8 +68,12 @@ is due displays its approved text. It performs no live data read or path action.
    `idempotencyKey` and the actual `confirmation`. A meeting date can support
    `MEETING_SET`; confirm attendance before `MET`.
 5. Ask before a move to an earlier stage. If the member wants a stop, explain
-   that it is final. After their yes, call `joey_stop_intro` for that record.
-   An activation stop needs its revision and a new action key.
+   that it is final for that path and ask for confirmation. For a company
+   report, ask why they want to stop and if they want to track a different
+   hop on a delivered path or ask for a new path. Call `joey_stop_intro` with
+   `requestId`, the selected `pathKey`, their reason as `note`, and
+   `choice: "DIFFERENT_PATH"` or `choice: "NEW_PATH"`. An activation stop
+   needs its revision and a new action key.
 6. For a first ask, due follow-up or confirmed next hop within the member's
    goal, use `joey-activate-path` to prepare the request in this turn.
    Show the exact recipient, channel and text for approval. Use the host send

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.17.0 — 2026-11-23
+
+- Use the selected `pathKey` for each company report progress change.
+- For a company report stop, collect the member's reason and ask if they want
+  a different delivered hop or a new path. Send the reason and the choice to
+  `joey_stop_intro`. The tool keeps progress on other paths.
+- Update the tools snapshot to match Joey customer MCP 2.11.0.
+
 ## 1.16.0 — 2026-11-19
 
 - `joey_save_private_relationship` takes `people`, the graph IDs of the two

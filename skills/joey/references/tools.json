@@ -538,7 +538,10 @@
         "requestId",
         "activationId",
         "expectedRevision",
-        "idempotencyKey"
+        "idempotencyKey",
+        "pathKey",
+        "note",
+        "choice"
       ],
       "annotations": {
         "readOnlyHint": false,

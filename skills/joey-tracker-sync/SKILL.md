@@ -39,9 +39,10 @@ has the full rules.
    workspace before other reads. Stop and report a mismatch. Read
    `joey_get_intro_tracker`. Read report `rows` and
    private `activations`, including per-step stages and completeness limits.
-   A company report row also has `owner` and `progress` steps. Select active,
-   unstopped steps at `INTRO_REQUESTED`, `INTRODUCED` or `MEETING_SET`. A
-   report at `TRACKING` has no send yet; check it only for a first request.
+   For each company report, select the route in `progress.paths` and keep
+   its `pathKey`. Use that path's `current` step. Select active paths at
+   `INTRO_REQUESTED`, `INTRODUCED` or `MEETING_SET`. A path at `TRACKING`
+   has no send yet. Check it only for a first request.
 2. Inspect the available host message and calendar tools and their account
    permissions. Check only the scope of the current path task or approved
    scheduled check. A simple reminder supplies no permission for these reads.
@@ -66,7 +67,8 @@ has the full rules.
    member confirms. Keep an intermediate introduction separate from
    final-target progress.
 5. Write only the confirmed changes. For a company report, call
-   `joey_set_intro_progress` with the `requestId` and the step `key`. For an
+   `joey_set_intro_progress` with the `requestId`, `pathKey` and step `key`
+   from the selected entry of `progress.paths`. For an
    activation, call `joey_set_intro_stage` with its current
    `expectedRevision`, `stepIndex`, a new UUID `idempotencyKey` and the
    member's actual `confirmation`. Reply or calendar evidence can move a
@@ -76,7 +78,7 @@ has the full rules.
    step needs the `joey-activate-path` skill. Ask before a stage moves back.
    Do not change the owner or stop an intro in this skill.
 6. Read the tracker after a write and verify the selected step and revision.
-   For a company report, read the new `progress.current` in the result.
+   For a company report, read `current` for the same `pathKey` in `progress.paths`.
    Report successful and failed changes. After a confirmed introduction, use
    `joey-activate-path` to prepare the next step's request in this turn. For a
    due follow-up, use `joey-path-follow-up` to prepare the next action and offer
