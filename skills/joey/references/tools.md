@@ -292,12 +292,13 @@ hook. A server prompt alone does not create a schedule.
     `strength` are the request and the strength of the best delivered path.
     Both are null when `state` is not `PATH_READY`. `strength` is `weak`,
     `medium`, `strong`, `very_strong` or null.
-  - `watching`: true when the member watches the account. A watch sends the
-    member the daily email and the Slack message of the account's new
-    signals. A watch is separate from a follow. A watch makes no lead and no
-    follow.
-  - `watchMode`: the check of the account watch, `DAILY` or `WEEKLY`. It is
-    null when nobody in the workspace watches the account.
+  - `watching`: true when the member watches the account. A watch puts the
+    new signals of the account in the member's daily email and Slack message,
+    on the days when a check finds one. A watch is separate from a follow. A
+    watch makes no lead and no follow.
+  - `watchMode`: how often Joey checks the account for the whole workspace:
+    `DAILY` (each day) or `WEEKLY` (each week, when all daily slots are in
+    use). It is null when nobody in the workspace watches the account.
   - `scan`: the entry of the weekly scan, or null for an account with no scan
     hit.
 - `scan` is `{origin, leadList, newestEvidenceAt, summary, hits, requestId,
