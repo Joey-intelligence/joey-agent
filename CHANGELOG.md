@@ -23,6 +23,15 @@
   report. A stop ends one delivered path. The skills ask the member which
   path, the reason in the member's words, and the choice `DIFFERENT_PATH` or
   `NEW_PATH` before the stop.
+- The tools reference describes server version 2.12.0. Each hop of
+  `joey_get_path_report` has `introFit` and `sharedContext`. The `joey` skill
+  tells the member why the next person would help from `introFit.reason`. It
+  never says that a person agreed to an introduction.
+- The tools reference also adds `entry.groups`, the order of report paths,
+  and the own progress of each delivered path (`current` and `stopped` in
+  `progress.paths`). `joey_set_intro_progress` and `joey_set_intro_stage`
+  need `pathKey` when a report has more than one delivered path. The skills
+  send it.
 - `tools.json` is a new snapshot of the Joey customer MCP (server version
   2.12.0).
 

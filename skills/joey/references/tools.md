@@ -14,7 +14,7 @@ service code. See [Errors](#errors) and
 [Outcomes and next actions](#outcomes-and-next-actions).
 
 `joey_whoami` gives `server.version` and `server.changes`. This page describes
-server version `2.6.0`.
+server version `2.12.0`.
 
 ## Scopes
 
@@ -124,9 +124,9 @@ hook. A server prompt alone does not create a schedule.
   delivered path. Open intros come first, then the newest paths. Each row has:
   - `requestId` and `target` (`name`, `role`, `organization`).
   - `hops`, `steps`, `entry`, `strength` (a [strength word](#strength-words))
-    and `people` of the best path. `people` gives the names in order, with
-    "(you)" after the member. See [Path length](#path-length) for `steps` and
-    `entry`.
+    and `people` of the first path: path 1 of `joey_get_path_report`. `people`
+    gives the names in order, with "(you)" after the member. See
+    [Path length](#path-length) for `steps` and `entry`.
   - `pathCount`, `lastDeliveredAt`, `intro` (see [Intro state](#intro-state)),
     `savedTarget` and `betterPathOpen`.
 
@@ -136,7 +136,10 @@ hook. A server prompt alone does not create a schedule.
   - `requestId`: from `joey_list_paths`.
 - Result: the report of one target:
   - `target` (`name`, `role`, `organization`).
-  - `paths`: each delivered path, path 1 (the best path) first. Each path has
+  - `paths`: each delivered path, path 1 first. When one Joey report draws
+    each delivered path, the paths keep the order of that report. Else path 1
+    is the best path. A path with more than two people between the start
+    and the target comes after the shorter paths. Each path has
     `pathKey`, `number`, `name`, `summary`, `hopCount`, `steps`, `entry`,
     `strength`, `deliveredAt` and `verifiedAt` (see
     [Path length](#path-length)), and:
@@ -144,7 +147,13 @@ hook. A server prompt alone does not create a schedule.
       and `you`.
     - `hops`: each hop with `from`, `to`, `title` (for example "You and David
       Cohen"), `explanation`, `strength`, `basis` ("Public source", "Inferred"
-      or "User-confirmed") and `sources` (`label`, `url`).
+      or "User-confirmed"), `sharedContext`, `sources` (`label`, `url`) and
+      `introFit`. `sharedContext: true` is a hop of shared context: no source
+      says that the two people know each other.
+    - `introFit` is `{reason, points}` or null. It tells why the second person
+      of the hop would act on this ask. `reason` has one or two sentences.
+      Each point is `{kind, text}`: a short tag of the kind `need`, `trust` or
+      `peer`. The fit belongs to this workspace only.
     - `askTo`: the person to write to: `name`, `mode` (`ASK_INTRO` or
       `REACH_OUT`), `viaTeammate` and `email` (it can be `null`).
     - `rate`: the person that `joey_rate_familiarity` rates on this path
@@ -155,6 +164,9 @@ hook. A server prompt alone does not create a schedule.
     Here each `ASKED` step, in `progress.steps` and in `progress.paths`, also
     gives the `recipientRef` that its send proof must name. Before tracking,
     `progress` shows path 1.
+- Tell the member why the next person would listen or help from
+  `introFit.reason`. The fit gives reasons only. Never tell the member that a
+  person agreed to an introduction.
 
 ### joey_get_intro_draft
 
@@ -178,6 +190,9 @@ hook. A server prompt alone does not create a schedule.
 
 - Input:
   - `stage` (optional): one of the [intro stages](#intro-stages), or `STOPPED`.
+    In a company workspace, a report row matches when one of its delivered
+    paths is at that stage and not stopped. `STOPPED` matches a row with a
+    stopped path.
   - `staleDays` (optional): only the open intros (not `MET`, not stopped) with
     no change for at least this number of days.
 - Result: `{counters, openCount, rows, activations, activationCompleteness}`.
@@ -458,7 +473,9 @@ hook. A server prompt alone does not create a schedule.
     ends in `Z`, for example `2026-10-19T07:00:00Z`. A time with an offset,
     such as `+03:00`, fails.
   - `stage`: one of the [intro stages](#intro-stages).
-  - `pathKey` (optional): selected report path; omit for an activation.
+  - `pathKey` (optional): the selected report path, from `progress.paths`.
+    Required when the report has more than one delivered path. Omit it for
+    `PATH_FOUND` and for an activation.
 - Result: current report intro or activation with its revision and steps.
   `SENT` must match the exact approved version. `FAILED` changes no progress.
   Channels are `EMAIL`, `SLACK`, `SMS` or `OTHER`; use null for no subject.
@@ -480,18 +497,21 @@ hook. A server prompt alone does not create a schedule.
   - `step`: the `key` of one step: `tracking`, `reach:<place>`, `meeting` or
     `met`. Read the keys from `joey_get_path_report` or
     `joey_get_intro_tracker`.
-  - `pathKey` (optional): the `pathKey` of one entry of `progress.paths`. The
-    intro moves onto that delivered path at `step`, a key of that path's
-    steps. Leave it out to keep the intro path and use `progress.steps`.
+  - `pathKey` (optional): the `pathKey` of one entry of `progress.paths`.
+    `step` is then a key of the steps of that path. Required when the report
+    has more than one delivered path. Without it, the tool uses the one
+    delivered path.
   - `approval` (optional): the same object as for `joey_set_intro_stage`.
     Required for the `ASKED` step only.
   - `sendReceipt` (optional): the same object as for `joey_set_intro_stage`.
     Required for the `ASKED` step only.
 - Result: `{requestId, intro, owner, progress}`. The tool moves the intro to
   the step: its stage and the place of the person that the intro reached.
-- `tracking` starts to track the intro path, or the path of `pathKey`, and
-  makes the member the owner. A member who moves an intro without an owner
-  becomes its owner.
+- `tracking` starts to track the selected path (the path of `pathKey`, or
+  the one delivered path) and makes the member the owner. A member who moves an intro without an owner becomes its owner.
+- Each delivered path has its own progress. A move on one path keeps the
+  progress of the other paths. When the member did not say which path, ask
+  before the call.
 - The `ASKED` step ("Asked David", or "Reached out to Sarah" on a direct path)
   means that a message was sent. It needs `approval` and a successful
   `sendReceipt`. Their `recipientRef` is the `recipientRef` of that `ASKED`
@@ -666,8 +686,10 @@ them.
   `people` gives the names of the intro path from its start to the target.
   `ownerAt` is the place of the owner in `people`; null when a teammate starts
   the path. `current` is the key of the current step, or null before tracking.
-- `paths` gives each delivered path that the intro can follow:
-  `{pathKey, number, people, ownerAt, steps}`. To track or move to a specific
+- `paths` gives each delivered path of the report:
+  `{pathKey, number, people, ownerAt, current, stopped, steps}`. Each path has
+  its own progress: `current` is the key of its current step, or null before
+  tracking, and `stopped` is true for a stopped path. To track or move a
   path, give its `pathKey` to `joey_set_intro_progress`.
 - Each step has `key`, `kind`, `stage`, `label` and `person` (its place in
   `people`). The steps start at the place of the owner:
@@ -715,10 +737,16 @@ A delivered path gives the count of its hops and the count of its steps:
   count all hops of the path.
 - `steps` is a number: the hops from the start of the path into the target's
   company.
-- `entry` is `{company, inside, steps}`. The last `entry.inside` people of the
-  path work at `entry.company`: the target and each colleague before the
-  target. A hop between two of them is not a step. `entry.steps` is the same
-  as `steps`. `entry.company` is null when the target has no company.
+- `entry` is `{company, inside, steps, groups}`. The last `entry.inside`
+  people of the path work at `entry.company`: the target and each colleague
+  before the target. A hop between two of them is not a step. `entry.steps`
+  is the same as `steps`. `entry.company` is null when the target has no
+  company.
+- Each item of `entry.groups` is `{company, first, people}`: two or more
+  people in a row, before the people inside the target's company, who work at
+  one company. `first` is the place of the first person of the group on the
+  path. The start is place 0 and is never in a group. A hop between two people
+  of a group is not a step.
 
 `joey_list_paths` and `joey_get_path_report` give `steps` and `entry`.
 `joey_list_feedback_queue` and the `scan.path` of `joey_list_opportunities`
@@ -732,6 +760,9 @@ For example, Maya Lin knows Omar Haddad, Omar Haddad knows Priya Nair, and
 Priya Nair is a colleague of the target Leo Brandt at Northwind Labs. The path
 has `hopCount` 3, `entry` `{company: "Northwind Labs", inside: 2, steps: 2}`
 and `steps` 2. Say "2 steps into Northwind Labs".
+
+A path of 3 hops whose two middle people are colleagues at one company has
+one item in `entry.groups` and `steps` 2. Say "2 steps".
 
 Path steps are a count. They are not the `progress` steps of a report, such
 as "Asked David" (see [Intro progress and owner](#intro-progress-and-owner)).

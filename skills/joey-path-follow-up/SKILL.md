@@ -59,6 +59,8 @@ is due displays its approved text. It performs no live data read or path action.
    follow-up starts a new wait period, even if the tracker has an older date.
 4. Apply only the member's confirmed progress. For a company report, call
    `joey_set_intro_progress` with the `requestId` and the confirmed step `key`.
+   When the report has more than one delivered path, also give the `pathKey`
+   of the selected path, and use a step `key` of that path.
    Only the `ASKED` step needs the send proof that the `joey-activate-path`
    skill describes. A later step needs the member's confirmation and no
    receipt. For an activation, call

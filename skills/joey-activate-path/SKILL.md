@@ -91,8 +91,9 @@ has the full rules.
 4. For a successful first request, record the send on the selected record:
    - A company report (`requestId` with `progress`): call
      `joey_set_intro_progress` with the `key` of the `ASKED` step, for example
-     "Asked David". For a path that is not the intro path, also give its
-     `pathKey` and use the `ASKED` step of that entry of `progress.paths`.
+     "Asked David". When the report has more than one delivered path, also
+     give the `pathKey` of the selected path and use the `ASKED` step of that
+     entry of `progress.paths`.
      Read that step in `joey_get_path_report`. Its
      `recipientRef` must be the draft's `to.recipientRef`. If they are not the
      same, stop and read the report again. This can occur when another member
@@ -123,14 +124,15 @@ has the full rules.
    advances step 0, not the final target. Begin the next step only after the
    preceding introduction. A scheduled meeting can set `MEETING_SET`; `MET`
    needs confirmation that the meeting occurred. A stage creates no graph edge.
-   For a company report, call `joey_set_intro_progress` with the `key` of the
-   step that the member confirms, for example "Introduced to Sarah", "Meeting
-   with Sarah booked" or "Met Sarah". These later steps need no send receipt,
+   For a company report, call `joey_set_intro_progress` with the `pathKey` of
+   the selected path and the `key` of the step that the member confirms, for
+   example "Introduced to Sarah", "Meeting with Sarah booked" or "Met Sarah".
+   These later steps need no send receipt,
    because the member can send the ask by hand. An "Introduced to" step before
    the target is not the final target.
 7. Read the tracker after a progress write. Verify the selected step and
    revision. For `joey_set_intro_progress`, the result gives the new
-   `progress.current`. `SEND_FAILED`, `SEND_RECEIPT_REQUIRED` or
+   `current` of the selected entry of `progress.paths`. `SEND_FAILED`, `SEND_RECEIPT_REQUIRED` or
    `SEND_APPROVAL_MISMATCH` means that nothing changed. If the send succeeded but the stage write failed, report both
    results and reconcile the tracker. Do not send the message again.
 8. After a successful request, propose a progress check for this step. The

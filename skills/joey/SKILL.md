@@ -176,9 +176,10 @@ when the selected path and required facts already permit that work.
    Ask only for missing facts, a material choice and required approval. A broad
    request to manage the network permits preparation, not a send.
 4. To start to track a company report path, call `joey_set_intro_progress`
-   with `step: "tracking"` after the member asks. For a path that is not the
-   intro path, also give its `pathKey` from `progress.paths`. The member
-   becomes the owner.
+   with `step: "tracking"` after the member asks. When the report has more
+   than one delivered path, also give the `pathKey` of the selected path from
+   `progress.paths`. Each path has its own progress. The member becomes the
+   owner.
    Use `joey-activate-path` to record a send. Use `joey-tracker-sync` for
    relevant message or calendar checks within the member's task. Use
    `joey-path-follow-up` to propose a reminder or repeated progress check. Create it only after approval of its scope and schedule.
@@ -216,13 +217,18 @@ do not replace a live graph tier or an unknown value with a report word.
 - Call `joey_get_path_report` before you describe a report path. Quote each
   hop's `explanation`, `basis` and `sources`. Do not state a relationship that
   they do not show: a hop of shared context shows only what the two people share.
+- Tell the member why the next person would listen or help from the
+  `introFit.reason` of the hop. The fit gives reasons only. Never tell the
+  member that a person agreed to an introduction.
 - Tell the member the length of a delivered path in steps, not in hops.
   `joey_list_paths` and `joey_get_path_report` give `steps` and `entry`
-  (`company`, `inside`, `steps`). `joey_list_feedback_queue` and the
+  (`company`, `inside`, `steps`, `groups`). `joey_list_feedback_queue` and the
   `scan.path` of `joey_list_opportunities` give `entry` for each path. Say
   "2 steps". When `entry.inside` is 2 or more, say "2 steps into Northwind
   Labs" with `entry.company`. The last `entry.inside` people of the path work
-  at that company, and a hop between two of them is not a step.
+  at that company, and a hop between two of them is not a step. A hop between
+  two people of one group of `entry.groups` (colleagues before the target's
+  company) is not a step either.
   - For example, a path of 3 hops whose last two people are colleagues at the
     target's company has `hopCount` 3 and `steps` 2.
   - `hops` and `hopCount` count all hops. Use them only for the `hops` filter

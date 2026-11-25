@@ -66,7 +66,9 @@ has the full rules.
    member confirms. Keep an intermediate introduction separate from
    final-target progress.
 5. Write only the confirmed changes. For a company report, call
-   `joey_set_intro_progress` with the `requestId` and the step `key`. For an
+   `joey_set_intro_progress` with the `requestId` and the step `key`. When the
+   report has more than one delivered path, also give the `pathKey` of the
+   selected path, and use a step `key` of that path. For an
    activation, call `joey_set_intro_stage` with its current
    `expectedRevision`, `stepIndex`, a new UUID `idempotencyKey` and the
    member's actual `confirmation`. Reply or calendar evidence can move a
