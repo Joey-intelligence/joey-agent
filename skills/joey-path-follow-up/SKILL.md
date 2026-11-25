@@ -67,7 +67,11 @@ is due displays its approved text. It performs no live data read or path action.
    `MEETING_SET`; confirm attendance before `MET`.
 5. Ask before a move to an earlier stage. If the member wants a stop, explain
    that it is final. After their yes, call `joey_stop_intro` for that record.
-   An activation stop needs its revision and a new action key.
+   An activation stop needs its revision and a new action key. A company
+   report stops one delivered path. Ask which path, why the member stops it,
+   and whether to track another delivered path (`DIFFERENT_PATH`) or ask for a
+   new path (`NEW_PATH`). Send its `pathKey`, the reason in the member's words
+   as `note`, and the `choice`. Do not write a reason for the member.
 6. For a first ask, due follow-up or confirmed next hop within the member's
    goal, use `joey-activate-path` to prepare the request in this turn.
    Show the exact recipient, channel and text for approval. Use the host send

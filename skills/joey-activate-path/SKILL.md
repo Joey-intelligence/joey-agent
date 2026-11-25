@@ -143,6 +143,10 @@ has the full rules.
    turn. Show it for a new send approval. Never skip the next person.
 10. Ask before a final stop. Use `joey_stop_intro` for the selected record only
     after the member agrees. A stop is final. End its associated host checks.
+    For a company report path, also ask why the member stops it and whether
+    to track another delivered path (`DIFFERENT_PATH`) or ask for a new path
+    (`NEW_PATH`). Send its `pathKey`, the reason in the member's words as
+    `note`, and the `choice`.
 
 ## Resolve an uncertain send
 
