@@ -143,9 +143,10 @@ has the full rules.
 9. After the member confirms an intermediate introduction, record only that
    step. Read the current tracker and prepare the next step's draft in this
    turn. Show it for a new send approval. Never skip the next person.
-10. Ask before a final stop. Use `joey_stop_intro` for the selected record only
-    after the member agrees. A stop is final. End its associated host checks.
-    A company report stops one tracked delivered path:
+10. Ask before a final stop. A stop is final. End its associated host checks.
+    For an activation, use `joey_stop_intro` for the selected record only after
+    the member agrees. A company report stops one tracked delivered path. Do
+    these steps in this order, and call `joey_stop_intro` only at the last step:
     - Check that the selected path is tracked: its entry of `progress.paths`
       has a `current` step. For a path at `PATH_FOUND`, tell the member that
       nothing is tracked on that path yet, and do not stop it. Write
@@ -155,7 +156,8 @@ has the full rules.
     - Offer `DIFFERENT_PATH` (track another delivered path) only when another
       delivered path is not `stopped` and its `current` is not `met`. Else
       offer only `NEW_PATH` (ask for a new path).
-    - Send the `pathKey`, the `note` and the `choice`.
+    - Get the member's yes for the stop. Then call `joey_stop_intro` with the
+      `requestId`, the `pathKey`, the `note` and the `choice`.
 
 ## Resolve an uncertain send
 

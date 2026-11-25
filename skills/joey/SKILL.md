@@ -352,7 +352,8 @@ member, so you must read `needsFeedback` and ask.
    | An outcome of an activation of a delivered report path | `joey_record_path_outcome` |
    | A verdict on a report path with no activation, for example "it worked" or "it did not work" | No tool writes it. Give the `reportUrl` of the item in `joey_list_feedback_queue`. The member saves the verdict on that page, and the verdict frees the slot. |
 
-   A company report stops one tracked delivered path. Use these stop steps:
+   A company report stops one tracked delivered path. Do these stop steps in
+   this order, and call `joey_stop_intro` only at the last step:
    - Ask which path when the report has more than one delivered path.
    - Check that the path is tracked: its entry of `progress.paths` has a
      `current` step. For a path at `PATH_FOUND`, tell the member that nothing
@@ -363,7 +364,8 @@ member, so you must read `needsFeedback` and ask.
    - Offer `DIFFERENT_PATH` (track another delivered path) only when another
      delivered path is not `stopped` and its `current` is not `met`. Else
      offer only `NEW_PATH` (ask for a new path).
-   - Send the `pathKey`, the `note` and the `choice`.
+   - Get the member's yes for the stop. Then call `joey_stop_intro` with the
+     `requestId`, the `pathKey`, the `note` and the `choice`.
 
    A familiarity rating (`joey_rate_familiarity`) frees no slot. Do not use it
    as feedback.

@@ -68,9 +68,10 @@ is due displays its approved text. It performs no live data read or path action.
    `idempotencyKey` and the actual `confirmation`. A meeting date can support
    `MEETING_SET`; confirm attendance before `MET`.
 5. Ask before a move to an earlier stage. If the member wants a stop, explain
-   that it is final. After their yes, call `joey_stop_intro` for that record.
-   An activation stop needs its revision and a new action key. A company
-   report stops one tracked delivered path:
+   that it is final. An activation stop needs its revision and a new action
+   key: after the member's yes, call `joey_stop_intro` for that activation.
+   A company report stops one tracked delivered path. Do these steps in this
+   order, and call `joey_stop_intro` only at the last step:
    - Ask which path when the report has more than one delivered path.
    - Check that the path is tracked: its entry of `progress.paths` has a
      `current` step. For a path at `PATH_FOUND`, tell the member that nothing
@@ -81,7 +82,8 @@ is due displays its approved text. It performs no live data read or path action.
    - Offer `DIFFERENT_PATH` (track another delivered path) only when another
      delivered path is not `stopped` and its `current` is not `met`. Else
      offer only `NEW_PATH` (ask for a new path).
-   - Send the `pathKey`, the `note` and the `choice`.
+   - Get the member's yes for the stop. Then call `joey_stop_intro` with the
+     `requestId`, the `pathKey`, the `note` and the `choice`.
 6. For a first ask, due follow-up or confirmed next hop within the member's
    goal, use `joey-activate-path` to prepare the request in this turn.
    Show the exact recipient, channel and text for approval. Use the host send
