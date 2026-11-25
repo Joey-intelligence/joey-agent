@@ -218,17 +218,21 @@ do not replace a live graph tier or an unknown value with a report word.
   they do not show: a hop of shared context shows only what the two people share.
 - Tell the member the length of a delivered path in steps, not in hops.
   `joey_list_paths` and `joey_get_path_report` give `steps` and `entry`
-  (`company`, `inside`, `steps`). `joey_list_feedback_queue` and
-  `joey_list_opportunities` give `entry` for each path. Say "2 steps". When
-  `entry.inside` is 2 or more, say "2 steps into Northwind Labs" with
-  `entry.company`. The last `entry.inside` people of the path work at that
-  company, and a hop between two of them is not a step.
+  (`company`, `inside`, `steps`). `joey_list_feedback_queue` and the
+  `scan.path` of `joey_list_opportunities` give `entry` for each path. Say
+  "2 steps". When `entry.inside` is 2 or more, say "2 steps into Northwind
+  Labs" with `entry.company`. The last `entry.inside` people of the path work
+  at that company, and a hop between two of them is not a step.
   - For example, a path of 3 hops whose last two people are colleagues at the
     target's company has `hopCount` 3 and `steps` 2.
   - `hops` and `hopCount` count all hops. Use them only for the `hops` filter
     of `joey_list_paths`.
   - Path steps are not the `progress` steps of a report. Keep the progress
     step labels, such as "Asked David", as the web shows them.
+- Read the opportunities of a company workspace with
+  `joey_list_opportunities`. Tell the member the mark of each account as "Act
+  now", "This week" or "Later", never as an intent level. For an account with
+  `path.state` `PATH_READY`, call `joey_get_path_report` with `path.requestId`.
 - Keep `requestId` and `pathKey` for report operations. The report's `askTo`
   names the next recipient; `rate` names the person whom the member can rate.
 - If the member asks for research, use `joey_request_path` with a supplied or

@@ -721,8 +721,8 @@ A delivered path gives the count of its hops and the count of its steps:
   as `steps`. `entry.company` is null when the target has no company.
 
 `joey_list_paths` and `joey_get_path_report` give `steps` and `entry`.
-`joey_list_feedback_queue` and `joey_list_opportunities` give `entry` for each
-path.
+`joey_list_feedback_queue` and the `scan.path` of `joey_list_opportunities`
+give `entry` for each path.
 
 Tell the member the length of a path in steps, from `steps` or `entry.steps`.
 Say "2 steps". When `entry.inside` is 2 or more, also name the company, for
