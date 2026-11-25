@@ -262,9 +262,9 @@ hook. A server prompt alone does not create a schedule.
     days and their people.
   - `meetingPrep`: `{count, next}`. The meeting briefs of the member for the
     next 7 days. `next` is `{person, account, meetingAt}`, or null.
-- `companies` has each account of the page: each account that the member
-  watches, and each company with a hit of the weekly scan or of a company
-  check. The order is the order of the page: the mark first, then the newest
+- `companies` has each account of the page: each watched account of the
+  workspace, and each company with a hit of the weekly scan or of a company
+  check. Each member of the workspace sees all its signals. The order is the order of the page: the mark first, then the newest
   signal.
 - Each company has:
   - `company`: `{id, name, linkedinUrl, websiteUrl, industry, employeeRange,
@@ -292,8 +292,10 @@ hook. A server prompt alone does not create a schedule.
     `strength` are the request and the strength of the best delivered path.
     Both are null when `state` is not `PATH_READY`. `strength` is `weak`,
     `medium`, `strong`, `very_strong` or null.
-  - `watching`: true when the member watches the account. A watch is separate
-    from a follow. A watch makes no lead and no follow.
+  - `watching`: true when the member watches the account. A watch sends the
+    member the daily email and the Slack message of the account's new
+    signals. A watch is separate from a follow. A watch makes no lead and no
+    follow.
   - `watchMode`: the check of the account watch, `DAILY` or `WEEKLY`. It is
     null when nobody in the workspace watches the account.
   - `scan`: the entry of the weekly scan, or null for an account with no scan
