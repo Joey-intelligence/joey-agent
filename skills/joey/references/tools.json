@@ -538,7 +538,10 @@
         "requestId",
         "activationId",
         "expectedRevision",
-        "idempotencyKey"
+        "idempotencyKey",
+        "pathKey",
+        "note",
+        "choice"
       ],
       "annotations": {
         "readOnlyHint": false,
@@ -664,7 +667,7 @@
       "name": "joey_list_opportunities",
       "scope": "workspace:read",
       "arguments": [
-        "level"
+        "mark"
       ],
       "annotations": {
         "readOnlyHint": true,

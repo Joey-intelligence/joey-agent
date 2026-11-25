@@ -230,38 +230,84 @@ hook. A server prompt alone does not create a schedule.
 ### joey_list_opportunities
 
 - Input:
-  - `level` (optional): `HIGH`, `MEDIUM` or `LOW`. Without it, the result has
-    all levels.
-- Result: `{companies, counts, lastScanAt, nextScanAt, scanOpen}`. Each
-  company is an intent company of the workspace. Joey found dated public
-  evidence that the company matches one or more signals of the workspace.
-  `counts` gives the number of companies for `ALL` and for each level.
-- Each company has `id`, `company` (`id`, `name`, `linkedinUrl`, `websiteUrl`,
-  `industry`, `employeeRange`, `logoUrl`), `origin` (`LEAD_LIST` or
-  `DISCOVERY`), `leadList` (null for `DISCOVERY`), `level`, `decayed`,
-  `newestEvidenceAt`, `summary`, `hits`, `requestId` and `path`.
-- Each hit has `signalId`, `signalName`, `tier` (`GOLDEN` or `STANDARD`),
-  `reason` and `evidence`. Each evidence item has `url`, `quote`, `publishedAt`
-  and `provider`. A quote has at most 200 characters.
-- `path.kind` is the path state: `FOUND` (with `paths`; the first path is the
-  golden path), `SEARCHING`, `RESEARCHING`, `VETTING`, `NONE` or `BELOW_LEVEL`.
-  Each path of `FOUND` has its people and `entry` (see
-  [Path length](#path-length)). The golden path is the best path of the
-  report. A hop between two colleagues does not lower its rank.
-  `requestId` is null for `BELOW_LEVEL`.
-- The list is in level order, then newest evidence first. `decayed: true`
-  means that the newest evidence is more than 60 days old, so the company
-  dropped one level.
+  - `mark` (optional): `ACT_NOW`, `THIS_WEEK` or `LATER`. The result then has
+    only the companies with this mark. Without it, the result has all
+    companies.
+- Result: `{funnel, companies, lastScanAt, nextScanAt, scanOpen}`, as the
+  Opportunities page of the Joey web app shows them. Only an organization
+  workspace has opportunities. A personal workspace gets `FORBIDDEN`.
+- `funnel` gives the count and the reach of each level of the signal funnel:
+  - `industry`: `{count, accounts, newestAt}`. The industry shifts of the last
+    90 days and the accounts that they touch.
+  - `company`: `{count, accounts, days, newestAt}`. The company signals of the
+    last `days` days (30) and their accounts.
+  - `people`: `{count, people, newestAt}`. The people signals of the last 90
+    days and their people.
+  - `meetingPrep`: `{count, next}`. The meeting briefs of the member for the
+    next 7 days. `next` is `{person, account, meetingAt}`, or null.
+- `companies` has each account of the page: each account that the member
+  watches, and each company with a hit of the weekly scan or of a company
+  check. The order is the order of the page: the mark first, then the newest
+  signal.
+- Each company has:
+  - `company`: `{id, name, linkedinUrl, websiteUrl, industry, employeeRange,
+    logoUrl}`. The fields after `name` are null for an account with no scan
+    hit.
+  - `mark`: `ACT_NOW`, `THIS_WEEK`, `LATER` or null. Tell the member "Act
+    now", "This week" or "Later", never an intent level. See
+    [Opportunity marks](#opportunity-marks).
+  - `actNow`: true when `mark` is `ACT_NOW`.
+  - `newestSignalAt`: the day of the newest signal, or null.
+  - `industry`: `[{title, match}]`. The industry shifts that touch the account.
+    `match` is `STRONG` or `WEAK`.
+  - `companySignal` and `peopleSignal`: the newest company signal and the
+    newest people signal, or null. Each is
+    `{kind, title, date, fact, sourceUrl, quote, topSignal}`. A quote has at
+    most 200 characters. `topSignal: true` is a hit of a top signal of the
+    workspace.
+  - `otherCompanySignals`: the titles of the other company signals.
+  - `knowPeople`: true when a delivered path into the account has 1 step. A
+    person whom the member's side knows works there.
+  - `path`: `{state, paths, requestId, strength}`. `state` is `PATH_READY`
+    (Joey delivered a path), `RESEARCH_STARTED` (a path search runs) or
+    `NO_PATH`. `paths` is the count of delivered paths. `requestId` and
+    `strength` are the request and the strength of the best delivered path.
+    Both are null when `state` is not `PATH_READY`. `strength` is `weak`,
+    `medium`, `strong`, `very_strong` or null.
+  - `watching`: true when the member watches the account. A watch is separate
+    from a follow. A watch makes no lead and no follow.
+  - `watchMode`: the check of the account watch, `DAILY` or `WEEKLY`. It is
+    null when nobody in the workspace watches the account.
+  - `scan`: the entry of the weekly scan, or null for an account with no scan
+    hit.
+- `scan` is `{origin, leadList, newestEvidenceAt, summary, hits, requestId,
+  path}`:
+  - `origin` is `LEAD_LIST`, `DISCOVERY` or `CHECK` (a company check).
+    `leadList` is null when `origin` is not `LEAD_LIST`.
+  - Each hit has `signalId`, `signalName`, `tier` (`GOLDEN` or `STANDARD`),
+    `reason` and `evidence`. Each evidence item has `url`, `quote`,
+    `publishedAt` and `provider`. A quote has at most 200 characters.
+  - `requestId` is the path request that Joey made for the scan hit. It is null
+    for `BELOW_LEVEL`.
+  - `path.kind` is the state of that request: `FOUND` (with `paths` in path
+    order; the first path is the golden path), `SEARCHING`, `RESEARCHING`,
+    `VETTING`, `NONE` or `BELOW_LEVEL`. Each path of `FOUND` has its people
+    and `entry` (see [Path length](#path-length)).
+- `lastScanAt` and `nextScanAt` are the times of the last and the next weekly
+  scan. `scanOpen` is true while a scan runs.
 - The evidence is about the company. It is not a statement about a person.
-- Only a company with `path.kind` `FOUND` has a delivered report. To activate
-  its path, follow the `joey-activate-path` skill with the `requestId`:
-  `joey_get_path_report`, then `joey_get_intro_tracker`. Reuse a saved
-  activation of that report path. Only when none exists, call
+- Only a company with `path.state` `PATH_READY` has a delivered path. To read
+  it, call `joey_get_path_report` with `path.requestId`. Do not use
+  `scan.requestId` for this: the best delivered path can come from another
+  request of the account, for example the request of a lead.
+- To activate the path, follow the `joey-activate-path` skill with
+  `path.requestId`: `joey_get_path_report`, then `joey_get_intro_tracker`.
+  Reuse a saved activation of that report path. Only when none exists, call
   `joey_prepare_activation` with the `requestId`. Then call
-  `joey_get_intro_draft`. Record the send as that skill says. For
-  `SEARCHING`, `RESEARCHING` or `VETTING`, Joey has no report yet: report the
-  state, and do not call the intro tools. Do not activate a path without an
-  explicit request from the member.
+  `joey_get_intro_draft`. Record the send as that skill says.
+- For `RESEARCH_STARTED` or `NO_PATH`, Joey has no path yet. Report the state,
+  and do not call the intro tools. Do not activate a path without an explicit
+  request from the member. Joey sends nothing to the company.
 
 ## Write tools
 
@@ -482,8 +528,31 @@ hook. A server prompt alone does not create a schedule.
   - `activationId` (optional): saved activation. Select this or `requestId`.
   - `expectedRevision` (optional): required for an activation stop.
   - `idempotencyKey` (optional): required new UUID for an activation action.
-- Result: stopped report intro or private activation. A stop is final.
-  Ask the member before the call. A repeat with the same action key changes nothing.
+  - `pathKey` (optional): a company report only. The `pathKey` of the path to
+    stop, from `progress.paths`. Required when the report has more than one
+    delivered path.
+  - `note` (optional): required for a company report. The reason of the
+    member, in the member's own words. 1 to 1000 characters.
+  - `choice` (optional): required for a company report. `DIFFERENT_PATH` or
+    `NEW_PATH`.
+- Result: stopped report intro or private activation. For a company report,
+  the result is `{requestId, intro, owner, progress}`.
+- A stop is final for the selected record. Ask the member before the call. A
+  repeat with the same action key changes nothing.
+- A company report stops one delivered path. The other paths keep their
+  progress. Before the call, ask the member these questions:
+  - Which path, when the report has more than one delivered path.
+  - Why the member stops it. Send the answer as `note`. Do not write a reason
+    for the member.
+  - What to do next. `DIFFERENT_PATH` tracks another delivered path, and Joey
+    moves the stopped path to the end. It needs another delivered path that is
+    not stopped and not at `MET`. `NEW_PATH` asks Joey for a new path to the
+    target, with `note` as the feedback, as `joey_find_better_path` does.
+- Only a tracked path can stop. A path at `PATH_FOUND` needs
+  `joey_set_intro_progress` with `tracking` first. Start to track it only when
+  the member asks.
+- A report in a personal workspace and an activation take no `pathKey`, `note`
+  or `choice`.
 
 ### joey_rate_familiarity
 
@@ -583,7 +652,8 @@ hook. A server prompt alone does not create a schedule.
 | `MEETING_SET` | The member and the target set a meeting. |
 | `MET` | The member and the target met. |
 
-A stop (`joey_stop_intro`) ends the intro at any stage after `PATH_FOUND`.
+A stop (`joey_stop_intro`) ends the intro at any stage after `PATH_FOUND`. In
+a company report, a stop ends the intro of one delivered path.
 
 ### Intro progress and owner
 
@@ -761,6 +831,19 @@ never waits for an ICP.
 | `UNAVAILABLE` | Joey cannot research this target. |
 
 Joey gives no delivery date. Do not promise a date to the member.
+
+### Opportunity marks
+
+`joey_list_opportunities` gives a `mark` for each account and no intent level.
+Tell the member the mark as "Act now", "This week" or "Later". Do not tell the
+member a level such as "high" or "low".
+
+| `mark` | Tell the member | Meaning |
+| --- | --- | --- |
+| `ACT_NOW` | "Act now" | A top signal in the last 30 days, and a path is ready. |
+| `THIS_WEEK` | "This week" | Two or more signals in the last 30 days, or one strong signal. |
+| `LATER` | "Later" | Early signs only. |
+| null | No mark | The account has no signal. |
 
 ## Outcomes and next actions
 
