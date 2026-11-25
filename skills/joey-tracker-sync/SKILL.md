@@ -78,6 +78,8 @@ has the full rules.
    step needs the `joey-activate-path` skill. Ask before a stage moves back.
    Do not change the owner or stop an intro in this skill.
 6. Read the tracker after a write and verify the selected step and revision.
+   For `joey_set_intro_progress`, check the `current` of the selected entry
+   of `progress.paths`, not the top-level `progress.current`.
    For a company report, read the new `progress.current` in the result.
    Report successful and failed changes. After a confirmed introduction, use
    `joey-activate-path` to prepare the next step's request in this turn. For a

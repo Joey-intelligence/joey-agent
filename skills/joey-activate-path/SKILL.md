@@ -145,10 +145,17 @@ has the full rules.
    turn. Show it for a new send approval. Never skip the next person.
 10. Ask before a final stop. Use `joey_stop_intro` for the selected record only
     after the member agrees. A stop is final. End its associated host checks.
-    For a company report path, also ask why the member stops it and whether
-    to track another delivered path (`DIFFERENT_PATH`) or ask for a new path
-    (`NEW_PATH`). Send its `pathKey`, the reason in the member's words as
-    `note`, and the `choice`.
+    A company report stops one tracked delivered path:
+    - Check that the selected path is tracked: its entry of `progress.paths`
+      has a `current` step. For a path at `PATH_FOUND`, tell the member that
+      nothing is tracked on that path yet, and do not stop it. Write
+      `tracking` only when the member asks for it.
+    - Ask why the member stops the path. Send the answer in the member's
+      words as `note`. Do not write a reason for the member.
+    - Offer `DIFFERENT_PATH` (track another delivered path) only when another
+      delivered path is not `stopped` and its `current` is not `met`. Else
+      offer only `NEW_PATH` (ask for a new path).
+    - Send the `pathKey`, the `note` and the `choice`.
 
 ## Resolve an uncertain send
 

@@ -217,9 +217,10 @@ do not replace a live graph tier or an unknown value with a report word.
 - Call `joey_get_path_report` before you describe a report path. Quote each
   hop's `explanation`, `basis` and `sources`. Do not state a relationship that
   they do not show: a hop of shared context shows only what the two people share.
-- Tell the member why the next person would listen or help from the
-  `introFit.reason` of the hop. The fit gives reasons only. Never tell the
-  member that a person agreed to an introduction.
+- When a hop has an `introFit`, tell the member why the next person would
+  listen or help from its `reason`. When `introFit` is null, say nothing about
+  why the next person would help, and do not invent a reason. The fit gives
+  reasons only. Never tell the member that a person agreed to an introduction.
 - Tell the member the length of a delivered path in steps, not in hops.
   `joey_list_paths` and `joey_get_path_report` give `steps` and `entry`
   (`company`, `inside`, `steps`, `groups`). `joey_list_feedback_queue` and the
@@ -237,7 +238,9 @@ do not replace a live graph tier or an unknown value with a report word.
     step labels, such as "Asked David", as the web shows them.
 - Read the opportunities of a company workspace with
   `joey_list_opportunities`. Tell the member the mark of each account as "Act
-  now", "This week" or "Later", never as an intent level. For an account with
+  now", "This week" or "Later", never as an intent level. When `mark` is null,
+  for example for a watched account with no signal yet, tell the member that
+  the account has no new signal yet. Give no mark word. For an account with
   `path.state` `PATH_READY`, call `joey_get_path_report` with `path.requestId`.
 - Keep `requestId` and `pathKey` for report operations. The report's `askTo`
   names the next recipient; `rate` names the person whom the member can rate.
@@ -344,10 +347,23 @@ member, so you must read `needsFeedback` and ask.
    | The member says | Tool |
    | --- | --- |
    | "I asked for the intro" or a later step | `joey_set_intro_stage` with that stage and the fields that the tool requires, or `joey_set_intro_progress` for a step of a company report. The ask (`INTRO_REQUESTED`, or the `ASKED` step) needs the actual recipient, channel, subject, exact text and send time (`sentAt`) of the sent message. If the member did not give them, ask for them first. Do not invent them, and do not guess a time from a word such as "yesterday". Give `sentAt` in UTC with `Z`. Show these details and get the member's confirmation, which starts with "yes". That answer is `approval.response`. For a message that the member sent outside Joey, the receipt `source` is `MEMBER_CONFIRMED`. |
-   | "Stop this intro" | `joey_stop_intro`, after a "yes". For a company report, ask which path, why, and whether to track another delivered path (`DIFFERENT_PATH`) or ask for a new path (`NEW_PATH`). Send the `pathKey`, the reason in the member's words as `note`, and the `choice`. |
+   | "Stop this intro" | `joey_stop_intro`, after a "yes". For a company report, follow the stop steps below the table. |
    | "Find a better path" | `joey_find_better_path` with the member's feedback on the path and the preference |
    | An outcome of an activation of a delivered report path | `joey_record_path_outcome` |
    | A verdict on a report path with no activation, for example "it worked" or "it did not work" | No tool writes it. Give the `reportUrl` of the item in `joey_list_feedback_queue`. The member saves the verdict on that page, and the verdict frees the slot. |
+
+   A company report stops one tracked delivered path. Use these stop steps:
+   - Ask which path when the report has more than one delivered path.
+   - Check that the path is tracked: its entry of `progress.paths` has a
+     `current` step. For a path at `PATH_FOUND`, tell the member that nothing
+     is tracked on that path yet, and do not stop it. Write `tracking` only
+     when the member asks for it.
+   - Ask why the member stops the path. Send the answer in the member's words
+     as `note`. Do not write a reason for the member.
+   - Offer `DIFFERENT_PATH` (track another delivered path) only when another
+     delivered path is not `stopped` and its `current` is not `met`. Else
+     offer only `NEW_PATH` (ask for a new path).
+   - Send the `pathKey`, the `note` and the `choice`.
 
    A familiarity rating (`joey_rate_familiarity`) frees no slot. Do not use it
    as feedback.

@@ -164,9 +164,11 @@ hook. A server prompt alone does not create a schedule.
     Here each `ASKED` step, in `progress.steps` and in `progress.paths`, also
     gives the `recipientRef` that its send proof must name. Before tracking,
     `progress` shows path 1.
-- Tell the member why the next person would listen or help from
-  `introFit.reason`. The fit gives reasons only. Never tell the member that a
-  person agreed to an introduction.
+- When a hop has an `introFit`, tell the member why the next person would
+  listen or help from `introFit.reason`. When `introFit` is null, say nothing
+  about why the next person would help, and do not invent a reason. The fit
+  gives reasons only. Never tell the member that a person agreed to an
+  introduction.
 
 ### joey_get_intro_draft
 
@@ -269,7 +271,8 @@ hook. A server prompt alone does not create a schedule.
     logoUrl}`. The fields after `name` are null for an account with no scan
     hit.
   - `mark`: `ACT_NOW`, `THIS_WEEK`, `LATER` or null. Tell the member "Act
-    now", "This week" or "Later", never an intent level. See
+    now", "This week" or "Later", never an intent level. For null, tell the
+    member that the account has no new signal yet, with no mark word. See
     [Opportunity marks](#opportunity-marks).
   - `actNow`: true when `mark` is `ACT_NOW`.
   - `newestSignalAt`: the day of the newest signal, or null.
@@ -560,17 +563,22 @@ hook. A server prompt alone does not create a schedule.
 - A stop is final for the selected record. Ask the member before the call. A
   repeat with the same action key changes nothing.
 - A company report stops one delivered path. The other paths keep their
-  progress. Before the call, ask the member these questions:
-  - Which path, when the report has more than one delivered path.
+  progress. Only a tracked path can stop: its entry of `progress.paths` has a
+  `current` step.
+- Find the selected path first. Ask which path when the report has more than
+  one delivered path. Then check that the path is tracked, before you ask for
+  the stop details.
+- For a path at `PATH_FOUND`, tell the member that nothing is tracked on that
+  path yet, and do not call the tool. Write `tracking` with
+  `joey_set_intro_progress` only when the member asks for it.
+- For a tracked path, ask the member these questions before the call:
   - Why the member stops it. Send the answer as `note`. Do not write a reason
     for the member.
-  - What to do next. `DIFFERENT_PATH` tracks another delivered path, and Joey
-    moves the stopped path to the end. It needs another delivered path that is
-    not stopped and not at `MET`. `NEW_PATH` asks Joey for a new path to the
-    target, with `note` as the feedback, as `joey_find_better_path` does.
-- Only a tracked path can stop. A path at `PATH_FOUND` needs
-  `joey_set_intro_progress` with `tracking` first. Start to track it only when
-  the member asks.
+  - What to do next. Offer `DIFFERENT_PATH` only when another delivered path
+    is not `stopped` and its `current` is not `met`. `DIFFERENT_PATH` tracks
+    that path, and Joey moves the stopped path to the end. Else offer only
+    `NEW_PATH`. `NEW_PATH` asks Joey for a new path to the target, with
+    `note` as the feedback, as `joey_find_better_path` does.
 - A report in a personal workspace and an activation take no `pathKey`, `note`
   or `choice`.
 
@@ -874,7 +882,7 @@ member a level such as "high" or "low".
 | `ACT_NOW` | "Act now" | A top signal in the last 30 days, and a path is ready. |
 | `THIS_WEEK` | "This week" | Two or more signals in the last 30 days, or one strong signal. |
 | `LATER` | "Later" | Early signs only. |
-| null | No mark | The account has no signal. |
+| null | No mark word. Say that the account has no new signal yet. | The account has no signal, for example a watched account with no signal yet. |
 
 ## Outcomes and next actions
 

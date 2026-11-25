@@ -70,10 +70,18 @@ is due displays its approved text. It performs no live data read or path action.
 5. Ask before a move to an earlier stage. If the member wants a stop, explain
    that it is final. After their yes, call `joey_stop_intro` for that record.
    An activation stop needs its revision and a new action key. A company
-   report stops one delivered path. Ask which path, why the member stops it,
-   and whether to track another delivered path (`DIFFERENT_PATH`) or ask for a
-   new path (`NEW_PATH`). Send its `pathKey`, the reason in the member's words
-   as `note`, and the `choice`. Do not write a reason for the member.
+   report stops one tracked delivered path:
+   - Ask which path when the report has more than one delivered path.
+   - Check that the path is tracked: its entry of `progress.paths` has a
+     `current` step. For a path at `PATH_FOUND`, tell the member that nothing
+     is tracked on that path yet, and do not stop it. Write `tracking` only
+     when the member asks for it.
+   - Ask why the member stops the path. Send the answer in the member's words
+     as `note`. Do not write a reason for the member.
+   - Offer `DIFFERENT_PATH` (track another delivered path) only when another
+     delivered path is not `stopped` and its `current` is not `met`. Else
+     offer only `NEW_PATH` (ask for a new path).
+   - Send the `pathKey`, the `note` and the `choice`.
 6. For a first ask, due follow-up or confirmed next hop within the member's
    goal, use `joey-activate-path` to prepare the request in this turn.
    Show the exact recipient, channel and text for approval. Use the host send
