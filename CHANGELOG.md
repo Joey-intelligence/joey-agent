@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.17.0 — 2026-11-25
+
+- `joey_list_opportunities` takes the optional `mark` (`ACT_NOW`,
+  `THIS_WEEK` or `LATER`) in place of `level`. The result is
+  `{funnel, companies, lastScanAt, nextScanAt, scanOpen}`, with no `counts`.
+  `funnel` gives the count and the reach of each level of the signal funnel.
+- `companies` has each account of the Opportunities page. Each account has
+  `mark`, `actNow`, the newest signals, `knowPeople`, `path`
+  (`{state, paths, requestId, strength}`), `watching`, `watchMode` and
+  `scan`. `path.state` is `PATH_READY`, `RESEARCH_STARTED` or `NO_PATH`. A
+  watch is separate from a follow.
+- The fields of the weekly scan (`origin`, `leadList`, `newestEvidenceAt`,
+  `summary`, `hits`, `requestId` and `path` with `FOUND`, `SEARCHING` and the
+  other kinds) move into `scan`. `scan` is null for an account with no scan
+  hit. `level` and `decayed` are gone.
+- The `joey` skill tells the member the mark as "Act now", "This week" or
+  "Later", never as an intent level. For a null `mark`, it says that the
+  account has no new signal yet. To read or activate the path of an account,
+  it uses `path.requestId` of an account with `path.state` `PATH_READY`.
+- `joey_stop_intro` takes `pathKey`, `note` and `choice` for a company
+  report. A stop ends one tracked delivered path. The skills first check
+  that the selected path is tracked. Then they ask for the reason in the
+  member's words and the choice. They offer `DIFFERENT_PATH` only when
+  another delivered path is not stopped and not at `MET`.
+- The tools reference describes server version 2.12.0. Each hop of
+  `joey_get_path_report` has `introFit` and `sharedContext`. When a hop has
+  an `introFit`, the `joey` skill tells the member why the next person would
+  help from its `reason`. It never invents a reason, and it never says that a
+  person agreed to an introduction.
+- The tools reference also adds `entry.groups`, the order of report paths,
+  and the own progress of each delivered path (`current` and `stopped` in
+  `progress.paths`). `joey_set_intro_progress` and `joey_set_intro_stage`
+  need `pathKey` when a report has more than one delivered path. The skills
+  send it.
+- `tools.json` is a new snapshot of the Joey customer MCP (server version
+  2.12.0).
+
 ## 1.16.0 — 2026-11-19
 
 - `joey_save_private_relationship` takes `people`, the graph IDs of the two

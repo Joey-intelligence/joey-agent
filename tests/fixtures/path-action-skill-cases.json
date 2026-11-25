@@ -134,8 +134,8 @@
     {
       "id": "report-progress-send",
       "member": "Yes, send that exact email to Alex.",
-      "state": "A company workspace report is at TRACKING and the member owns it. Its progress steps are tracking, reach:1 (ASKED, \"Asked Alex\"), reach:2 (\"Introduced to Dana\"), reach:3 (\"Introduced to Target\"), meeting and met. The ASKED step recipientRef equals the draft to.recipientRef. The prior assistant message has the exact Alex recipient, channel, subject and text. The host send returns SENT with a real message reference and time.",
-      "checks": ["Send the approved version without another approval question.", "Call joey_set_intro_progress with step reach:1 and matching approval and sendReceipt.", "Verify that progress.current is reach:1.", "Do not use joey_set_intro_stage for this report step."]
+      "state": "A company workspace report with one delivered path is at TRACKING and the member owns it. Its progress steps are tracking, reach:1 (ASKED, \"Asked Alex\"), reach:2 (\"Introduced to Dana\"), reach:3 (\"Introduced to Target\"), meeting and met. The ASKED step recipientRef equals the draft to.recipientRef. The prior assistant message has the exact Alex recipient, channel, subject and text. The host send returns SENT with a real message reference and time.",
+      "checks": ["Send the approved version without another approval question.", "Call joey_set_intro_progress with step reach:1 and matching approval and sendReceipt.", "Verify that the current of that path in progress.paths is reach:1.", "Do not use joey_set_intro_stage for this report step."]
     },
     {
       "id": "report-owner-change",
@@ -187,14 +187,14 @@
     },
     {
       "id": "opportunity-activation",
-      "member": "Activate the paths for my two top intent companies.",
-      "state": "A company workspace. joey_list_opportunities gives Northwind Labs with path.kind FOUND and a requestId, and Umbrella Retail with path.kind SEARCHING and a requestId. No activation exists.",
-      "checks": ["For Northwind Labs, call joey_get_path_report and joey_get_intro_tracker, then joey_prepare_activation with the requestId, then joey_get_intro_draft.", "For Umbrella Retail, report the SEARCHING state and call no intro tool.", "Send no message without an explicit yes for the exact text."]
+      "member": "Activate the paths for my two top opportunities.",
+      "state": "A company workspace. joey_list_opportunities gives Northwind Labs with mark ACT_NOW and path.state PATH_READY with a path.requestId, and Umbrella Retail with mark THIS_WEEK and path.state RESEARCH_STARTED with a null path.requestId. No activation exists.",
+      "checks": ["For Northwind Labs, call joey_get_path_report and joey_get_intro_tracker with path.requestId, then joey_prepare_activation with that requestId, then joey_get_intro_draft.", "For Umbrella Retail, report that Joey has no path yet and call no intro tool.", "Tell the member the marks as \"Act now\" and \"This week\", never as an intent level.", "Send no message without an explicit yes for the exact text."]
     },
     {
       "id": "opportunity-activation-resume",
       "member": "Continue the intro for Northwind Labs.",
-      "state": "A company workspace. joey_list_opportunities gives Northwind Labs with path.kind FOUND and a requestId. joey_get_intro_tracker has a saved activation of that report path at step 0 with its revision.",
+      "state": "A company workspace. joey_list_opportunities gives Northwind Labs with path.state PATH_READY and a path.requestId. joey_get_intro_tracker has a saved activation of that report path at step 0 with its revision.",
       "checks": ["Reuse the saved activation and its revision.", "Do not call joey_prepare_activation or create a second activation.", "Call joey_get_intro_draft with the activationId and stepIndex 0."]
     }
   ]

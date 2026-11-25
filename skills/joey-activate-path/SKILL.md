@@ -91,8 +91,9 @@ has the full rules.
 4. For a successful first request, record the send on the selected record:
    - A company report (`requestId` with `progress`): call
      `joey_set_intro_progress` with the `key` of the `ASKED` step, for example
-     "Asked David". For a path that is not the intro path, also give its
-     `pathKey` and use the `ASKED` step of that entry of `progress.paths`.
+     "Asked David". When the report has more than one delivered path, also
+     give the `pathKey` of the selected path and use the `ASKED` step of that
+     entry of `progress.paths`.
      Read that step in `joey_get_path_report`. Its
      `recipientRef` must be the draft's `to.recipientRef`. If they are not the
      same, stop and read the report again. This can occur when another member
@@ -123,14 +124,15 @@ has the full rules.
    advances step 0, not the final target. Begin the next step only after the
    preceding introduction. A scheduled meeting can set `MEETING_SET`; `MET`
    needs confirmation that the meeting occurred. A stage creates no graph edge.
-   For a company report, call `joey_set_intro_progress` with the `key` of the
-   step that the member confirms, for example "Introduced to Sarah", "Meeting
-   with Sarah booked" or "Met Sarah". These later steps need no send receipt,
+   For a company report, call `joey_set_intro_progress` with the `pathKey` of
+   the selected path and the `key` of the step that the member confirms, for
+   example "Introduced to Sarah", "Meeting with Sarah booked" or "Met Sarah".
+   These later steps need no send receipt,
    because the member can send the ask by hand. An "Introduced to" step before
    the target is not the final target.
 7. Read the tracker after a progress write. Verify the selected step and
    revision. For `joey_set_intro_progress`, the result gives the new
-   `progress.current`. `SEND_FAILED`, `SEND_RECEIPT_REQUIRED` or
+   `current` of the selected entry of `progress.paths`. `SEND_FAILED`, `SEND_RECEIPT_REQUIRED` or
    `SEND_APPROVAL_MISMATCH` means that nothing changed. If the send succeeded but the stage write failed, report both
    results and reconcile the tracker. Do not send the message again.
 8. After a successful request, propose a progress check for this step. The
@@ -141,8 +143,21 @@ has the full rules.
 9. After the member confirms an intermediate introduction, record only that
    step. Read the current tracker and prepare the next step's draft in this
    turn. Show it for a new send approval. Never skip the next person.
-10. Ask before a final stop. Use `joey_stop_intro` for the selected record only
-    after the member agrees. A stop is final. End its associated host checks.
+10. Ask before a final stop. A stop is final. End its associated host checks.
+    For an activation, use `joey_stop_intro` for the selected record only after
+    the member agrees. A company report stops one tracked delivered path. Do
+    these steps in this order, and call `joey_stop_intro` only at the last step:
+    - Check that the selected path is tracked: its entry of `progress.paths`
+      has a `current` step. For a path at `PATH_FOUND`, tell the member that
+      nothing is tracked on that path yet, and do not stop it. Write
+      `tracking` only when the member asks for it.
+    - Ask why the member stops the path. Send the answer in the member's
+      words as `note`. Do not write a reason for the member.
+    - Offer `DIFFERENT_PATH` (track another delivered path) only when another
+      delivered path is not `stopped` and its `current` is not `met`. Else
+      offer only `NEW_PATH` (ask for a new path).
+    - Get the member's yes for the stop. Then call `joey_stop_intro` with the
+      `requestId`, the `pathKey`, the `note` and the `choice`.
 
 ## Resolve an uncertain send
 

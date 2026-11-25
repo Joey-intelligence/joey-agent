@@ -66,7 +66,9 @@ has the full rules.
    member confirms. Keep an intermediate introduction separate from
    final-target progress.
 5. Write only the confirmed changes. For a company report, call
-   `joey_set_intro_progress` with the `requestId` and the step `key`. For an
+   `joey_set_intro_progress` with the `requestId` and the step `key`. When the
+   report has more than one delivered path, also give the `pathKey` of the
+   selected path, and use a step `key` of that path. For an
    activation, call `joey_set_intro_stage` with its current
    `expectedRevision`, `stepIndex`, a new UUID `idempotencyKey` and the
    member's actual `confirmation`. Reply or calendar evidence can move a
@@ -76,6 +78,8 @@ has the full rules.
    step needs the `joey-activate-path` skill. Ask before a stage moves back.
    Do not change the owner or stop an intro in this skill.
 6. Read the tracker after a write and verify the selected step and revision.
+   For `joey_set_intro_progress`, check the `current` of the selected entry
+   of `progress.paths`, not the top-level `progress.current`.
    For a company report, read the new `progress.current` in the result.
    Report successful and failed changes. After a confirmed introduction, use
    `joey-activate-path` to prepare the next step's request in this turn. For a
